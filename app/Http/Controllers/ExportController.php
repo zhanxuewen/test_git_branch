@@ -7,7 +7,7 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class ExportController extends Controller
 {
-    protected $field_phone = "INSERT (phone, 4, 4, '****') as _phone";
+    protected $field_phone;
     
     public function index()
     {
@@ -16,11 +16,13 @@ class ExportController extends Controller
     
     public function export()
     {
+        $field = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
+        $query = Input::get('query');
         Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
         Input::has('student_id') ? $params['student_id'] = Input::get('student_id', null) : null;
         Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
         Input::has('marketer_id') ? $params['marketer_id'] = Input::get('marketer_id', null) : null;
-        $query = Input::get('query');
+        $this->field_phone = $field[Input::get('field_phone')];
         isset($params) or die('没有参数');
         $pdo  = $this->getPdo();
         $rows = $pdo->query($this->buildSql($query, $params));

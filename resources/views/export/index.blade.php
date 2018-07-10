@@ -29,6 +29,12 @@
 <div class="form_box">
     <form action="{!! url('export') !!}" method="post">
         {!! csrf_field() !!}
+        <label for="field_phone">手机号格式: </label>
+        <select name="field_phone" id="field_phone">
+            <option value="0">隐藏中位</option>
+            <option value="1">全部显示</option>
+        </select>
+        <br>
         <label for="query">导出项: </label>
         <select name="query" id="query">
             <option value="school_order">学校下订单</option>
