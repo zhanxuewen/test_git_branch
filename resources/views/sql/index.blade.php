@@ -14,27 +14,27 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
     <!-- Plugin Stylesheets first to ease overrides -->
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/plugins/colorpicker/colorpicker.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/plugins/colorpicker/colorpicker.css') }}" media="screen">
 
     <!-- Required Stylesheets -->
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/bootstrap/css/bootstrap.min.css') }}" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/css/fonts/ptsans/stylesheet.css') }}" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/css/fonts/icomoon/style.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/bootstrap/css/bootstrap.min.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/css/fonts/ptsans/stylesheet.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/css/fonts/icomoon/style.css') }}" media="screen">
 
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/css/mws-style.css') }}" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/css/icons/icol16.css') }}" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/css/icons/icol32.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/css/mws-style.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/css/icons/icol16.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/css/icons/icol32.css') }}" media="screen">
 
     <!-- Demo Stylesheet -->
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/css/demo.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/css/demo.css') }}" media="screen">
 
     <!-- jQuery-UI Stylesheet -->
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/jui/css/jquery.ui.all.css') }}" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/jui/jquery-ui.custom.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/jui/css/jquery.ui.all.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/jui/jquery-ui.custom.css') }}" media="screen">
 
     <!-- Theme Stylesheet -->
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/css/mws-theme.css') }}" media="screen">
-    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/css/themer.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/css/mws-theme.css') }}" media="screen">
+    <link rel="stylesheet" type="text/css" href="{{ URL::asset('/asset/css/themer.css') }}" media="screen">
 
     <title>MWS Admin - Table</title>
 </head>

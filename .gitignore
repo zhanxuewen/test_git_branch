@@ -5,3 +5,4 @@ Homestead.json
 .env
 .env.array
 /.idea
+_ide_helper.php
