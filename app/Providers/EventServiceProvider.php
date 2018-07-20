@@ -27,9 +27,7 @@ class EventServiceProvider extends ServiceProvider
     public function boot(DispatcherContract $events)
     {
         parent::boot($events);
-    
-//        $this->app->make('App\Listeners\QueryListener')->handle($events);
-
+        
         //
     }
 }

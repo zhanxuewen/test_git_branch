@@ -15,9 +15,12 @@ class CreateSqlLogTable extends Migration
         Schema::create('sql_log', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
+            $table->string('auth');
             $table->string('type');
-            $table->text('sql');
-            $table->float('time');
+            $table->text('query');
+            $table->text('bindings');
+            $table->text('trace');
+            $table->double('time');
             $table->timestamp('created_at');
         });
     }
