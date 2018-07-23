@@ -9,6 +9,20 @@ class ExportController extends Controller
 {
     protected $field_phone;
     
+    protected $titles
+        = [
+            'id' => 'ID',
+            'name' => '名称',
+            'days' => '天数',
+            '_phone' => '手机',
+            'pay_fee' => '费用',
+            'nickname' => '昵称',
+            'created_at' => '创建',
+            'vocabulary' => '单词',
+            'fluency_level' => '熟练度',
+            'last_finish_at' => '最后完成'
+        ];
+    
     public function index()
     {
         return view('export.index');
@@ -33,7 +47,7 @@ class ExportController extends Controller
     protected function getPdo()
     {
         $env = include_once base_path().'/.env.array';
-        $db = $env['mysql'];
+        $db  = $env['mysql'];
         return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'], $db['username'], $db['password']);
     }
     
@@ -87,7 +101,8 @@ class ExportController extends Controller
     protected function getRecord($rows)
     {
         $record = [];
-        foreach ($rows as $row) {
+        foreach ($rows as $i => $row) {
+            if ($i == 0) $record[] = $this->getTitle($row);
             $data = [];
             foreach ($row as $key => $item) {
                 is_numeric($key) ? $data[] = $item : null;
@@ -95,6 +110,15 @@ class ExportController extends Controller
             $record[] = $data;
         }
         return $record;
+    }
+    
+    protected function getTitle($row)
+    {
+        $data = [];
+        foreach ($row as $key => $value) {
+            if (!is_numeric($key)) $data[] = $this->titles[$key];
+        }
+        return $data;
     }
     
     protected function exportExcel($name, $record)
