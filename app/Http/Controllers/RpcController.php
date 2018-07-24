@@ -13,28 +13,23 @@ class RpcController extends Controller
         $_count = Input::get('count', 5);
         $_sec   = Input::get('sec', 10);
         $this->setDay($_day);
-        $log = $this->getLog();
-        preg_match('/pre>(.*)<\/pre/', $log, $match);
-        $log  = $match[1];
-        $log  = preg_replace('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', '', $log);
-        $log  = preg_replace('/ \d+ /', '', $log);
-        $log  = preg_replace('/<(br)>/', '', $log);
-        $log  = preg_replace('/\[]/', '', $log);
-        $log  = str_replace('&quot;', '"', $log);
-        $_log = preg_replace('/slowLog.INFO: info {"method":"/', '', $log);
-        $log  = trim(preg_replace('/","time":\d+.\d+}/', '', $_log));
-        $logs = explode('  ', $log);
-        $res  = [];
-        foreach ($logs as $log) {
+        $log  = $this->getLog();
+        $_log = str_replace('&quot;', '"', $log);
+        preg_match_all('/(method":"[a-zA-Z_0-9]+)/', $_log, $match);
+        $res     = [];
+        $methods = [];
+        foreach ($match[1] as $log) {
+            $log       = str_replace('method":"', '', $log);
+            $methods[] = $log;
             $res[$log] = array_key_exists($log, $res) ? $res[$log] + 1 : 1;
         }
         arsort($res);
-        $log  = preg_replace('/","time"/', '', $_log);
-        $log  = trim(preg_replace('/.\d+}/', '', $log));
-        $logs = explode('  ', $log);
+        preg_match_all('/(time":\d+.\d+\})/', $_log, $match);
         $time = [];
-        foreach ($logs as $log) {
-            list($func, $sec) = explode(':', $log);
+        foreach ($match[1] as $key => $log) {
+            $func = $methods[$key];
+            preg_match('/:(\d+).\d/', $log, $sec_);
+            $sec         = $sec_[1];
             $time[$func] = array_key_exists($func, $time) ? ($time[$func] < $sec ? $sec : $time[$func]) : $sec;
         }
         arsort($time);
