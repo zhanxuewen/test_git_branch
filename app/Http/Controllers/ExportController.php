@@ -14,11 +14,14 @@ class ExportController extends Controller
             'id' => 'ID',
             'name' => '名称',
             'days' => '天数',
+            'phone' => '手机',
             '_phone' => '手机',
             'pay_fee' => '费用',
             'nickname' => '昵称',
             'created_at' => '创建',
             'vocabulary' => '单词',
+            'vanclass_id' => '班级ID',
+            'vanclass_name' => '班级名',
             'fluency_level' => '熟练度',
             'last_finish_at' => '最后完成'
         ];
@@ -96,6 +99,12 @@ class ExportController extends Controller
     {
         !isset($params['student_id']) ? die('没有 学生ID') : null;
         return "SELECT vocabulary, word_student_fluency_record.fluency_level, word_student_fluency_record.created_at FROM word_student_fluency INNER JOIN wordbank ON wordbank.id = word_student_fluency.wordbank_id INNER JOIN word_student_fluency_record ON word_student_fluency_record.student_fluency_id = word_student_fluency.id WHERE student_id = ".$params['student_id']." AND word_student_fluency.fluency_level > 0 ORDER BY word_student_fluency_record.created_at DESC";
+    }
+    
+    protected function teacher_word_homework($params)
+    {
+        !isset($params['teacher_id']) ? die('没有 教师ID') : null;
+        return "SELECT word_homework.name, word_homework.id, word_homework_student.vanclass_id, vanclass.name as vanclass_name, word_homework.created_at FROM word_homework_student INNER JOIN word_homework ON word_homework.id = word_homework_student.word_homework_id INNER JOIN vanclass ON vanclass.id = word_homework_student.vanclass_id WHERE word_homework.teacher_id = ".$params['teacher_id']." GROUP BY word_homework_student.vanclass_id, word_homework.id";
     }
     
     protected function getRecord($rows)

@@ -42,6 +42,7 @@
             <option value="teacher_student">教师下学生</option>
             <option style="background-color: #fa85aa" value="student_fluency">学生练习单词</option>
             <option style="background-color: #fa5e79" value="fluency_record">学生练习单词详情</option>
+            <option style="background-color: #fa2d43" value="teacher_word_homework">教师布置单词</option>
             <option value="school_offline">学校代交</option>
             <option value="marketer_school">市场专员下学校教师</option>
         </select>
@@ -67,6 +68,7 @@
     <p><u>教师下学生</u> 必填参数: [<b>教师 ID</b>]</p>
     <p><u>学生练习单词</u> 必填参数: [<b>学生 ID</b>]</p>
     <p><u>学生练习单词详情</u> 必填参数: [<b>学生 ID</b>]</p>
+    <p><u>教师布置单词</u> 必填参数: [<b>教师 ID</b>]</p>
     <p><u>学校代交</u> 必填参数: [<b>学校 ID</b>]</p>
     <p><u>市场专员下学校教师</u> 必填参数: [<b>市场专员 ID</b>]</p>
 </div>

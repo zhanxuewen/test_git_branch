@@ -4,6 +4,12 @@ namespace App\Helper;
 
 class Helper
 {
+    public static function vsprintf($query, $bindings)
+    {
+        $bindings = str_replace('&apos;', '\'', str_replace('&quot;', '"', self::decodeBindings($bindings)));
+        return vsprintf(str_replace("?", "'%s'", $query), self::carbonToString($bindings));
+    }
+    
     /**
      * @param mixed
      * @return mixed
@@ -34,6 +40,6 @@ class Helper
     
     public static function decodeBindings($bindings)
     {
-        return json_decode(str_replace('\_','_',$bindings));
+        return json_decode(str_replace('\_', '_', $bindings));
     }
 }

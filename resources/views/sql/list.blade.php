@@ -136,7 +136,7 @@
                     <div>
                         @if(!isset($sql->count))
                             <span style="background-color: #35d0af">{{$sql->time}}ms</span>
-                            <a href="{!! url('/newSql').'?id='.$sql->id !!}">{!! vsprintf(str_replace("?", "%s", $sql->query), str_replace('&apos;','\'', str_replace('&quot;','"',\App\Helper\Helper::carbonToString(App\Helper\Helper::decodeBindings($sql->bindings))))) !!}</a>
+                            <a href="{!! url('/newSql').'?id='.$sql->id !!}">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
                         @else
                             <span style="background-color: #35d0af">{{isset($sql->count)?$sql->count:1}}</span>
                             <a href="{!! url('/newSql').'?group='.$_group.'&'.(isset($_type)?'type='.$_type.'&':'').(isset($_auth)?'auth='.$_auth.'&':'').'query='.($sql->query) !!}">{{$sql->query}}</a>
