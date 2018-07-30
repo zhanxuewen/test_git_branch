@@ -14,7 +14,9 @@ class ExportController extends Controller
             'id' => 'ID',
             'name' => '名称',
             'days' => '天数',
+            '_name' => '名称',
             'phone' => '手机',
+            'labels' => '标签',
             '_phone' => '手机',
             'pay_fee' => '费用',
             'nickname' => '昵称',
@@ -36,6 +38,7 @@ class ExportController extends Controller
         $field = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
         $query = Input::get('query');
         Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
+        Input::has('label_ids') ? $params['label_ids'] = $this->handleIds(Input::get('label_ids', null)) : null;
         Input::has('student_id') ? $params['student_id'] = Input::get('student_id', null) : null;
         Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
         Input::has('marketer_id') ? $params['marketer_id'] = Input::get('marketer_id', null) : null;
@@ -43,7 +46,7 @@ class ExportController extends Controller
         isset($params) or die('没有参数');
         $pdo  = $this->getPdo();
         $rows = $pdo->query($this->buildSql($query, $params));
-        $name = $query.'_'.implode('_', $params);
+        $name = $query.'_'.$this->handleTableName($params);
         $this->exportExcel($name, $this->getRecord($rows));
     }
     
@@ -57,6 +60,20 @@ class ExportController extends Controller
     protected function buildSql($query, $params)
     {
         return $this->$query($params);
+    }
+    
+    protected function handleTableName($params)
+    {
+        foreach ($params as &$param) {
+            $param = substr($param, 0, 20);
+        }
+        return implode('_', $params);
+    }
+    
+    protected function handleIds($ids)
+    {
+        $array = array_unique(explode(',', $ids));
+        return implode(',', $array);
     }
     
     protected function school_order($params)
@@ -80,7 +97,7 @@ class ExportController extends Controller
     protected function school_student($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id, nickname, $this->field_phone FROM school_member INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5";
+        return "SELECT user_account.id, nickname, $this->field_phone, vanclass.`name` FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5";
     }
     
     protected function teacher_student($params)
@@ -104,7 +121,13 @@ class ExportController extends Controller
     protected function teacher_word_homework($params)
     {
         !isset($params['teacher_id']) ? die('没有 教师ID') : null;
-        return "SELECT word_homework.name, word_homework.id, word_homework_student.vanclass_id, vanclass.name as vanclass_name, word_homework.created_at FROM word_homework_student INNER JOIN word_homework ON word_homework.id = word_homework_student.word_homework_id INNER JOIN vanclass ON vanclass.id = word_homework_student.vanclass_id WHERE word_homework.teacher_id = ".$params['teacher_id']." GROUP BY word_homework_student.vanclass_id, word_homework.id";
+        return "SELECT word_homework.name, word_homework.id, word_homework_student.vanclass_id, vanclass.name as vanclass_name, group_concat(word_homework_student.label_ids) AS labels, word_homework.created_at FROM word_homework_student INNER JOIN word_homework ON word_homework.id = word_homework_student.word_homework_id INNER JOIN vanclass ON vanclass.id = word_homework_student.vanclass_id WHERE word_homework.teacher_id = ".$params['teacher_id']." GROUP BY word_homework_student.vanclass_id, word_homework.id";
+    }
+    
+    protected function get_labels($params)
+    {
+        !isset($params['label_ids']) ? die('没有 标签ID') : null;
+        return "SELECT label.id, concat_ws(' - ', label_5.`name`, label_4.`name`, label_3.`name`, label_2.`name`, label.`name`) AS _name FROM label LEFT JOIN label AS label_2 ON label.parent_id = label_2.id LEFT JOIN label AS label_3 ON label_2.parent_id = label_3.id LEFT JOIN label AS label_4 ON label_3.parent_id = label_4.id LEFT JOIN label AS label_5 ON label_4.parent_id = label_5.id WHERE label.id IN (".$params['label_ids'].") AND label.deleted_at IS NULL";
     }
     
     protected function getRecord($rows)
