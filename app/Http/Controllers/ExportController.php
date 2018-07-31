@@ -12,6 +12,7 @@ class ExportController extends Controller
     protected $titles
         = [
             'id' => 'ID',
+            '_id' => 'ID',
             'name' => '名称',
             'days' => '天数',
             '_name' => '名称',
@@ -20,8 +21,10 @@ class ExportController extends Controller
             '_phone' => '手机',
             'pay_fee' => '费用',
             'nickname' => '昵称',
+            'mark_name' => '备注名',
             'created_at' => '创建',
             'vocabulary' => '单词',
+            'joined_time' => '加入时间',
             'vanclass_id' => '班级ID',
             'vanclass_name' => '班级名',
             'fluency_level' => '熟练度',
@@ -122,6 +125,12 @@ class ExportController extends Controller
     {
         !isset($params['teacher_id']) ? die('没有 教师ID') : null;
         return "SELECT word_homework.name, word_homework.id, word_homework_student.vanclass_id, vanclass.name as vanclass_name, group_concat(word_homework_student.label_ids) AS labels, word_homework.created_at FROM word_homework_student INNER JOIN word_homework ON word_homework.id = word_homework_student.word_homework_id INNER JOIN vanclass ON vanclass.id = word_homework_student.vanclass_id WHERE word_homework.teacher_id = ".$params['teacher_id']." GROUP BY word_homework_student.vanclass_id, word_homework.id";
+    }
+    
+    protected function student_vanclass_word($params)
+    {
+        !isset($params['student_id']) ? die('没有 学生ID') : null;
+        return "SELECT vanclass.`name`, vanclass.id, mark_name, joined_time, group_concat(word_homework.`name`) AS _name, group_concat(word_homework.id) AS _id FROM vanclass_student INNER JOIN vanclass ON vanclass_student.vanclass_id = vanclass.id INNER JOIN word_homework_student ON word_homework_student.student_id = vanclass_student.student_id INNER JOIN word_homework ON word_homework.id = word_homework_student.word_homework_id WHERE vanclass_student.student_id = ".$params['student_id']." GROUP BY vanclass.id";
     }
     
     protected function get_labels($params)
