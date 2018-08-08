@@ -13,8 +13,10 @@ class ExportController extends Controller
         = [
             'id' => 'ID',
             '_id' => 'ID',
+            'sum' => '总数',
             'name' => '名称',
             'days' => '天数',
+            'count' => '数量',
             '_name' => '名称',
             'phone' => '手机',
             'labels' => '标签',
@@ -91,10 +93,21 @@ class ExportController extends Controller
         return "SELECT user_account.id, vanclass.`name`, nickname, $this->field_phone, days, pay_fee FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = ".$params['school_id']." GROUP BY order_offline.id";
     }
     
+    protected function no_pay_student($params){
+        !isset($params['school_id']) ? die('没有 学校ID') : null;
+        return "SELECT user_account.id, nickname, $this->field_phone FROM user_account INNER JOIN `user` ON `user`.id = user_account.user_id WHERE user_account.id IN (SELECT DISTINCT school_member.account_id FROM school_member LEFT JOIN `order` ON `order`.student_id = school_member.account_id LEFT JOIN order_offline ON order_offline.student_id = school_member.account_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND `order`.id IS NULL AND order_offline.id IS NULL)";
+    }
+    
     protected function marketer_school($params)
     {
         !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
         return "SELECT nickname, $this->field_phone, school.`name` FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school.marketer_id = ".$params['marketer_id']." AND school_member.account_type_id = 4 AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
+    }
+    
+    protected function marketer_order_sum($params)
+    {
+        !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
+        return "SELECT id, `name`, count(DISTINCT student_id) AS count, sum(pay_fee) AS sum FROM ((SELECT school.id, school.`name`, `order`.student_id, `order`.pay_fee FROM school INNER JOIN `order` ON `order`.school_id = school.id WHERE school.marketer_id = ".$params['marketer_id']." AND school.is_active = 1 AND `order`.pay_status LIKE '%success') UNION (SELECT school.id, school.`name`, order_offline.student_id, order_offline.pay_fee FROM school INNER JOIN order_offline ON order_offline.school_id = school.id WHERE school.marketer_id = ".$params['marketer_id']." AND school.is_active = 1)) AS record GROUP BY	id";
     }
     
     protected function school_student($params)
