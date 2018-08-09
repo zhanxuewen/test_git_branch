@@ -17,3 +17,6 @@ Route::get('rpc_slow', ['uses' => 'RpcController@slow']);
 
 Route::get('export', ['uses' => 'ExportController@index']);
 Route::post('export', ['uses' => 'ExportController@export']);
+
+Route::get('select', ['uses' => 'SelectController@select']);
+Route::get('labels', ['uses' => 'SelectController@labels']);
