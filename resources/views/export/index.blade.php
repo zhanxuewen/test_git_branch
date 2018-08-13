@@ -50,7 +50,7 @@
             <option value="marketer_school">市场专员下学校教师</option>
             <option value="marketer_order_sum">市场专员下订单汇总</option>
         </select>
-        <br>
+        <p>------------------------------------------------</p>
         <label for="school_id">学校ID</label>
         <input type="number" id="school_id" name="school_id"/>
         <br>
@@ -65,7 +65,13 @@
         <br>
         <label for="label_ids">标签IDs</label>
         <input type="text" id="label_ids" name="label_ids"/>
+        <p>------------------------------------------------</p>
+        <label for="start">开始时间</label>
+        <input type="text" id="start" name="start"/>
         <br>
+        <label for="end">结束时间</label>
+        <input type="text" id="end" name="end"/>
+        <p>------------------------------------------------</p>
         <input type="submit" value="导出">
     </form>
 </div>
@@ -77,7 +83,7 @@
     <p><u>学生练习单词详情</u> 必填参数: [<b>学生 ID</b>]</p>
     <p><u>学生班级单词</u> 必填参数: [<b>学生 ID</b>]</p>
     <p><u>教师布置单词</u> 必填参数: [<b>教师 ID</b>]</p>
-    <p><u>获取标签</u> 必填参数: [<b>标签 IDs</b>] <i>(逗号隔开:1,2,3)</i> </p>
+    <p><u>获取标签</u> 必填参数: [<b>标签 IDs</b>] <i>(逗号隔开:1,2,3)</i></p>
     <p><u>学校代交</u> 必填参数: [<b>学校 ID</b>]</p>
     <p><u>市场专员下学校教师</u> 必填参数: [<b>市场专员 ID</b>]</p>
     <p><u>市场专员下订单汇总</u> 必填参数: [<b>市场专员 ID</b>]</p>

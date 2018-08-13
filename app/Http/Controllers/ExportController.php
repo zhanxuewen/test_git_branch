@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Input;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -47,6 +48,8 @@ class ExportController extends Controller
         Input::has('student_id') ? $params['student_id'] = Input::get('student_id', null) : null;
         Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
         Input::has('marketer_id') ? $params['marketer_id'] = Input::get('marketer_id', null) : null;
+        Input::has('start') ? $params['start'] = Input::get('start', null) : null;
+        Input::has('end') ? $params['end'] = Input::get('end', null).' 23:59:59' : null;
         $this->field_phone = $field[Input::get('field_phone')];
         isset($params) or die('没有参数');
         $pdo  = $this->getPdo();
@@ -84,7 +87,7 @@ class ExportController extends Controller
     protected function school_order($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT nickname, $this->field_phone, pay_fee, vanclass.`name` FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND pay_status LIKE '%success' GROUP BY `order`.id";
+        return "SELECT nickname, $this->field_phone, pay_fee, vanclass.`name` FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND pay_status LIKE '%success' ".$this->getTime($params, 'order.created_at')." GROUP BY `order`.id";
     }
     
     protected function school_offline($params)
@@ -93,7 +96,8 @@ class ExportController extends Controller
         return "SELECT user_account.id, vanclass.`name`, nickname, $this->field_phone, days, pay_fee FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = ".$params['school_id']." GROUP BY order_offline.id";
     }
     
-    protected function no_pay_student($params){
+    protected function no_pay_student($params)
+    {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
         return "SELECT user_account.id, nickname, $this->field_phone FROM user_account INNER JOIN `user` ON `user`.id = user_account.user_id WHERE user_account.id IN (SELECT DISTINCT school_member.account_id FROM school_member LEFT JOIN `order` ON `order`.student_id = school_member.account_id LEFT JOIN order_offline ON order_offline.student_id = school_member.account_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND `order`.id IS NULL AND order_offline.id IS NULL)";
     }
@@ -150,6 +154,13 @@ class ExportController extends Controller
     {
         !isset($params['label_ids']) ? die('没有 标签ID') : null;
         return "SELECT label.id, concat_ws(' - ', label_5.`name`, label_4.`name`, label_3.`name`, label_2.`name`, label.`name`) AS _name FROM label LEFT JOIN label AS label_2 ON label.parent_id = label_2.id LEFT JOIN label AS label_3 ON label_2.parent_id = label_3.id LEFT JOIN label AS label_4 ON label_3.parent_id = label_4.id LEFT JOIN label AS label_5 ON label_4.parent_id = label_5.id WHERE label.id IN (".$params['label_ids'].") AND label.deleted_at IS NULL";
+    }
+    
+    protected function getTime($params, $column)
+    {
+        $time = isset($params['start']) ? "AND ".$column." >= '".$params['start']."' " : "";
+        $time .= isset($params['end']) ? "AND ".$column." <= '".$params['end']."' " : "";
+        return $time;
     }
     
     protected function getRecord($rows)
