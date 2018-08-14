@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use Input;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -87,7 +86,7 @@ class ExportController extends Controller
     protected function school_order($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT nickname, $this->field_phone, pay_fee, vanclass.`name` FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND pay_status LIKE '%success' ".$this->getTime($params, 'order.created_at')." GROUP BY `order`.id";
+        return "SELECT nickname, $this->field_phone, pay_fee, vanclass.`name` FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND pay_status LIKE '%success' ".$this->getTime($params, '`order`.created_at')." GROUP BY `order`.id";
     }
     
     protected function school_offline($params)

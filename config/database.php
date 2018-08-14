@@ -77,7 +77,7 @@ return [
 
         'dev' => [
             'driver'    => 'mysql',
-            'host'      => '172.17.0.16',
+            'host'      => '172.17.0.200',
             'port'      => '3306',
             'database'  => 'b_vanthink_core',
             'username'  => 'tmp',

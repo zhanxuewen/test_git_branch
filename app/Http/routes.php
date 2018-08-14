@@ -13,7 +13,7 @@
 
 Route::get('sql', ['uses' => 'SqlController@index']);
 Route::get('newSql', ['uses' => 'NewSqlController@index']);
-Route::get('rpc_slow', ['uses' => 'RpcController@slow']);
+Route::get('slow_rpc', ['uses' => 'SlowController@rpc']);
 
 Route::get('export', ['uses' => 'ExportController@index']);
 Route::post('export', ['uses' => 'ExportController@export']);

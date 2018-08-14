@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Rpc Slow</title>
+    <title>Slow Rpc</title>
 
     <link href="https://fonts.googleapis.com/css?family=Consolas:100" rel="stylesheet" type="text/css">
 
@@ -39,7 +39,7 @@
 <body>
 <div style="width: 40%">
     <ul class="option">
-        @foreach([1,3] as $day)
+        @foreach([1,3,7] as $day)
             <li @if($day == $_day) style="background-color: #ef93eb" @endif><a href="{!! url('/rpc_slow').'?day='.$day.'&count='.$_count.'&sec='.$_sec !!}">{{$day}} day</a></li>
         @endforeach
     </ul>

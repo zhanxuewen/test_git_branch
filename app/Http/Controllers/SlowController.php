@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use Input;
 
-class RpcController extends Controller
+class SlowController extends Controller
 {
-    public function slow()
+    public function rpc()
     {
         $_day   = Input::get('day', 1);
         $_count = Input::get('count', 5);
@@ -33,7 +33,7 @@ class RpcController extends Controller
             $time[$func] = array_key_exists($func, $time) ? ($time[$func] < $sec ? $sec : $time[$func]) : $sec;
         }
         arsort($time);
-        return view('rpc.index', compact('res', 'time', '_day', '_count', '_sec'));
+        return view('slow.rpc', compact('res', 'time', '_day', '_count', '_sec'));
     }
     
     protected function setDay($day = 1)
