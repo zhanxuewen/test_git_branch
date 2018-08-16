@@ -26,17 +26,7 @@
             background-color: #ef93eb;
         }
 
-        ul.auth li {
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        ul.type li {
-            display: inline-block;
-            margin-right: 10px;
-        }
-
-        ul.group li {
+        ul.param li {
             display: inline-block;
             margin-right: 10px;
         }
@@ -46,105 +36,49 @@
             margin: 1px;
         }
 
-        ul.sql > div.display > span.label {
-            display: inline-block;
-            width: 100px;
-            text-align: right;
-            margin-right: 5px;
-        }
-
-        ul.sql > div.display {
-            display: inline-block;
-        }
-
-        ul.sql > div.display > table {
-            display: inline-block;
-        }
-
     </style>
 </head>
 <body>
 <div>
-    <ul class="auth">
+    <ul class="param">
         @foreach($auth_s as $auth)
             <li @if($_auth==$auth) class="checked" @endif>
                 <a href="{!! url('/newSql').'?auth='.$auth.(isset($_type)?'&type='.$_type:'').'&group='.$_group !!}">{{$auth}}</a>
             </li>
         @endforeach
     </ul>
-</div>
-<div>
-    <ul class="type">
+    <ul class="param">
         @foreach($types as $type)
             <li @if($_type==$type) class="checked" @endif>
                 <a href="{!! url('/newSql').'?type='.$type.(isset($_auth)?'&auth='.$_auth:'').'&group='.$_group !!}">{{$type}}</a>
             </li>
         @endforeach
     </ul>
-</div>
-<div>
-    <ul class="group">
-        <li @if($_group==0) class="checked" @endif>
-            <a href="{!! url('/newSql').'?group=0'.(isset($_type)?'&type='.$_type:'').(isset($_auth)?'&auth='.$_auth:'') !!}">group : 0</a>
-        </li>
-        <li @if($_group==1) class="checked" @endif>
-            <a href="{!! url('/newSql').'?group=1'.(isset($_type)?'&type='.$_type:'').(isset($_auth)?'&auth='.$_auth:'') !!}">group : 1</a>
-        </li>
+    <ul class="param">
+        @foreach([0,1] as $group)
+            <li @if($_group==$group) class="checked" @endif>
+                <a href="{!! url('/newSql').'?group='.$group.(isset($_type)?'&type='.$_type:'').(isset($_auth)?'&auth='.$_auth:'') !!}">group : {{$group}}</a>
+            </li>
+        @endforeach
     </ul>
 </div>
 <hr>
 <div>
-
     <ul class="sql">
-        @if(isset($sql))
-            <div class="display">
-                <span class="label">Query :</span>{{$sql->query}} <br>
-                <span class="label">Time :</span>{{$sql->time}} ms <br>
-                <span class="label">Auth :</span>{{$sql->auth}} <br>
-                <span class="label">Created :</span>{{$sql->created_at}} <br>
-                <span class="label">Explain :</span>
-                <table border="1">
-                    <tr>
-                        @foreach($sql->explain[0] as $key=> $value)
-                            <th>{{$key}}</th>
-                        @endforeach
-                    </tr>
-                    @foreach($sql->explain as $rows)
-                        <tr>
-                            @foreach($rows as $key=>$value)
-                                @if($key=='rows')
-                                    <td @if (($value/$total[$rows->table])>0.05) bgcolor="#FA6B6B" @endif>
-                                        <b>{{$value}} / {{$total[$rows->table]}} ({!! round($value/$total[$rows->table]*100,2) !!}%)</b>
-                                    </td>
-                                @else
-                                    <td>{{$value}}</td>
-                                @endif
-                            @endforeach
-                        </tr>
-                    @endforeach
-                </table>
-                <br>
-                <span class="label">Trace :</span>
-                <div style="display: inline-block;">{!! dump(\App\Helper\Helper::convertQuot(json_decode($sql->trace,true))) !!}</div>
-                <br>
-            </div>
-
-        @else
-            <span>total : {{count($sql_s)}}</span>
-            @foreach($sql_s as $sql)
-                <li>
-                    <div>
-                        @if(!isset($sql->count))
-                            <span style="background-color: #35d0af">{{$sql->time}}ms</span>
-                            <a href="{!! url('/newSql').'?id='.$sql->id !!}">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
-                        @else
-                            <span style="background-color: #35d0af">{{isset($sql->count)?$sql->count:1}}</span>
-                            <a href="{!! url('/newSql').'?group='.$_group.'&'.(isset($_type)?'type='.$_type.'&':'').(isset($_auth)?'auth='.$_auth.'&':'').'query='.($sql->query) !!}">{{$sql->query}}</a>
-                        @endif
-                    </div>
-                </li>
-            @endforeach
-        @endif
+        <span>total : {{count($sql_s)}}</span>
+        @foreach($sql_s as $sql)
+            <li>
+                <div>
+                    @if(!isset($sql->count))
+                        <span style="background-color: #35d0af">{{$sql->time}}ms</span>
+                        <a href="{!! url('/query/id/'.$sql->id) !!}" target="_blank">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
+                    @else
+                        <span style="background-color: #35d0af">{{isset($sql->count)?$sql->count:1}}</span>
+                        <a href="{!! url('/query/sql').'?query='.($sql->query) !!}" target="_blank">{{$sql->query}}</a>
+                    @endif
+                </div>
+            </li>
+        @endforeach
     </ul>
 </div>
 </body>
