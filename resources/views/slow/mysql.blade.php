@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Slow Rpc</title>
+    <title>Slow MySQL</title>
 
     <link href="https://fonts.googleapis.com/css?family=Consolas:100" rel="stylesheet" type="text/css">
 
@@ -15,7 +15,6 @@
             margin: 0;
             padding: 0;
             width: 100%;
-            display: table;
             font-weight: 100;
         }
 
@@ -37,34 +36,27 @@
     </style>
 </head>
 <body>
-<div style="width: 40%">
+<div>
     <ul class="option">
         @foreach([1,3,7] as $day)
-            <li @if($day == $_day) style="background-color: #ef93eb" @endif><a href="{!! url('/slow_rpc').'?day='.$day.'&count='.$_count.'&sec='.$_sec !!}">{{$day}} day</a></li>
+            <li @if($day == $_day) style="background-color: #ef93eb" @endif><a href="{!! url('/slow_mysql').'?day='.$day.'&sec='.$_sec !!}">{{$day}}
+                    day</a></li>
         @endforeach
     </ul>
-    <span style="margin-left: 20px">[ 数量阀值:{{$_count}} 时间阀值:{{$_sec}} ]
+    <span style="margin-left: 20px">[ 时间阀值:{{$_sec}}s]
         {!! \Carbon\Carbon::now()->subDays($_day) !!} - {!! \Carbon\Carbon::now() !!}</span>
     <hr>
-    <ul>
-        <b>次数:</b>
-        @foreach($res as $k=>$v)
-            <li>
-                <div>
-                    <span class="label"
-                          style="background-color: {!! $v >= $_day * $_count ?'#FF3333':'#FFBBBB' !!}">{{$v}}</span><span>{{$k}}</span>
-                </div>
-            </li>
-        @endforeach
-    </ul>
-    <hr>
-    <ul>
+    <ul style="margin: 0 20px">
         <b>时间:</b>
-        @foreach($time as $k=>$v)
+        @foreach($times as $key=>$v)
             <li>
                 <div>
-                    <span class="label"
-                          style="background-color: {!! $v >= $_sec ?'#FF3333':'#FFBBBB' !!}">{{$v}}s</span><span>{{$k}}</span>
+                    <span class="label" style="background-color: {!! $v >= $_sec ?'#FF3333':'#FFBBBB' !!}">{{$v}}s</span>
+                    <span>{{$sql_s[$key]['sql']}}</span>
+                    <span style="background-color: {!! strstr($sql_s[$key]['user'],'online') ?'#75c3f1':'#AFF89D' !!}">
+                        {{$sql_s[$key]['user']}}</span>
+                    <span> @ {{$sql_s[$key]['host']}}</span>
+                    <span>[{{$sql_s[$key]['date']}}]</span>
                 </div>
             </li>
         @endforeach

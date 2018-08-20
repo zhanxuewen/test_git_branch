@@ -15,7 +15,9 @@ Route::get('sql', ['uses' => 'SqlController@index']);
 Route::get('newSql', ['uses' => 'NewSqlController@index']);
 Route::get('query/id/{id}', ['uses' => 'NewSqlController@queryId']);
 Route::get('query/sql', ['uses' => 'NewSqlController@querySql']);
+
 Route::get('slow_rpc', ['uses' => 'SlowController@rpc']);
+Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);
 
 Route::get('export', ['uses' => 'ExportController@index']);
 Route::post('export', ['uses' => 'ExportController@export']);
