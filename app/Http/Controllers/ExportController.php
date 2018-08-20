@@ -24,7 +24,8 @@ class ExportController extends Controller
             'pay_fee' => '费用',
             'nickname' => '昵称',
             'mark_name' => '备注名',
-            'created_at' => '创建',
+            'student_id' => '学生ID',
+            'created_at' => '创建时间',
             'vocabulary' => '单词',
             'joined_time' => '加入时间',
             'vanclass_id' => '班级ID',
@@ -40,8 +41,9 @@ class ExportController extends Controller
     
     public function export()
     {
-        $field = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
-        $query = Input::get('query');
+        $field  = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
+        $query  = Input::get('query');
+        $expire = Input::get('expire', 0);
         Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
         Input::has('label_ids') ? $params['label_ids'] = $this->handleIds(Input::get('label_ids', null)) : null;
         Input::has('student_id') ? $params['student_id'] = Input::get('student_id', null) : null;
@@ -54,7 +56,7 @@ class ExportController extends Controller
         $pdo  = $this->getPdo();
         $rows = $pdo->query($this->buildSql($query, $params));
         $name = $query.'_'.$this->handleTableName($params);
-        $this->exportExcel($name, $this->getRecord($rows));
+        $this->exportExcel($name, $this->getRecord($rows, $expire));
     }
     
     protected function getPdo()
@@ -92,7 +94,7 @@ class ExportController extends Controller
     protected function school_offline($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id, vanclass.`name`, nickname, $this->field_phone, days, pay_fee FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = ".$params['school_id']." GROUP BY order_offline.id";
+        return "SELECT user_account.id as student_id, vanclass.`name`, nickname, $this->field_phone, days, pay_fee FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = ".$params['school_id']." GROUP BY order_offline.id";
     }
     
     protected function no_pay_student($params)
@@ -116,7 +118,7 @@ class ExportController extends Controller
     protected function school_student($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id, nickname, $this->field_phone, vanclass.`name` FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5";
+        return "SELECT user_account.id, nickname, $this->field_phone, vanclass.`name`, user_account.created_at FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5";
     }
     
     protected function teacher_student($params)
@@ -162,26 +164,34 @@ class ExportController extends Controller
         return $time;
     }
     
-    protected function getRecord($rows)
+    protected function getRecord($rows, $expire = 0)
     {
         $record = [];
         foreach ($rows as $i => $row) {
-            if ($i == 0) $record[] = $this->getTitle($row);
+            if ($i == 0) $record[] = $this->getTitle($row, $expire);
             $data = [];
             foreach ($row as $key => $item) {
                 is_numeric($key) ? $data[] = $item : null;
             }
+            if ($expire == 1) $data[] = $this->appendExpire($row);
             $record[] = $data;
         }
         return $record;
     }
     
-    protected function getTitle($row)
+    protected function appendExpire($row)
+    {
+        $res = $this->request_post($row['student_id']);
+        return $res->expired_time;
+    }
+    
+    protected function getTitle($row, $expire = 0)
     {
         $data = [];
         foreach ($row as $key => $value) {
             if (!is_numeric($key)) $data[] = $this->titles[$key];
         }
+        if ($expire == 1) $data[] = '有效期';
         return $data;
     }
     
@@ -205,6 +215,24 @@ class ExportController extends Controller
         }
         $export = iconv('UTF-8', "GB2312//IGNORE", $export);
         exit($export);
+    }
+    
+    protected function request_post($id)
+    {
+        $token    = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1MzQ0ODQ5ODksImV4cCI6MTUzNTY5NDU4OSwibmJmIjoxNTM0NDg0OTg5LCJqdGkiOiJzNWN1eDlFVDg1d0Y4UXU0In0.VXcZCjnuiMvqRvrDjd4va949KRibTC_3jPl8GW-l-ro';
+        $postUrl  = 'http://api.manage.wxzxzj.com/api/user/get/expiredTime?token='.$token;
+        $curlPost = 'student_id='.$id;
+        $curl     = curl_init();  //初始化
+        curl_setopt($curl, CURLOPT_URL, $postUrl);  //设置url
+        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);  //设置http验证方法
+        curl_setopt($curl, CURLOPT_HEADER, 0);  //设置头信息
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);  //设置curl_exec获取的信息的返回方式
+        curl_setopt($curl, CURLOPT_POST, 1);  //设置发送方式为post请求
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $curlPost);  //设置post的数据
+        $data = curl_exec($curl);//运行curl
+        curl_close($curl);
+        $data = json_decode($data)->data;
+        return $data;
     }
     
 }

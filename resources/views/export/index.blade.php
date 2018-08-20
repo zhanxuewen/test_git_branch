@@ -50,6 +50,12 @@
             <option value="marketer_school">市场专员下学校教师</option>
             <option value="marketer_order_sum">市场专员下订单汇总</option>
         </select>
+        <br>
+        <label for="expire">是否附加有效期查询</label>
+        <select name="expire" id="expire">
+            <option value="0">否</option>
+            <option value="1">是</option>
+        </select>
         <p>------------------------------------------------</p>
         <label for="school_id">学校ID</label>
         <input type="number" id="school_id" name="school_id"/>
