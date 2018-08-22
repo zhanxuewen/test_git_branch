@@ -19,6 +19,8 @@ Route::get('query/sql', ['uses' => 'NewSqlController@querySql']);
 Route::get('slow_rpc', ['uses' => 'SlowController@rpc']);
 Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);
 
+Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
+
 Route::get('export', ['uses' => 'ExportController@index']);
 Route::post('export', ['uses' => 'ExportController@export']);
 

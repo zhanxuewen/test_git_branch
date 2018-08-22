@@ -61,6 +61,7 @@ class SlowController extends Controller
             if (strstr($sql, '!40001 SQL_NO_CACHE')) continue;
             list($time, $other) = explode(' User@Host: ', $other);
             list($user, $host) = explode(' @ ', $other);
+            if (strstr($host, '10.30.176.166')) continue;
             $times[] = trim($time);
             $sql     = preg_replace('/;|(<br>)/', '', trim($sql));
             $sql_s[] = ['sql' => trim($sql), 'user' => trim($user), 'host' => $host, 'date' => preg_replace('/ \d+ /', '', $match[1])];
