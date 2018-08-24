@@ -27,6 +27,7 @@ class ExportController extends Controller
             'student_id' => '学生ID',
             'created_at' => '创建时间',
             'vocabulary' => '单词',
+            'translation' => '解释',
             'joined_time' => '加入时间',
             'vanclass_id' => '班级ID',
             'vanclass_name' => '班级名',
@@ -45,6 +46,7 @@ class ExportController extends Controller
         $query  = Input::get('query');
         $expire = Input::get('expire', 0);
         Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
+        Input::has('label_id') ? $params['label_id'] = Input::get('label_id', null) : null;
         Input::has('label_ids') ? $params['label_ids'] = $this->handleIds(Input::get('label_ids', null)) : null;
         Input::has('student_id') ? $params['student_id'] = Input::get('student_id', null) : null;
         Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
@@ -118,7 +120,7 @@ class ExportController extends Controller
     protected function school_student($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id, nickname, $this->field_phone, vanclass.`name`, user_account.created_at FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5";
+        return "SELECT user_account.id as student_id, nickname, $this->field_phone, GROUP_CONCAT(vanclass.`name`) as name, user_account.created_at FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 GROUP BY student_id";
     }
     
     protected function teacher_student($params)
@@ -155,6 +157,12 @@ class ExportController extends Controller
     {
         !isset($params['label_ids']) ? die('没有 标签ID') : null;
         return "SELECT label.id, concat_ws(' - ', label_5.`name`, label_4.`name`, label_3.`name`, label_2.`name`, label.`name`) AS _name FROM label LEFT JOIN label AS label_2 ON label.parent_id = label_2.id LEFT JOIN label AS label_3 ON label_2.parent_id = label_3.id LEFT JOIN label AS label_4 ON label_3.parent_id = label_4.id LEFT JOIN label AS label_5 ON label_4.parent_id = label_5.id WHERE label.id IN (".$params['label_ids'].") AND label.deleted_at IS NULL";
+    }
+    
+    protected function label_wordbank($params)
+    {
+        !isset($params['label_id']) ? die('没有 标签ID') : null;
+        return "SELECT vocabulary, group_concat(translation separator ';') as translation FROM wordbank_translation_label INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id INNER JOIN wordbank_translation ON wordbank.id = wordbank_translation.wordbank_id WHERE label_id = ".$params['label_id']." GROUP BY wordbank.id";
     }
     
     protected function getTime($params, $column)

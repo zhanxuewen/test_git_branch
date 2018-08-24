@@ -47,6 +47,7 @@
             <option style="background-color: #fa6e5e" value="student_vanclass_word">学生班级单词</option>
             <option style="background-color: #fa2d43" value="teacher_word_homework">教师布置单词</option>
             <option style="background-color: #faa47c" value="get_labels">获取标签</option>
+            <option value="label_wordbank">标签下单词</option>
             <option value="marketer_school">市场专员下学校教师</option>
             <option value="marketer_order_sum">市场专员下订单汇总</option>
         </select>
@@ -71,6 +72,9 @@
         <br>
         <label for="label_ids">标签IDs</label>
         <input type="text" id="label_ids" name="label_ids"/>
+        <br>
+        <label for="label_id">单标签ID</label>
+        <input type="number" id="label_id" name="label_id"/>
         <p>------------------------------------------------</p>
         <label for="start">开始时间</label>
         <input type="text" id="start" name="start"/>
