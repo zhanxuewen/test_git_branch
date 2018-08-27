@@ -55,17 +55,10 @@ class ExportController extends Controller
         Input::has('end') ? $params['end'] = Input::get('end', null).' 23:59:59' : null;
         $this->field_phone = $field[Input::get('field_phone')];
         isset($params) or die('没有参数');
-        $pdo  = $this->getPdo();
+        $pdo  = $this->getPdo('online');
         $rows = $pdo->query($this->buildSql($query, $params));
         $name = $query.'_'.$this->handleTableName($params);
         $this->exportExcel($name, $this->getRecord($rows, $expire));
-    }
-    
-    protected function getPdo()
-    {
-        $env = include_once base_path().'/.env.array';
-        $db  = $env['mysql'];
-        return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'], $db['username'], $db['password']);
     }
     
     protected function buildSql($query, $params)
@@ -96,7 +89,7 @@ class ExportController extends Controller
     protected function school_offline($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id as student_id, vanclass.`name`, nickname, $this->field_phone, days, pay_fee FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = ".$params['school_id']." GROUP BY order_offline.id";
+        return "SELECT user_account.id as student_id, vanclass.`name`, nickname, $this->field_phone, days, pay_fee FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = ".$params['school_id']." ".$this->getTime($params, '`order_offline`.created_at')." GROUP BY order_offline.id";
     }
     
     protected function no_pay_student($params)
@@ -161,8 +154,9 @@ class ExportController extends Controller
     
     protected function label_wordbank($params)
     {
+        //group_concat(translation separator ';') as translation
         !isset($params['label_id']) ? die('没有 标签ID') : null;
-        return "SELECT vocabulary, group_concat(translation separator ';') as translation FROM wordbank_translation_label INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id INNER JOIN wordbank_translation ON wordbank.id = wordbank_translation.wordbank_id WHERE label_id = ".$params['label_id']." GROUP BY wordbank.id";
+        return "SELECT vocabulary FROM wordbank_translation_label INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id INNER JOIN wordbank_translation ON wordbank.id = wordbank_translation.wordbank_id WHERE label_id = ".$params['label_id']." GROUP BY wordbank.id ORDER BY wordbank_translation_label.id";
     }
     
     protected function getTime($params, $column)

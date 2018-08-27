@@ -26,3 +26,4 @@ Route::post('export', ['uses' => 'ExportController@export']);
 
 Route::get('select', ['uses' => 'SelectController@select']);
 Route::get('labels', ['uses' => 'SelectController@labels']);
+Route::get('migrations', ['uses' => 'SelectController@migration_diff']);

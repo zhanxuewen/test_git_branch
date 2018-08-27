@@ -15,6 +15,7 @@
             margin: 0;
             padding: 0;
             width: 100%;
+            height: 99%;
             font-weight: 100;
             word-break: break-all;
         }
@@ -41,7 +42,7 @@
     </form>
     <hr>
     <ul style="margin: 0 20px">
-        <span>接口: {!! count($keys) !!}</span> <span>用户: {!! count($_tokens) !!}</span>
+        <span>接口: {!! count($keys) !!}</span> <span>用户: {!! count($_tokens) !!}</span> <span style="background-color: #75e9a4">[Count: {!! count($list) !!}]</span>
         @foreach($list as $item)
             <li>
                 <div>
