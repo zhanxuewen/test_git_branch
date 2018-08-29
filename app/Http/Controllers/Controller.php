@@ -24,4 +24,19 @@ abstract class Controller extends BaseController
         $db = $this->getEnv()[$conn];
         return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'], $db['username'], $db['password']);
     }
+    
+    protected function buildSql($query, $param)
+    {
+        return $this->$query($param);
+    }
+    
+    protected function getZabbixToken()
+    {
+        return 'Cookie:zbx_sessionid=6b594637293a09024ff0c881f59d64c0';
+    }
+    
+    protected function getManageToken()
+    {
+        return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1MzQ4NDEzMzcsImV4cCI6MTUzNjA1MDkzNywibmJmIjoxNTM0ODQxMzM3LCJqdGkiOiJ4S1BIT0hoUVJ4czJOdWVxIn0.d-4WAPU1M4PlWyISQ6JkyYlrs4bmNzd39g44Xq4-i1U';
+    }
 }

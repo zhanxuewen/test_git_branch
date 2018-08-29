@@ -31,6 +31,7 @@ class ExportController extends Controller
             'joined_time' => '加入时间',
             'vanclass_id' => '班级ID',
             'vanclass_name' => '班级名',
+            'commodity_name' => '卡类型',
             'fluency_level' => '熟练度',
             'last_finish_at' => '最后完成'
         ];
@@ -61,11 +62,6 @@ class ExportController extends Controller
         $this->exportExcel($name, $this->getRecord($rows, $expire));
     }
     
-    protected function buildSql($query, $params)
-    {
-        return $this->$query($params);
-    }
-    
     protected function handleTableName($params)
     {
         foreach ($params as &$param) {
@@ -83,7 +79,7 @@ class ExportController extends Controller
     protected function school_order($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT nickname, $this->field_phone, pay_fee, vanclass.`name` FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND pay_status LIKE '%success' ".$this->getTime($params, '`order`.created_at')." GROUP BY `order`.id";
+        return "SELECT `order`.student_id, nickname, $this->field_phone, commodity_name, pay_fee, vanclass.`name` FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND pay_status LIKE '%success' ".$this->getTime($params, '`order`.created_at')." GROUP BY `order`.id";
     }
     
     protected function school_offline($params)
@@ -221,8 +217,7 @@ class ExportController extends Controller
     
     protected function request_post($id)
     {
-        $token    = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1MzQ0ODQ5ODksImV4cCI6MTUzNTY5NDU4OSwibmJmIjoxNTM0NDg0OTg5LCJqdGkiOiJzNWN1eDlFVDg1d0Y4UXU0In0.VXcZCjnuiMvqRvrDjd4va949KRibTC_3jPl8GW-l-ro';
-        $postUrl  = 'http://api.manage.wxzxzj.com/api/user/get/expiredTime?token='.$token;
+        $postUrl  = 'http://api.manage.wxzxzj.com/api/user/get/expiredTime?token='.$this->getManageToken();
         $curlPost = 'student_id='.$id;
         $curl     = curl_init();  //初始化
         curl_setopt($curl, CURLOPT_URL, $postUrl);  //设置url

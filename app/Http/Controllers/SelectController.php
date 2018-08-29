@@ -21,7 +21,7 @@ class SelectController extends Controller
         $pdo     = $this->getPdo('online');
         $queries = ['list_marketer' => '市场专员'];
         foreach ($queries as $query => $label) {
-            $rows[$label] = $this->getRecord($pdo->query($this->buildSql($query)));
+            $rows[$label] = $this->getRecord($pdo->query($this->buildSql($query, 2)));
         }
         return view('select.marketer', compact('rows'));
     }
@@ -29,7 +29,7 @@ class SelectController extends Controller
     public function labels()
     {
         $pdo    = $this->getPdo('online');
-        $labels = $pdo->query($this->buildSql('list_labels'));
+        $labels = $pdo->query($this->buildSql('list_labels', 1));
         foreach ($labels as $label) {
             $this->labels[$label['parent_id']][] = $label;
         }
@@ -66,19 +66,14 @@ class SelectController extends Controller
         echo "</ol>";
     }
     
-    protected function buildSql($query)
+    protected function list_marketer($role_id)
     {
-        return $this->$query();
+        return "SELECT nickname, user_account.id FROM system_account_role INNER JOIN user_account ON user_account.id = system_account_role.account_id WHERE role_id = ".$role_id;
     }
     
-    protected function list_marketer()
+    protected function list_labels($type_id)
     {
-        return "SELECT nickname, user_account.id FROM system_account_role INNER JOIN user_account ON user_account.id = system_account_role.account_id WHERE role_id = 2";
-    }
-    
-    protected function list_labels()
-    {
-        return "SELECT * FROM label WHERE label_type_id = 1 AND deleted_at IS NULL ORDER BY power DESC";
+        return "SELECT * FROM label WHERE label_type_id = ".$type_id." AND deleted_at IS NULL ORDER BY power DESC";
     }
     
     protected function getRecord($rows)
