@@ -41,6 +41,15 @@ $app->singleton(
     App\Exceptions\Handler::class
 );
 
+$app->singleton('.env.array', function () {
+    return include_once base_path().'/.env.array';
+});
+
+$app->singleton('online_pdo', function (){
+    $db = app('.env.array')['online'];
+    return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'], $db['username'], $db['password']);
+});
+
 /*
 |--------------------------------------------------------------------------
 | Return The Application

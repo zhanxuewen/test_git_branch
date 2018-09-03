@@ -15,17 +15,23 @@ class SelectController extends Controller
             5 => 'V',
         ];
     
-    public function select()
+    /**
+     * List Marketer
+     */
+    public function marketer()
     {
-        $rows    = [];
         $pdo     = $this->getPdo('online');
         $queries = ['list_marketer' => '市场专员'];
+        $rows    = [];
         foreach ($queries as $query => $label) {
             $rows[$label] = $this->getRecord($pdo->query($this->buildSql($query, 2)));
         }
         return view('select.marketer', compact('rows'));
     }
     
+    /**
+     * List Label Tree
+     */
     public function labels()
     {
         $pdo    = $this->getPdo('online');
@@ -35,24 +41,6 @@ class SelectController extends Controller
         }
         echo "Root";
         $this->getTree(0);
-    }
-    
-    public function migration_diff()
-    {
-        $query = "SELECT migration FROM migrations";
-        foreach (['dev', 'test', 'online'] as $env) {
-            $$env = $this->resultToArray($this->getPdo($env)->query($query));
-        }
-        return view('select.diff', compact('dev', 'test', 'online'));
-    }
-    
-    protected function resultToArray($result)
-    {
-        $array = [];
-        foreach ($result as $item) {
-            $array[] = $item[0];
-        }
-        return $array;
     }
     
     protected function getTree($p_id)

@@ -13,15 +13,25 @@ abstract class Controller extends BaseController
     
     protected $env = [];
     
-    protected function getEnv()
+    private function getEnv()
     {
         if (empty($this->env)) $this->env = include_once base_path().'/.env.array';
         return $this->env;
     }
     
+    protected function getConf($conn)
+    {
+        return $this->getEnv()[$conn];
+    }
+    
+    protected function getDbName($conn)
+    {
+        return $this->getConf($conn)['database'];
+    }
+    
     protected function getPdo($conn)
     {
-        $db = $this->getEnv()[$conn];
+        $db = $this->getConf($conn);
         return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'], $db['username'], $db['password']);
     }
     

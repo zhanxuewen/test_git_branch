@@ -15,6 +15,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\Inspire::class,
         Commands\Example::class,
+    
+        Commands\Summary\ExportSchoolSummary::class,
     ];
 
     /**

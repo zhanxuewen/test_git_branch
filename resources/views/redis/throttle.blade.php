@@ -41,24 +41,30 @@
         <input type="submit">
     </form>
     <hr>
-    <ul style="margin: 0 20px">
-        <span>接口: {!! count($keys) !!}</span> <span>用户: {!! count($_tokens) !!}</span> <span style="background-color: #75e9a4">[Total: {!! count($list) !!}]</span>
+    <div style="margin-left: 50px"><span>接口: {{count($keys)}} 用户: {{count($_tokens)}}</span><span style="background-color: #75e9a4">[Total: {{ count($list)}}]</span></div>
+
+    <table border="1" style="margin-left: 100px; margin-top: 20px">
+        <tr>
+            <th>方法</th>
+            <th>Uri</th>
+            <th>标识</th>
+            <th>次数</th>
+            <th>昵称</th>
+            <th>身份</th>
+            <th>学校</th>
+        </tr>
         @foreach($list as $item)
-            <li>
-                <div>
-                    <span style="background-color: #FFBBBB">{{$item['method']}}|{{$item['uri']}}</span>
-                    <b>{{$item['token']}}</b>
-                    @if(isset($accounts[$item['token']]))
-                        <span style="background-color: #b6e5f5">
-                            [{{$accounts[$item['token']]['nickname']}}]
-                            身份: [{{$accounts[$item['token']]['user_type_id']}}]
-                            学校: [{{$accounts[$item['token']]['school_id']}}]</span>
-                    @endif
-                    <b style="background-color: #91f5a7">{{$item['count']}}</b>
-                </div>
-            </li>
+            <tr>
+                <td>{{$item['method']}}</td>
+                <td style="background-color: #f5d281">{{$item['uri']}}</td>
+                <td>{{$item['token']}}</td>
+                <td>{{$item['count']}}</td>
+                @if(isset($accounts[$item['token']]))
+                    {!! \App\Helper\Helper::displayAccount($accounts[$item['token']]) !!}
+                @endif
+            </tr>
         @endforeach
-    </ul>
+    </table>
 </div>
 </body>
 </html>

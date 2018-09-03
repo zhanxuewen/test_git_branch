@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Routes</title>
+    <title>Home Page</title>
 
     <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
 
@@ -32,7 +32,9 @@
     <br>
     <p><a href="{{url('select')}}">Marketer</a></p>
     <p><a href="{{url('labels')}}">Labels</a></p>
+    <br>
     <p><a href="{{url('migrations')}}">Migration Diff</a></p>
+    <p><a href="{{url('table_correct')}}">Table Correct</a></p>
     <br>
     <p><a href="{{url('redis_throttle')}}">Throttle</a></p>
     <br>
@@ -40,7 +42,6 @@
     <p><a href="{{url('slow_rpc')}}">Slow Rpc</a></p>
     <br>
     <p><a href="{{url('newSql')}}">New Sql</a></p>
-    <p><a href="{{url('sql')}}">Old Sql</a></p>
 </div>
 </body>
 </html>
