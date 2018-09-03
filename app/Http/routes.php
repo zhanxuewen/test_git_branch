@@ -1,7 +1,7 @@
 <?php
 
-Route::get('routes', function () {
-    return view('routes');
+Route::get('/', function () {
+    return view('index');
 });
 
 Route::get('sql', ['uses' => 'SqlController@index']);
@@ -17,6 +17,8 @@ Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 Route::get('export', ['uses' => 'ExportController@index']);
 Route::post('export', ['uses' => 'ExportController@export']);
 
-Route::get('select', ['uses' => 'SelectController@select']);
+Route::get('select', ['uses' => 'SelectController@marketer']);
 Route::get('labels', ['uses' => 'SelectController@labels']);
-Route::get('migrations', ['uses' => 'SelectController@migration_diff']);
+
+Route::get('migrations', ['uses' => 'DatabaseController@migration_diff']);
+Route::get('table_correct', ['uses' => 'DatabaseController@table_correct']);
