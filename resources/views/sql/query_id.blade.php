@@ -1,52 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Sql Analyze Query Id</title>
+@extends('frame.body')
+@section('title','Sql Analyze Query Id')
 
-    <link href="https://fonts.googleapis.com/css?family=Lato:100" rel="stylesheet" type="text/css">
-
-    <style>
-        html, body {
-            height: 100%;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            display: table;
-            font-weight: 100;
-        }
-
-        div.display {
-            display: inline-block;
-            margin: 50px;
-        }
-
-        table.label tr th {
-            text-align: right;
-        }
-
-    </style>
-</head>
-<body>
-<div>
-    <div class="display">
-        <table class="label">
+@section('section')
+    <div id="scroll">
+        <table>
             <tr>
-                <th>Query</th>
+                <th class="t-right">Query</th>
                 <td>{{$sql->query}}</td>
             </tr>
             <tr>
-                <th>Time</th>
+                <th class="t-right">Time</th>
                 <td>{{$sql->time}} ms</td>
             </tr>
             <tr>
-                <th>Auth</th>
+                <th class="t-right">Auth</th>
                 <td>{{$sql->auth}}</td>
             </tr>
             <tr>
-                <th>Created</th>
+                <th class="t-right">Created</th>
                 <td>{{$sql->created_at}}</td>
             </tr>
         </table>
@@ -75,6 +46,4 @@
         <div>{!! dump($sql->trace) !!}</div>
         <br>
     </div>
-</div>
-</body>
-</html>
+@endsection

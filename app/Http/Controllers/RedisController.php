@@ -10,8 +10,11 @@ class RedisController extends Controller
 {
     public function throttle()
     {
-        $date    = Input::get('date', date('Y-m-d'));
-        $data    = Redis::get('throttle_record_'.Carbon::parse($date)->format('Ymd'));
+        $date  = Input::get('date', date('Y-m-d'));
+        $_date = Carbon::parse($date);
+        $op    = Input::get('op', null);
+        !is_null($op) ? $_date = $_date->$op() : null;
+        $data    = Redis::get('throttle_record_'.$_date->format('Ymd'));
         $list    = json_decode($data);
         $keys    = [];
         $_tokens = [];

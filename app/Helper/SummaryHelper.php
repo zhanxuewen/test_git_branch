@@ -42,6 +42,12 @@ class SummaryHelper
         return $this->queryToArray($list, 'value');
     }
     
+    public function getPopExpire()
+    {
+        $list = \DB::setPdo(app('online_pdo'))->table('school_popularize_data')->selectRaw('school_id, value')->where('key', 'improve_card_expired_at')->get();
+        return $this->queryToArray($list, 'value');
+    }
+    
     public function getParts()
     {
         $league = \DB::setPdo(app('online_pdo'))->table('school_league')->selectRaw("DISTINCT school_member.school_id, (CASE leader_school_id WHEN 1579 THEN 'X' WHEN 3043 THEN 'L' END) AS title")->join('school_member', 'school_league.principal_id', '=', 'school_member.account_id')->join('school', 'school.id', '=', 'school_member.school_id')->whereIn('school_league.leader_school_id', [1579])->where('school.is_active', 1)->where('school.created_at', '>', '2018-01-01')->get();
@@ -98,6 +104,18 @@ class SummaryHelper
             $query->where('statistic_student_activity.has_login', 1)
                 ->orWhere('statistic_student_activity.has_spread_record', 1);
         })->where('school_member.joined_time', '<=', $between['end'])->where('school_member.account_type_id', 5)->groupBy('school_member.school_id')->get();
+        return $this->queryToArray($list, 'count');
+    }
+    
+    public function getSchoolTrail($end)
+    {
+        $list = \DB::setPdo(app('online_pdo'))->table('school_member')->join('statistic_student_expire', 'school_member.account_id', '=', 'statistic_student_expire.student_id')->selectRaw('school_member.school_id, count(distinct statistic_student_expire.student_id) as count')->where('free_end_at', '>', $end)->where('school_member.account_type_id', 5)->groupBy('school_member.school_id')->get();
+        return $this->queryToArray($list, 'count');
+    }
+    
+    public function getSchoolEffect($end)
+    {
+        $list = \DB::setPdo(app('online_pdo'))->table('school_member')->join('statistic_student_expire', 'school_member.account_id', '=', 'statistic_student_expire.student_id')->selectRaw('school_member.school_id, count(distinct statistic_student_expire.student_id) as count')->where('expired_at', '>', $end)->where('school_member.account_type_id', 5)->groupBy('school_member.school_id')->get();
         return $this->queryToArray($list, 'count');
     }
     

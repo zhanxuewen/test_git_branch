@@ -4,17 +4,6 @@ namespace App\Http\Controllers;
 
 class SelectController extends Controller
 {
-    protected $labels;
-    
-    protected $level
-        = [
-            1 => 'I',
-            2 => 'II',
-            3 => 'III',
-            4 => 'IV',
-            5 => 'V',
-        ];
-    
     /**
      * List Marketer
      */
@@ -34,24 +23,13 @@ class SelectController extends Controller
      */
     public function labels()
     {
-        $pdo    = $this->getPdo('online');
-        $labels = $pdo->query($this->buildSql('list_labels', 1));
-        foreach ($labels as $label) {
-            $this->labels[$label['parent_id']][] = $label;
+        $pdo     = $this->getPdo('online');
+        $_labels = $pdo->query($this->buildSql('list_labels', 1));
+        $labels  = [];
+        foreach ($_labels as $label) {
+            $labels[$label['parent_id']][] = $label;
         }
-        echo "Root";
-        $this->getTree(0);
-    }
-    
-    protected function getTree($p_id)
-    {
-        echo "<ol>";
-        foreach ($this->labels[$p_id] as $label) {
-            echo "<li> <".$label['id'].'> '.$label['name'].' [ '.$this->level[$label['level']].' ]';
-            if (isset($this->labels[$label['id']])) $this->getTree($label['id']);
-            echo "</li>";
-        }
-        echo "</ol>";
+        return view('select.label', compact('labels'));
     }
     
     protected function list_marketer($role_id)
@@ -67,7 +45,7 @@ class SelectController extends Controller
     protected function getRecord($rows)
     {
         $record = [];
-        foreach ($rows as $i => $row) {
+        foreach ($rows as $row) {
             $data = [];
             foreach ($row as $key => $item) {
                 is_numeric($key) ? $data[] = $item : null;

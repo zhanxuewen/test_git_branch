@@ -47,6 +47,6 @@ abstract class Controller extends BaseController
     
     protected function getManageToken()
     {
-        return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1MzQ4NDEzMzcsImV4cCI6MTUzNjA1MDkzNywibmJmIjoxNTM0ODQxMzM3LCJqdGkiOiJ4S1BIT0hoUVJ4czJOdWVxIn0.d-4WAPU1M4PlWyISQ6JkyYlrs4bmNzd39g44Xq4-i1U';
+        return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1MzYxNTE0NDUsImV4cCI6MTUzNzM2MTA0NSwibmJmIjoxNTM2MTUxNDQ1LCJqdGkiOiJoYWwyNWdSVXRYcnZNMnVyIn0.JU-mq63ncFcg4nz_1HJYAI8zobOb32yOGeeDaDPYcs0';
     }
 }

@@ -1,0 +1,85 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-weight: 100;
+}
+
+ul {
+  list-style: none;
+}
+
+#sidebar {
+  background-color: #eeeeee;
+  height: 100%;
+  width: 250px;
+  float: left;
+  padding: 10px;
+}
+
+#section {
+  float: left;
+  height: 100%;
+  overflow-y: auto;
+  padding: 10px;
+  width: calc(100% - 250px);
+}
+
+#routes li a {
+  margin-left: 20px;
+}
+
+ul.list li {
+  border: #888888 1px solid;
+  margin: 1px;
+}
+
+ul.option li {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+ul.list span.label {
+  background-color: #FFBBBB;
+}
+
+.checked {
+  background-color: #ef93eb;
+}
+
+.green-bg {
+  background-color: #35d0af
+}
+
+.t-right {
+  text-align: right;
+}
+
+/* Pagination Css */
+ul.pagination li {
+  display: inline-block;
+  transition: background-color .5s;
+  border: 1px solid #ddd;
+}
+
+ul.pagination li a, ul.pagination li span {
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+}
+
+ul.pagination li.active {
+  background-color: #4CAF50;
+}
+
+ul.pagination li:hover:not(.active) {
+  background-color: #ddd;
+}

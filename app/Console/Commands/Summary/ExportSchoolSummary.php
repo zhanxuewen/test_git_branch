@@ -71,17 +71,20 @@ class ExportSchoolSummary extends Command
     {
         $this->info('Get Activity');
         $between  = ['start' => $start, 'end' => $end];
+        $pop      = $this->helper->getPopExpire();
         $tea_cou  = $this->helper->getSchoolTeacher();
         $tea_new  = $this->helper->getSchoolNewTeacher($between);
         $tea_act  = $this->helper->getSchoolActTeacher($between);
         $stu_cou  = $this->helper->getSchoolStudent();
         $stu_new  = $this->helper->getSchoolNewStudent($between);
         $stu_act  = $this->helper->getSchoolActStudent($between);
+        $stu_try  = $this->helper->getSchoolTrail($end);
+        $stu_eff  = $this->helper->getSchoolEffect($end);
         $star     = $this->helper->getSchoolStar($between);
         $score    = $this->helper->getSchoolScore($between);
         $schools  = \DB::setPdo(app('online_pdo'))->table('school')->where('is_active', 1)->get();
         $report   = [];
-        $report[] = ['学校ID', '合同档', '学校名称', '市场专员', '省', '市', '区县', '签约日期', '加盟校', '教师数', '新增教师', '活跃教师', '学生数', '新增学生', '活跃学生', '本月星星', '本月积分'];
+        $report[] = ['学校ID', '合同档', '学校名称', '学校试用期', '市场专员', '省', '市', '区县', '签约日期', '加盟校', '教师数', '新增教师', '活跃教师', '学生数', '新增学生', '活跃学生', '有效期内学生数', '试用期内学生数', '本月星星', '本月积分'];
         $this->output->progressStart(count($schools));
         foreach ($schools as $school) {
             $s_id     = $school->id;
@@ -90,6 +93,7 @@ class ExportSchoolSummary extends Command
                 'id' => $s_id,
                 'title' => isset($this->cont_s[$s_id]) ? $this->cont_s[$s_id] : null,
                 'name' => $school->name,
+                'pop' => isset($pop[$s_id]) ? $pop[$s_id] : null,
                 'marketer' => $school->marketer_id == 0 ? null : $this->marketers[$school->marketer_id],
                 'shn' => isset($region[0]) ? $region[0] : null,
                 'shi' => isset($region[1]) ? $region[1] : null,
@@ -102,6 +106,8 @@ class ExportSchoolSummary extends Command
                 's_cou' => isset($stu_cou[$s_id]) ? $stu_cou[$s_id] : 0,
                 's_new' => isset($stu_new[$s_id]) ? $stu_new[$s_id] : 0,
                 's_act' => isset($stu_act[$s_id]) ? $stu_act[$s_id] : 0,
+                's_eff' => isset($stu_eff[$s_id]) ? $stu_eff[$s_id] : 0,
+                's_try' => isset($stu_try[$s_id]) ? $stu_try[$s_id] : 0,
                 'star' => isset($star[$s_id]) ? $star[$s_id] : 0,
                 'score' => isset($score[$s_id]) ? $score[$s_id] : 0,
             ];

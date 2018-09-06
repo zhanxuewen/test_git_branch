@@ -1,13 +1,12 @@
 <?php
 
 Route::get('/', function () {
-    return view('index');
+    return view('frame.homepage');
 });
 
-Route::get('sql', ['uses' => 'SqlController@index']);
-Route::get('newSql', ['uses' => 'NewSqlController@index']);
-Route::get('query/id/{id}', ['uses' => 'NewSqlController@queryId']);
-Route::get('query/sql', ['uses' => 'NewSqlController@querySql']);
+Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']);
+Route::get('query/id/{id}', ['uses' => 'SqlController@queryId']);
+Route::get('query/sql', ['uses' => 'SqlController@querySql']);
 
 Route::get('slow_rpc', ['uses' => 'SlowController@rpc']);
 Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);

@@ -42,13 +42,4 @@ class Helper
     {
         return json_decode(str_replace('\_', '_', $bindings));
     }
-    
-    /**
-     * @param array $account
-     * @return string
-     */
-    public static function displayAccount($account)
-    {
-        return "<td>{$account['nickname']}</td><td>{$account['user_type_id']}</td><td>{$account['school_id']}</td>";
-    }
 }

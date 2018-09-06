@@ -13,7 +13,7 @@ class DatabaseController extends Controller
         foreach (['dev', 'test', 'online'] as $env) {
             $$env = $this->resultToArray($this->getPdo($env)->query($query));
         }
-        return view('select.diff', compact('dev', 'test', 'online'));
+        return view('database.diff', compact('dev', 'test', 'online'));
     }
     
     public function table_correct()
