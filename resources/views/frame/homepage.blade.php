@@ -12,14 +12,14 @@
         <form action="{{url('login')}}" method="post">
             {!! csrf_field() !!}
             <label for="username">Username</label>
-            <input type="text" name="username" id="username">
+            <input type="text" name="username" id="username" required="required">
             <input type="submit" value="Sign In">
         </form>
         <p><b>Or</b></p>
         <form action="{{url('register')}}" method="post">
             {!! csrf_field() !!}
             <label for="username">Username</label>
-            <input type="text" name="username" id="username">
+            <input type="text" name="username" id="username" required="required">
             <input type="submit" value="Sign Up">
         </form>
     @endif

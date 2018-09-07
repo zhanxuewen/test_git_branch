@@ -45,7 +45,7 @@ class LoginController extends Controller
     protected function getUsers()
     {
         $users = $this->getFile(self::USER_FILE);
-        return explode("\n", $users);
+        return array_filter(explode("\n", $users));
     }
     
     protected function appendUserFile($user)
