@@ -43,6 +43,8 @@ class ExportController extends Controller
     
     public function export()
     {
+        if (!session('login_user'))
+            return redirect()->route('homepage')->with('message', 'Permission Denied, Please Sign In!');
         $field  = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
         $query  = Input::get('query');
         $expire = Input::get('expire', 0);
@@ -195,6 +197,8 @@ class ExportController extends Controller
     
     protected function exportExcel($name, $record)
     {
+        $content = session('login_user').' @ '.date('Y-m-d H:i:s').' => '.$name;
+        $this->appendContent('export_record.log', $content);
         Excel::create($name, function ($Excel) use ($record) {
             $Excel->sheet('table', function ($sheet) use ($record) {
                 $sheet->rows($record);

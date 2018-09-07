@@ -1,8 +1,9 @@
 <?php
 
-Route::get('/', function () {
-    return view('frame.homepage');
-});
+Route::get('/', ['as' => 'homepage', 'uses' => 'LoginController@index']);
+Route::post('login', ['uses' => 'LoginController@login']);
+Route::post('register', ['uses' => 'LoginController@register']);
+Route::get('logout', ['uses' => 'LoginController@logout']);
 
 Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']);
 Route::get('query/id/{id}', ['uses' => 'SqlController@queryId']);

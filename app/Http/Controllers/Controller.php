@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Predis\Client;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -22,6 +24,34 @@ abstract class Controller extends BaseController
     protected function getConf($conn)
     {
         return $this->getEnv()[$conn];
+    }
+    
+    protected function getRedis($conn)
+    {
+        $conf = $this->getEnv()['redis'][$conn];
+        return new Client($conf);
+    }
+    
+    protected function getStorage()
+    {
+        return Storage::disk('local');
+    }
+    
+    protected function checkFile($file)
+    {
+        $storage = $this->getStorage();
+        if (!$storage->exists($file)) $storage->put($file, '');
+        return $storage;
+    }
+    
+    protected function getFile($file)
+    {
+        return $this->checkFile($file)->get($file);
+    }
+    
+    protected function appendContent($file, $content)
+    {
+        return $this->checkFile($file)->append($file, $content);
     }
     
     protected function getDbName($conn)
@@ -49,4 +79,10 @@ abstract class Controller extends BaseController
     {
         return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1MzYxNTE0NDUsImV4cCI6MTUzNzM2MTA0NSwibmJmIjoxNTM2MTUxNDQ1LCJqdGkiOiJoYWwyNWdSVXRYcnZNMnVyIn0.JU-mq63ncFcg4nz_1HJYAI8zobOb32yOGeeDaDPYcs0';
     }
+    
+    protected function response($code, $message = '')
+    {
+        return ['code' => $code, 'message' => $message];
+    }
+    
 }
