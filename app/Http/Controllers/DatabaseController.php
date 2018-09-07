@@ -9,9 +9,8 @@ class DatabaseController extends Controller
      */
     public function migration_diff()
     {
-        $query = "SELECT migration FROM migrations";
         foreach (['dev', 'test', 'online'] as $env) {
-            $$env = $this->resultToArray($this->getPdo($env)->query($query));
+            $$env = $this->resultToArray($this->getPdo($env)->query($this->buildSql('list_migrations', null)));
         }
         return view('database.diff', compact('dev', 'test', 'online'));
     }

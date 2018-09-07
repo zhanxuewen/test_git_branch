@@ -33,7 +33,7 @@ class RedisController extends Controller
             }
         }
         $pdo      = $this->getPdo('online');
-        $accounts = $this->fetchRows($pdo->query($this->buildSql('list_accounts', $ids)), true);
+        $accounts = $this->fetchRows($pdo->query($this->buildSql('list_accounts', $ids)));
         return view('redis.throttle', compact('keys', '_tokens', 'accounts', 'list', 'date'));
     }
     
@@ -45,6 +45,7 @@ class RedisController extends Controller
     protected function fetchRows($rows)
     {
         $record = [];
+        if (empty($rows)) return $record;
         foreach ($rows as $row) {
             $data = [];
             foreach ($row as $key => $item) {
