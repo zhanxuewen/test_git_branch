@@ -25,8 +25,7 @@ class SqlController extends Controller
     public function querySql()
     {
         $query = Input::get('query');
-        $sql_s = DB::table('sql_log')->where('query', $query)->orderBy('time', 'desc')->limit(30)->get();
-        
+        $sql_s = DB::table('sql_log')->where('query', $query)->orderBy('time', 'desc')->paginate(30);
         return view('sql.query_sql', compact('sql_s'));
     }
     

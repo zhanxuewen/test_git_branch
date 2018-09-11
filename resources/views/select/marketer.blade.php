@@ -2,16 +2,19 @@
 @section('title','Marketer')
 
 @section('section')
-    @foreach($rows as $query =>$row)
-        <p>{{$query}}</p>
-        <table border="1px">
-            @for($i = 0; $i< count($row[0]);$i++)
-                <tr>
-                    @foreach($row as $value)
-                        <td>{{$value[$i]}}</td>
-                    @endforeach
-                </tr>
-            @endfor
-        </table>
-    @endforeach
+    <table class="table table-bordered table-hover">
+        <caption>市场专员</caption>
+        <tr>
+            <th>ID</th>
+            <th>昵称</th>
+            <th>手机号</th>
+        </tr>
+        @foreach($marketers as $marketer)
+            <tr>
+                <td>{{$marketer['id']}}</td>
+                <td>{{$marketer['nickname']}}</td>
+                <td>{{$marketer['phone']}}</td>
+            </tr>
+        @endforeach
+    </table>
 @endsection

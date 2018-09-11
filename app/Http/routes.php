@@ -17,6 +17,8 @@ Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 Route::get('export', ['uses' => 'ExportController@index']);
 Route::post('export', ['uses' => 'ExportController@export']);
 
+Route::get('logs', ['uses' => 'LogController@logs']);
+
 Route::get('select', ['uses' => 'SelectController@marketer']);
 Route::get('labels', ['uses' => 'SelectController@labels']);
 

@@ -1,0 +1,56 @@
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  font-weight: 100;
+}
+
+.box {
+  padding: 10px;
+  margin: auto 0;
+}
+
+#routes li a {
+  margin-left: 20px;
+}
+
+span.s_user {
+  font-size: 30px;
+}
+
+span.s_success {
+  background-color: #2ab27b;
+}
+
+span.s_error {
+  background-color: #f46c23;
+}
+
+ul.list li {
+  border: #888888 1px solid;
+  margin: 1px;
+}
+
+ul.list span.label {
+  background-color: #FFBBBB;
+}
+
+.checked {
+  background-color: #ef93eb;
+}
+
+.green-bg {
+  background-color: #35d0af
+}
+
+.t-right {
+  text-align: right;
+}

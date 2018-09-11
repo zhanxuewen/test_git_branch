@@ -2,17 +2,19 @@
 @section('title','Sql Analyze Query Sql')
 
 @section('section')
-    <div id="scroll">
-        <ul class="list">
-            <span>total : {{count($sql_s)}}</span>
+    <div class="col-xs-12">
+        <nav aria-label="Page navigation">{!! $sql_s->render() !!}</nav>
+        <table class="table table-bordered table-hover">
+            <caption>total : {{count($sql_s)}}</caption>
             @foreach($sql_s as $sql)
-                <li>
-                    <div>
-                        <span class="green-bg">{{$sql->time}}ms</span>
-                        <a href="{!! url('/query/id/'.$sql->id) !!}" target="_blank">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
-                    </div>
-                </li>
+                <tr>
+                    <td>
+                        <span class="label @if($sql->time >= 1000) bg-red @else bg-gray @endif">{{$sql->time}}ms</span>
+                        <a href="{!! url('/query/id/'.$sql->id) !!}" target="_blank">
+                            {!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
+                    </td>
+                </tr>
             @endforeach
-        </ul>
+        </table>
     </div>
 @endsection

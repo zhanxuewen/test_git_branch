@@ -10,11 +10,10 @@ class RedisController extends Controller
 {
     public function throttle()
     {
-        $date  = Input::get('date', date('Y-m-d'));
-        $_date = Carbon::parse($date);
-        $op    = Input::get('op', null);
-        !is_null($op) ? $_date = $_date->$op() : null;
-        $data    = Redis::get('throttle_record_'.$_date->format('Ymd'));
+        $date = Carbon::parse(Input::get('date', date('Y-m-d')));
+        $op   = Input::get('op', null);
+        !is_null($op) ? $date = $date->$op() : null;
+        $data    = Redis::get('throttle_record_'.$date->format('Ymd'));
         $list    = json_decode($data);
         $keys    = [];
         $_tokens = [];
@@ -34,6 +33,7 @@ class RedisController extends Controller
         }
         $pdo      = $this->getPdo('online');
         $accounts = $this->fetchRows($pdo->query($this->buildSql('list_accounts', $ids)));
+        $date     = $date->toDateString();
         return view('redis.throttle', compact('keys', '_tokens', 'accounts', 'list', 'date'));
     }
     

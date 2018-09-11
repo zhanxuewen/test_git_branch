@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Input;
+
 class SelectController extends Controller
 {
     /**
@@ -9,13 +11,9 @@ class SelectController extends Controller
      */
     public function marketer()
     {
-        $pdo     = $this->getPdo('online');
-        $queries = ['list_marketer' => '市场专员'];
-        $rows    = [];
-        foreach ($queries as $query => $label) {
-            $rows[$label] = $this->getRecord($pdo->query($this->buildSql($query, 2)));
-        }
-        return view('select.marketer', compact('rows'));
+        $pdo       = $this->getPdo('online');
+        $marketers = $this->getRecord($pdo->query($this->buildSql('list_marketer', 2)));
+        return view('select.marketer', compact('marketers'));
     }
     
     /**
@@ -32,9 +30,14 @@ class SelectController extends Controller
         return view('select.label', compact('labels'));
     }
     
+    public function quit_student()
+    {
+        $student_id = Input::get('student_id', null);
+    }
+    
     protected function list_marketer($role_id)
     {
-        return "SELECT nickname, user_account.id FROM system_account_role INNER JOIN user_account ON user_account.id = system_account_role.account_id WHERE role_id = ".$role_id;
+        return "SELECT user_account.id, nickname, phone FROM system_account_role INNER JOIN user_account ON user_account.id = system_account_role.account_id INNER JOIN user ON user.id = user_account.user_id WHERE role_id = ".$role_id;
     }
     
     protected function list_labels($type_id)
@@ -48,7 +51,7 @@ class SelectController extends Controller
         foreach ($rows as $row) {
             $data = [];
             foreach ($row as $key => $item) {
-                is_numeric($key) ? $data[] = $item : null;
+                !is_numeric($key) ? $data[$key] = $item : null;
             }
             $record[] = $data;
         }

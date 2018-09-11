@@ -2,33 +2,33 @@
 @section('title','Slow Rpc')
 
 @section('section')
-    <div id="scroll" style="width: 40%">
-        <span>[ 数量阀值:{{$_count}} 时间阀值:{{$_sec}} ] {!! \Carbon\Carbon::now()->subDays($_day) !!} - {!! date('Y-m-d H:i:s') !!}</span>
-        <ul class="option">
-            @foreach([1,3,7] as $day)
-                <li @if($day == $_day) class="checked" @endif>
-                    <a href="{!! url('/slow_rpc').'?day='.$day.'&count='.$_count.'&sec='.$_sec !!}">{{$day}} day</a></li>
-            @endforeach
-        </ul>
-        <ul class="list">
-            <b>次数:</b>
+    <div class="col-xs-6">
+        @foreach([1,3,7] as $day)
+            <a class="btn btn-default @if($day == $_day) btn-primary active @endif"
+               href="{!! url('/slow_rpc').'?day='.$day.'&count='.$_count.'&sec='.$_sec !!}">{{$day}} day</a>
+        @endforeach
+        <h4>[ 数量阀值:{{$_count}} 时间阀值:{{$_sec}} ]{!! \Carbon\Carbon::now()->subDays($_day) !!} - {!! date('Y-m-d H:i:s') !!}</h4>
+        <table class="table table-bordered table-hover">
+            <caption>次数</caption>
             @foreach($res as $k=>$v)
-                <li>
-                    <div>
-                        <span class="label" @if($v >= $_day * $_count) style="background-color: #FF3333" @endif>{{$v}}</span><span>{{$k}}</span>
-                    </div>
-                </li>
+                <tr>
+                    <td>
+                        <span class="label @if($v >= $_sec) bg-red @else bg-gray @endif">{{$v}}</span>
+                        <span>{{$k}}</span>
+                    </td>
+                </tr>
             @endforeach
-        </ul>
-        <ul class="list">
-            <b>时间:</b>
+        </table>
+        <table class="table table-bordered table-hover">
+            <caption>时间</caption>
             @foreach($time as $k=>$v)
-                <li>
-                    <div>
-                        <span class="label" @if($v >= $_sec) style="background-color: #FF3333" @endif>{{$v}}s</span><span>{{$k}}</span>
-                    </div>
-                </li>
+                <tr>
+                    <td>
+                        <span class="label @if($v >= $_sec) bg-red @else bg-gray @endif">{{$v}}s</span>
+                        <span>{{$k}}</span>
+                    </td>
+                </tr>
             @endforeach
-        </ul>
+        </table>
     </div>
 @endsection
