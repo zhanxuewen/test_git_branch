@@ -2,7 +2,7 @@
 @section('title','Slow Rpc')
 
 @section('section')
-    <div class="col-xs-6">
+    <div class="col-sm-6">
         @foreach([1,3,7] as $day)
             <a class="btn btn-default @if($day == $_day) btn-primary active @endif"
                href="{!! url('/slow_rpc').'?day='.$day.'&count='.$_count.'&sec='.$_sec !!}">{{$day}} day</a>

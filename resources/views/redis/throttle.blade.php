@@ -2,7 +2,7 @@
 @section('title','Throttle')
 
 @section('section')
-    <div class="col-xs-6">
+    <div class="col-sm-8">
         <form class="form-inline" action="{!! url('redis_throttle') !!}" method="get">
             <div class="form-group">
                 <label for="date">日期:</label>
