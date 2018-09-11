@@ -24,7 +24,7 @@
             <li class="dropdown user user-menu">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                     @if(session('login_user'))
-                        <img src="{{asset('bower_components/admin-lte/dist/img/user2-160x160.jpg')}}" class="user-image" alt="User Image">
+                        <img src="{{asset('asset/image/user-3.jpg')}}" class="user-image" alt="User Image">
                         <span class="hidden-xs">{{session('login_user')}}</span>
                     @else
                         <span class="hidden-xs">Sign In or Sign Up </span>
