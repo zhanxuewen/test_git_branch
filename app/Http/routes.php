@@ -19,8 +19,9 @@ Route::post('export', ['uses' => 'ExportController@export']);
 
 Route::get('logs', ['uses' => 'LogController@logs']);
 
-Route::get('select', ['uses' => 'SelectController@marketer']);
+Route::get('marketer', ['uses' => 'SelectController@marketer']);
 Route::get('labels', ['uses' => 'SelectController@labels']);
+Route::get('quit_student', ['uses' => 'SelectController@quit_student']);
 
 Route::get('migrations', ['uses' => 'DatabaseController@migration_diff']);
 Route::get('table_correct', ['uses' => 'DatabaseController@table_correct']);
