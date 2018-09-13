@@ -12,7 +12,15 @@ class DatabaseController extends Controller
         foreach (['dev', 'test', 'online'] as $env) {
             $$env = $this->resultToArray($this->getPdo($env)->query($this->buildSql('list_migrations', null)));
         }
-        return view('database.diff', compact('dev', 'test', 'online'));
+        return view('database.migration_diff', compact('dev', 'test', 'online'));
+    }
+    
+    public function table_diff()
+    {
+        foreach (['dev' => 'b_vanthink_core', 'test' => 'b_vanthink_online', 'online' => 'b_vanthink_online'] as $env => $db) {
+            $$env = $this->resultToArray($this->getPdo($env)->query($this->buildSql('list_tables', $db)));
+        }
+        return view('database.table_diff', compact('dev', 'test', 'online'));
     }
     
     public function table_correct()

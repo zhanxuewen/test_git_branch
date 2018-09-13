@@ -14,9 +14,7 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\Inspire::class,
-        Commands\Example::class,
-    
-        Commands\Summary\ExportSchoolSummary::class,
+        
     ];
 
     /**
@@ -27,7 +25,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('inspire')
-                 ->hourly();
+    
     }
 }

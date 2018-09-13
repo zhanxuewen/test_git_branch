@@ -19,15 +19,11 @@ class BladeHelper
         foreach ($labels[$p_id] as $label) {
             $id    = $label['id'];
             $badge = '<span class="badge">'.self::$level[$label['level']].'</span>';
-            $out   .= '<li class="treeview"><a href="#">'.$badge.$label['name'].' <'.$id.'>';
+            $multi = '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>';
+            $has   = isset($labels[$id]) ? $multi : '';
+            $out   .= '<li class="treeview"><a href="#">'.$badge.$label['name'].' <'.$id.'>'.$has.'</a>';
             if (isset($labels[$id])) {
-                $out .= '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>';
-            }
-            $out .= '</a>';
-            if (isset($labels[$id])) {
-                $out .= '<ul class="treeview-menu">';
-                $out .= self::getTree($id, $labels);
-                $out .= '</ul>';
+                $out .= '<ul class="treeview-menu">'.self::getTree($id, $labels).'</ul>';
             }
             $out .= '</li>';
         }
@@ -64,5 +60,22 @@ class BladeHelper
         }
         $out .= '</table>';
         return $out;
+    }
+    
+    public static function treeview($label, $children, $icon)
+    {
+        $parent = '<i class="fa '.$icon.'"></i><span>'.$label.'</span>';
+        $angle  = '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>';
+        $out    = '<li class="treeview"><a href="#">'.$parent.$angle.'</a><ul class="treeview-menu">';
+        foreach ($children as $name => $url) {
+            $out .= '<li><a href="'.url($url).'"><i class="fa fa-circle-o"></i> '.$name.'</a></li>';
+        }
+        $out .= '</ul></li>';
+        return $out;
+    }
+    
+    public static function single_bar($name, $url, $icon)
+    {
+        return '<li><a href="'.url($url).'"><i class="fa '.$icon.'"></i> <span>'.$name.'</span></a></li>';
     }
 }

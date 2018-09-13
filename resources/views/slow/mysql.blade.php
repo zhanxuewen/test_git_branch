@@ -14,8 +14,8 @@
                     <td>
                         <span class="label @if($v >= $_sec) bg-red @else bg-gray @endif">{{$v}}s</span>
                         <span class="label @if(strstr($sql_s[$key]['user'],'online')) bg-blue @else bg-green @endif">
-                        {{$sql_s[$key]['user']}}</span>
-                        <span>{{$sql_s[$key]['sql']}} @ {{$sql_s[$key]['host']}}[{{$sql_s[$key]['date']}}]</span>
+                        {{$sql_s[$key]['user']}}</span><span>@ {{$sql_s[$key]['host']}}[{{$sql_s[$key]['date']}}]</span><br>
+                        <span>{{$sql_s[$key]['sql']}}</span>
                     </td>
                 </tr>
             @endforeach

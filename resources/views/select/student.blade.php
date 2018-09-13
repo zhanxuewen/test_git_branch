@@ -6,7 +6,7 @@
         <form class="form-inline" action="{{url('quit_student')}}" method="get">
             <div class="form-group">
                 <label>Student ID</label>
-                <input class="form-control" type="number" name="student_id" value="{{$student_id}}" placeholder="Student ID">
+                <input class="form-control" type="number" name="student_id" value="{{$student_id}}" placeholder="Student ID" required="required">
                 <button class="btn btn-primary" type="submit">Search</button>
             </div>
         </form>

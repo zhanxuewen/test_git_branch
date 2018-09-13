@@ -2,13 +2,21 @@
 <section class="sidebar">
     <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MAIN NAVIGATION</li>
-        {!! single_bar('Export', 'export', 'fa-download') !!}
-        {!! treeview('Select', ['Marketer' => 'marketer', 'Quit Student' => 'quit_student', 'Labels' => 'labels'], 'fa-table') !!}
-        {!! treeview('Database', ['Migration Diff' => 'migrations', 'Table Correct' => 'table_correct'], 'fa-database') !!}
-        {!! treeview('Redis', ['Throttle' => 'redis_throttle'], 'fa-file') !!}
-        {!! treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}
-        {!! single_bar('Sql Analyze', 'analyze/select/no_group', 'fa-heartbeat') !!}
-        {!! single_bar('Logs', 'logs', 'fa-hand-pointer-o') !!}
+        {!! \App\Helper\BladeHelper::single_bar('Export', 'export', 'fa-download') !!}
+        {!! \App\Helper\BladeHelper::treeview('Select', [
+            'Marketer' => 'marketer',
+            'Quit Student' => 'quit_student',
+            'Labels' => 'labels'
+        ], 'fa-table') !!}
+        {!! \App\Helper\BladeHelper::treeview('Database', [
+            'Migration Diff' => 'migrations',
+            'Table DIff' => 'table_diff',
+            'Table Correct' => 'table_correct'
+        ], 'fa-database') !!}
+        {!! \App\Helper\BladeHelper::treeview('Redis', ['Throttle' => 'redis_throttle'], 'fa-file') !!}
+        {!! \App\Helper\BladeHelper::treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}
+        {!! \App\Helper\BladeHelper::single_bar('Sql Analyze', 'analyze/select/no_group', 'fa-heartbeat') !!}
+        {!! \App\Helper\BladeHelper::single_bar('Logs', 'logs', 'fa-hand-pointer-o') !!}
     </ul>
 </section>
 <!-- /.sidebar -->
