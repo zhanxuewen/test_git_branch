@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
 use Input;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller

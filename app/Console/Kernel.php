@@ -14,7 +14,14 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\Inspire::class,
-        
+
+        Commands\Capture::class,
+        Commands\CaptureTcpServer::class,
+        Commands\BuildDbWiki::class,
+
+        Commands\Rpc\CaptureRpcDB::class,
+        Commands\Rpc\CaptureRpcRepo::class,
+        Commands\Rpc\CaptureRpcService::class,
     ];
 
     /**

@@ -64,9 +64,12 @@ class BladeHelper
     
     public static function treeview($label, $children, $icon)
     {
+        $uri    = substr(explode('?', \Request::getRequestUri())[0], 1);
+        $active = in_array($uri, $children) ? ' menu-open' : '';
+        $block  = in_array($uri, $children) ? 'style="display: block;"' : '';
         $parent = '<i class="fa '.$icon.'"></i><span>'.$label.'</span>';
         $angle  = '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>';
-        $out    = '<li class="treeview"><a href="#">'.$parent.$angle.'</a><ul class="treeview-menu">';
+        $out    = '<li class="treeview'.$active.'"><a href="#">'.$parent.$angle.'</a><ul class="treeview-menu" '.$block.'>';
         foreach ($children as $name => $url) {
             $out .= '<li><a href="'.url($url).'"><i class="fa fa-circle-o"></i> '.$name.'</a></li>';
         }
@@ -78,4 +81,11 @@ class BladeHelper
     {
         return '<li><a href="'.url($url).'"><i class="fa '.$icon.'"></i> <span>'.$name.'</span></a></li>';
     }
+    
+    public static function modifierToIcon($modifier)
+    {
+        $modifiers = ['public' => 'fa-unlock fa-flip-horizontal text-green', 'protected' => 'fa-key text-gry', 'private' => 'fa-lock text-red'];
+        return $modifiers[$modifier];
+    }
+    
 }

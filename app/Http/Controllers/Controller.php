@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Predis\Client;
+use App\Helper\Builder;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
@@ -14,6 +15,13 @@ abstract class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
     protected $env = [];
+    
+    protected $builder;
+    
+    public function __construct(Builder $builder)
+    {
+        $this->builder = $builder;
+    }
     
     private function getEnv()
     {
@@ -59,9 +67,10 @@ abstract class Controller extends BaseController
         return $this->getConf($conn)['database'];
     }
     
-    protected function getPdo($conn)
+    protected function getPdo($conn, $is_word_pk = false)
     {
         $db = $this->getConf($conn);
+        if ($is_word_pk) $db['database'] = 'wordpk';
         return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'], $db['username'], $db['password']);
     }
     

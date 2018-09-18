@@ -16,13 +16,20 @@ class ExportController extends Controller
             'sum' => '总数',
             'name' => '名称',
             'days' => '天数',
+            'date' => '日期',
+            'time' => '时间',
             'count' => '数量',
             '_name' => '名称',
             'phone' => '手机',
             'labels' => '标签',
             '_phone' => '手机',
             'pay_fee' => '费用',
+            'user_type' => '身份',
             'nickname' => '昵称',
+            'school_id' => '学校ID',
+            'c_p_sign' => '签到人数',
+            'c_p_arena' => '摆擂人数',
+            'c_p_attack' => '攻擂人数',
             'mark_name' => '备注名',
             'student_id' => '学生ID',
             'created_at' => '创建时间',
@@ -43,9 +50,10 @@ class ExportController extends Controller
     
     public function export()
     {
-        $field  = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
-        $query  = Input::get('query');
-        $expire = Input::get('expire', 0);
+        $field     = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
+        $query     = Input::get('query');
+        $expire    = Input::get('expire', 0);
+        $db_change = Input::get('database', 0) == 0 ? false : true;
         Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
         Input::has('label_id') ? $params['label_id'] = Input::get('label_id', null) : null;
         Input::has('label_ids') ? $params['label_ids'] = $this->handleIds(Input::get('label_ids', null)) : null;
@@ -56,7 +64,7 @@ class ExportController extends Controller
         Input::has('end') ? $params['end'] = Input::get('end', null).' 23:59:59' : null;
         $this->field_phone = $field[Input::get('field_phone')];
         isset($params) or die('没有参数');
-        $pdo  = $this->getPdo('online');
+        $pdo  = $this->getPdo('online', $db_change);
         $rows = $pdo->query($this->buildSql($query, $params));
         $name = $query.'_'.$this->handleTableName($params);
         $this->exportExcel($name, $this->getRecord($rows, $expire));
@@ -79,7 +87,7 @@ class ExportController extends Controller
     protected function school_order($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT `order`.student_id, nickname, $this->field_phone, commodity_name, pay_fee, vanclass.`name` FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND pay_status LIKE '%success' ".$this->getTime($params, '`order`.created_at')." GROUP BY `order`.id";
+        return "SELECT `order`.student_id, nickname, $this->field_phone, commodity_name, pay_fee, order.created_at, vanclass.`name` FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 AND pay_status LIKE '%success' ".$this->getTime($params, '`order`.created_at')." GROUP BY `order`.id";
     }
     
     protected function school_offline($params)
@@ -153,6 +161,16 @@ class ExportController extends Controller
         //group_concat(translation separator ';') as translation
         !isset($params['label_id']) ? die('没有 标签ID') : null;
         return "SELECT vocabulary FROM wordbank_translation_label INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id INNER JOIN wordbank_translation ON wordbank.id = wordbank_translation.wordbank_id WHERE label_id = ".$params['label_id']." GROUP BY wordbank.id ORDER BY wordbank_translation_label.id";
+    }
+    
+    protected function word_pk_activity($params)
+    {
+        return "SELECT user_account.school_id, sch.`name`, count(DISTINCT arena.defender_id) AS c_p_arena, count(DISTINCT arena_record.attacker_id) AS c_p_attack, count(DISTINCT sign_in.account_id) AS c_p_sign FROM user_account INNER JOIN b_vanthink_online.school AS sch ON sch.id = user_account.school_id LEFT JOIN arena ON user_account.id = arena.defender_id ".$this->getTime($params, 'arena.created_at')." LEFT JOIN arena_record ON user_account.id = arena_record.attacker_id ".$this->getTime($params, 'arena_record.created_at')." LEFT JOIN user_sign_in_record AS sign_in ON user_account.id = sign_in.account_id ".$this->getTime($params, 'sign_in.sign_in_at')." GROUP BY user_account.school_id";
+    }
+    
+    protected function principal_last_login($params)
+    {
+        return "SELECT school_member.school_id, school.`name`, nickname, $this->field_phone, REPLACE (REPLACE (account_type_id, 6, '校长'), 7, '学校校管') as user_type, last_login_time as time FROM school_member INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN school ON school.id = school_member.school_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE	school_member.account_type_id IN (6, 7) ".$this->getTime($params, 'last_login_time')." ORDER BY school_member.school_id";
     }
     
     protected function getTime($params, $column)
