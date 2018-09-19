@@ -32,6 +32,18 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
+            $schedule->handle();
+            $this->logSchedule('Export Order List Done At '.date('Y-m-d H:i:s'));
+        })->dailyAt('14:57');
+    }
     
+    protected function logSchedule($log)
+    {
+        if (!\Storage::exists('schedule.log')) {
+            \Storage::put('schedule.log', $log);
+        } else {
+            \Storage::append('schedule.log', $log);
+        }
     }
 }

@@ -4,6 +4,15 @@ namespace App\Helper;
 
 class Helper
 {
+    public static function modifyDatabaseConfig($conn)
+    {
+        $env     = include_once base_path().'/.env.array';
+        $default = config('database.default');
+        foreach ($env[$conn] as $key => $vale) {
+            config(["database.connections.$default.$key" => $vale]);
+        }
+    }
+    
     public static function vsprintf($query, $bindings)
     {
         $bindings = str_replace('&apos;', '\'', str_replace('&quot;', '"', self::decodeBindings($bindings)));

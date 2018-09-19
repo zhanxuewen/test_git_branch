@@ -1,5 +1,6 @@
 <?php
 
+// Auth Routes
 Route::group(['namespace' => 'Auth'], function () {
     Route::get('/', ['as' => 'homepage', 'uses' => 'LoginController@index']);
     Route::post('login', ['uses' => 'LoginController@login']);
@@ -7,6 +8,7 @@ Route::group(['namespace' => 'Auth'], function () {
     Route::get('logout', ['uses' => 'LoginController@logout']);
 });
 
+// Rpc Routes
 Route::group(['namespace' => 'Rpc'], function () {
     Route::group(['prefix' => 'db'], function () {
         Route::group(['prefix' => 'get'], function () {
@@ -25,7 +27,6 @@ Route::group(['namespace' => 'Rpc'], function () {
         Route::group(['prefix' => 'get'], function () {
             Route::get('serviceList', 'ServiceController@getServiceList');
             Route::get('apiInfo/{api_id}', 'ServiceController@getApiInfo');
-            Route::post('callInfo', 'ServiceController@getCallInfo');
         });
     });
 });
