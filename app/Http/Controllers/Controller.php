@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Storage;
 use Validator;
 use Predis\Client;
 use App\Helper\Builder;
@@ -17,6 +16,8 @@ abstract class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
     protected $env = [];
+    
+    protected $user;
     
     protected $rules
         = [
@@ -50,30 +51,14 @@ abstract class Controller extends BaseController
     
     protected function getUser($field = null)
     {
-        $user = Auth::user();
-        return is_null($field) ? $user : $user->$field;
+        if (empty($this->user)) $this->user = Auth::user();
+        return is_null($field) ? $this->user : $this->user->$field;
     }
     
-    protected function getStorage()
+    protected function logContent($content)
     {
-        return Storage::disk('local');
-    }
-    
-    protected function checkFile($file)
-    {
-        $storage = $this->getStorage();
-        if (!$storage->exists($file)) $storage->put($file, '');
-        return $storage;
-    }
-    
-    protected function getFile($file)
-    {
-        return $this->checkFile($file)->get($file);
-    }
-    
-    protected function appendContent($file, $content)
-    {
-        return $this->checkFile($file)->append($file, $content);
+        $data = ['log_type' => 'export', 'account_id' => $this->getUser('id'), 'content' => $content];
+        $this->builder->setModel('log')->create($data);
     }
     
     protected function getDbName($conn)

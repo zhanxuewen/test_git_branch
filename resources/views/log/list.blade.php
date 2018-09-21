@@ -7,14 +7,14 @@
             <caption>Logs</caption>
             <tr>
                 <th>用户</th>
-                <th>文件</th>
+                <th>内容</th>
                 <th>时间</th>
             </tr>
             @foreach($logs as $log)
                 <tr>
-                    <td>{{$log['user']}}</td>
-                    <td>{{$log['file']}}</td>
-                    <td>{{$log['time']}}</td>
+                    <td>{{$log['account']['username']}}</td>
+                    <td>{{$log['content']}}</td>
+                    <td>{{$log['created_at']}}</td>
                 </tr>
             @endforeach
         </table>

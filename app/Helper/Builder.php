@@ -2,36 +2,18 @@
 
 namespace App\Helper;
 
-use App\Models as Models;
-use App\Models\Rpc as Rpc;
-
 class Builder
 {
     private $ModelMap;
     
     public function __construct()
     {
-        $this->ModelMap = [
-            'model' => Rpc\DB\Model::class,
-            'module' => Rpc\DB\Module::class,
-            'relation' => Rpc\DB\Relation::class,
-            
-            'functions' => Rpc\Repo\Functions::class,
-            'repository' => Rpc\Repo\Repository::class,
-            
-            'api' => Rpc\Service\Api::class,
-            'call' => Rpc\Service\ApiCall::class,
-            'service' => Rpc\Service\Service::class,
-            
-            'server' => Models\TcpServer::class,
-            
-            'account' => Models\User\Account::class,
-        ];
+        $this->ModelMap = include_once app_path('Models').'/_models.php';
     }
     
     /**
      * @param string $model
-     * @return Models\BaseModel
+     * @return \App\Models\BaseModel
      */
     public function setModel($model)
     {

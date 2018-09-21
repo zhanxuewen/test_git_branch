@@ -213,8 +213,7 @@ class ExportController extends Controller
     
     protected function exportExcel($name, $record)
     {
-        $content = $this->getUser('username').' @ '.date('Y-m-d H:i:s').' => '.$name;
-        $this->appendContent('export_record.log', $content);
+        $this->logContent($name);
         Excel::create($name, function ($Excel) use ($record) {
             $Excel->sheet('table', function ($sheet) use ($record) {
                 $sheet->rows($record);
