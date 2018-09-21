@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Auth;
 use Closure;
 
 class VerifyUserLogin
@@ -24,7 +25,7 @@ class VerifyUserLogin
         $uri = substr(explode('?', $request->getRequestUri())[0], 1);
         if (in_array($uri, $this->ignore))
             return $next($request);
-        if (!session('login_user'))
+        if (!Auth::check())
             return redirect()->route('login');
         return $next($request);
     }

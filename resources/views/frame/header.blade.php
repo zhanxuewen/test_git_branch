@@ -21,12 +21,12 @@
             <li class="dropdown user user-menu">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                     <img src="{{asset('asset/image/user-3.jpg')}}" class="user-image" alt="User Image">
-                    <span class="hidden-xs">{{session('login_user')}}</span>
+                    <span class="hidden-xs">{{ Auth::user()->username }}</span>
                 </a>
                 <ul class="dropdown-menu">
                     <li class="user-footer">
                         <div class="pull-left">
-                            <span><b>Greeting {{session('login_user')}} !</b></span>
+                            <span><b>Greeting {{ Auth::user()->username }} !</b></span>
                         </div>
                         <div class="pull-right">
                             <a href="{{url('logout')}}" class="btn btn-default btn-flat">Sign out</a>

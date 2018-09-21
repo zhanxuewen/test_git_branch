@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use Storage;
+use Validator;
 use Predis\Client;
 use App\Helper\Builder;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -15,6 +17,12 @@ abstract class Controller extends BaseController
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
     
     protected $env = [];
+    
+    protected $rules
+        = [
+            'username' => 'required|unique:user_account,username|max:10',
+            'password' => 'required|confirmed|different:username',
+        ];
     
     protected $builder;
     
@@ -38,6 +46,12 @@ abstract class Controller extends BaseController
     {
         $conf = $this->getEnv()['redis'][$conn];
         return new Client($conf);
+    }
+    
+    protected function getUser($field = null)
+    {
+        $user = Auth::user();
+        return is_null($field) ? $user : $user->$field;
     }
     
     protected function getStorage()
@@ -89,9 +103,13 @@ abstract class Controller extends BaseController
         return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1MzYxNTE0NDUsImV4cCI6MTUzNzM2MTA0NSwibmJmIjoxNTM2MTUxNDQ1LCJqdGkiOiJoYWwyNWdSVXRYcnZNMnVyIn0.JU-mq63ncFcg4nz_1HJYAI8zobOb32yOGeeDaDPYcs0';
     }
     
-    protected function response($code, $message = '')
+    protected function validate($request)
     {
-        return ['code' => $code, 'message' => $message];
+        foreach (array_keys($request) as $key) {
+            isset($this->rules[$key]) ? $rules[$key] = $this->rules[$key] : null;
+        }
+        $validator = Validator::make($request, isset($rules) ? $rules : []);
+        return $validator->fails() ? $validator->messages()->toArray() : true;
     }
     
 }

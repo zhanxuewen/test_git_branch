@@ -2,8 +2,7 @@
 
 namespace App\Helper;
 
-use App\Models\BaseModel;
-use App\Models\TcpServer;
+use App\Models as Models;
 use App\Models\Rpc as Rpc;
 
 class Builder
@@ -24,13 +23,15 @@ class Builder
             'call' => Rpc\Service\ApiCall::class,
             'service' => Rpc\Service\Service::class,
             
-            'server' => TcpServer::class,
+            'server' => Models\TcpServer::class,
+            
+            'account' => Models\User\Account::class,
         ];
     }
     
     /**
      * @param string $model
-     * @return BaseModel
+     * @return Models\BaseModel
      */
     public function setModel($model)
     {

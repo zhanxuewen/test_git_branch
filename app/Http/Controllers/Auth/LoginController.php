@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Auth;
 use Input;
 use App\Http\Controllers\Controller;
-use Session;
 
 class LoginController extends Controller
 {
-    const USER_FILE = 'username.cnf';
-    
     public function index()
     {
         return view('frame.homepage');
@@ -27,42 +25,26 @@ class LoginController extends Controller
     
     public function postLogin()
     {
-        $user = Input::get('username');
-        if (!in_array($user, $this->getUsers())) {
-            Session::flash('message', 'User Not Exist!');
-        } else {
-            Session::put(['login_user' => $user]);
+        if (!Auth::attempt(['username' => Input::get('username'), 'password' => Input::get('password')])) {
+            return redirect()->back()->with('message', 'Username or Password is wrong!');
         }
         return redirect()->route('homepage');
     }
     
     public function postRegister()
     {
-        $user = Input::get('username');
-        if (!in_array($user, $this->getUsers())) {
-            $this->appendUserFile($user);
-        } else {
-            Session::flash('message', 'Username Has Exist!');
-            return redirect()->back();
+        $validator = $this->validate(Input::all());
+        if ($validator !== true) {
+            return redirect()->back()->with('message', array_shift($validator)[0]);
         }
-        return redirect()->route('homepage');
+        $this->builder->setModel('account')->create(Input::all());
+        return redirect()->route('login');
     }
     
     public function logout()
     {
-        Session::forget('login_user');
+        Auth::logout();
         return redirect()->route('login');
-    }
-    
-    protected function getUsers()
-    {
-        $users = $this->getFile(self::USER_FILE);
-        return array_filter(explode("\n", $users));
-    }
-    
-    protected function appendUserFile($user)
-    {
-        $this->appendContent(self::USER_FILE, $user);
     }
     
 }

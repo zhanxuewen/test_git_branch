@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Input;
-use Maatwebsite\Excel\Facades\Excel;
+use Excel;
 
 class ExportController extends Controller
 {
@@ -213,26 +213,13 @@ class ExportController extends Controller
     
     protected function exportExcel($name, $record)
     {
-        $content = session('login_user').' @ '.date('Y-m-d H:i:s').' => '.$name;
+        $content = $this->getUser('username').' @ '.date('Y-m-d H:i:s').' => '.$name;
         $this->appendContent('export_record.log', $content);
         Excel::create($name, function ($Excel) use ($record) {
             $Excel->sheet('table', function ($sheet) use ($record) {
                 $sheet->rows($record);
             });
         })->export('xls');
-    }
-    
-    protected function _exportExcel($name, $data)
-    {
-        header("Content-type:application/csv; charset=UTF-8");
-        header("Content-Disposition:attachment;filename=".$name.".csv");
-        $export = '';
-        foreach ($data as $row) {
-            $export .= implode(',', $row);
-            $export .= "\r";
-        }
-        $export = iconv('UTF-8', "GB2312//IGNORE", $export);
-        exit($export);
     }
     
     protected function request_post($id)
