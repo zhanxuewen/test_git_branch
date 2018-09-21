@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTcpServerTable extends Migration
+class CreateRpcDbModuleTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,12 +12,10 @@ class CreateTcpServerTable extends Migration
      */
     public function up()
     {
-        Schema::create('tcp_server', function (Blueprint $table) {
+        Schema::create('rpc_db_module', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('alias');
-            $table->string('class_name');
-            $table->integer('instance_id');
-            $table->string('instance_type');
+            $table->string('code');
+            $table->string('label')->nullable();
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ class CreateTcpServerTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tcp_server');
+        Schema::dropIfExists('rpc_db_module');
     }
 }

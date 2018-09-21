@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use Input;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Session;
+use Session;
 
 class LoginController extends Controller
 {
@@ -15,18 +15,17 @@ class LoginController extends Controller
         return view('frame.homepage');
     }
     
-    public function register()
+    public function getLogin()
     {
-        $user = Input::get('username');
-        if (!in_array($user, $this->getUsers())) {
-            $this->appendUserFile($user);
-        } else {
-            Session::flash('message', 'Username Has Exist!');
-        }
-        return redirect()->route('homepage');
+        return view('auth.login');
     }
     
-    public function login()
+    public function getRegister()
+    {
+        return view('auth.register');
+    }
+    
+    public function postLogin()
     {
         $user = Input::get('username');
         if (!in_array($user, $this->getUsers())) {
@@ -37,10 +36,22 @@ class LoginController extends Controller
         return redirect()->route('homepage');
     }
     
+    public function postRegister()
+    {
+        $user = Input::get('username');
+        if (!in_array($user, $this->getUsers())) {
+            $this->appendUserFile($user);
+        } else {
+            Session::flash('message', 'Username Has Exist!');
+            return redirect()->back();
+        }
+        return redirect()->route('homepage');
+    }
+    
     public function logout()
     {
         Session::forget('login_user');
-        return redirect()->route('homepage');
+        return redirect()->route('login');
     }
     
     protected function getUsers()

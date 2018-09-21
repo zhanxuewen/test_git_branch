@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateClientModuleControllerApiRouteTable extends Migration
+class CreateClientModuleControllerTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +12,7 @@ class CreateClientModuleControllerApiRouteTable extends Migration
      */
     public function up()
     {
-        Schema::create('client_module_controller_api_route', function (Blueprint $table) {
+        Schema::create('client_module_controller', function (Blueprint $table) {
             $table->increments('id');
             $table->timestamps();
         });
@@ -26,6 +25,6 @@ class CreateClientModuleControllerApiRouteTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('client_module_controller_api_route');
+        Schema::dropIfExists('client_module_controller');
     }
 }

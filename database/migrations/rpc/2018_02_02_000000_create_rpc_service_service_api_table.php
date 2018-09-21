@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRpcRepoRepositoryFunctionsTable extends Migration
+class CreateRpcServiceServiceApiTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +12,14 @@ class CreateRpcRepoRepositoryFunctionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('rpc_repo_repository_functions', function (Blueprint $table) {
+        Schema::create('rpc_service_service_api', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('repository_id');
+            $table->integer('service_id');
             $table->string('function_name');
             $table->string('modifier');
-            $table->string('params')->nullable();
-            $table->string('set_model_id');
+            $table->text('params')->nullable();
+            $table->boolean('has_transaction');
+            $table->string('return')->nullable();
             $table->string('author')->nullable();
             $table->timestamps();
         });
@@ -32,6 +32,6 @@ class CreateRpcRepoRepositoryFunctionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rpc_repo_repository_functions');
+        Schema::dropIfExists('rpc_service_service_api');
     }
 }

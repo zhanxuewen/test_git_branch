@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateClientModuleControllerTable extends Migration
+class CreateRpcServiceServiceTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +12,16 @@ class CreateClientModuleControllerTable extends Migration
      */
     public function up()
     {
-        Schema::create('client_module_controller', function (Blueprint $table) {
+        Schema::create('rpc_service_service', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('code');
+            $table->string('class_name');
+            $table->string('ioc_variables')->nullable();
+            $table->string('ioc_repos')->nullable();
             $table->timestamps();
         });
     }
-
+    
     /**
      * Reverse the migrations.
      *
@@ -26,6 +29,6 @@ class CreateClientModuleControllerTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('client_module_controller');
+        Schema::dropIfExists('rpc_service_service');
     }
 }

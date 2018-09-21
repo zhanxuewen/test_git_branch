@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateClientTable extends Migration
+class CreateClientModuleControllerApiTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +12,12 @@ class CreateClientTable extends Migration
      */
     public function up()
     {
-        Schema::create('client', function (Blueprint $table) {
+        Schema::create('client_module_controller_api', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('code');
-            $table->string('label');
             $table->timestamps();
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *
@@ -28,6 +25,6 @@ class CreateClientTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('client');
+        Schema::dropIfExists('client_module_controller_api');
     }
 }

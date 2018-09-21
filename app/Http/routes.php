@@ -3,8 +3,10 @@
 // Auth Routes
 Route::group(['namespace' => 'Auth'], function () {
     Route::get('/', ['as' => 'homepage', 'uses' => 'LoginController@index']);
-    Route::post('login', ['uses' => 'LoginController@login']);
-    Route::post('register', ['uses' => 'LoginController@register']);
+    Route::get('login', ['as' => 'login', 'uses' => 'LoginController@getLogin']);
+    Route::post('login', ['uses' => 'LoginController@postLogin']);
+    Route::get('register', ['as' => 'register', 'uses' => 'LoginController@getRegister']);
+    Route::post('register', ['uses' => 'LoginController@postRegister']);
     Route::get('logout', ['uses' => 'LoginController@logout']);
 });
 

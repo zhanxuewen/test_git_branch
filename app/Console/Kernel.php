@@ -19,6 +19,9 @@ class Kernel extends ConsoleKernel
         Commands\CaptureTcpServer::class,
         Commands\BuildDbWiki::class,
 
+        Commands\Core\ModuleMigrate::class,
+        Commands\Core\MakeModuleMigration::class,
+        
         Commands\Rpc\CaptureRpcDB::class,
         Commands\Rpc\CaptureRpcRepo::class,
         Commands\Rpc\CaptureRpcService::class,

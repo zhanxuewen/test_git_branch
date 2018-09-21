@@ -8,7 +8,6 @@ class VerifyUserLogin
 {
     protected $ignore
         = [
-            '',
             'login',
             'register',
         ];
@@ -26,7 +25,7 @@ class VerifyUserLogin
         if (in_array($uri, $this->ignore))
             return $next($request);
         if (!session('login_user'))
-            return redirect()->route('homepage')->with('message', 'Permission Denied, Please Sign In!');
+            return redirect()->route('login');
         return $next($request);
     }
 }

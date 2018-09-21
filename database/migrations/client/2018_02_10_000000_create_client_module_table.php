@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRpcDbModuleTable extends Migration
+class CreateClientModuleTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +12,12 @@ class CreateRpcDbModuleTable extends Migration
      */
     public function up()
     {
-        Schema::create('rpc_db_module', function (Blueprint $table) {
+        Schema::create('client_module', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('code');
-            $table->string('label')->nullable();
             $table->timestamps();
         });
     }
-    
+
     /**
      * Reverse the migrations.
      *
@@ -28,6 +25,6 @@ class CreateRpcDbModuleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rpc_db_module');
+        Schema::dropIfExists('client_module');
     }
 }

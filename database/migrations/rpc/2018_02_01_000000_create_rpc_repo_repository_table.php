@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRpcServiceServiceTable extends Migration
+class CreateRpcRepoRepositoryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +12,11 @@ class CreateRpcServiceServiceTable extends Migration
      */
     public function up()
     {
-        Schema::create('rpc_service_service', function (Blueprint $table) {
+        Schema::create('rpc_repo_repository', function (Blueprint $table) {
             $table->increments('id');
             $table->string('code');
+            $table->integer('module_id');
             $table->string('class_name');
-            $table->string('ioc_variables')->nullable();
-            $table->string('ioc_repos')->nullable();
             $table->timestamps();
         });
     }
@@ -30,6 +28,6 @@ class CreateRpcServiceServiceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rpc_service_service');
+        Schema::dropIfExists('rpc_repo_repository');
     }
 }

@@ -1,10 +1,9 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRpcRepoRepositoryTable extends Migration
+class CreateClientTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +12,10 @@ class CreateRpcRepoRepositoryTable extends Migration
      */
     public function up()
     {
-        Schema::create('rpc_repo_repository', function (Blueprint $table) {
+        Schema::create('client', function (Blueprint $table) {
             $table->increments('id');
             $table->string('code');
-            $table->integer('module_id');
-            $table->string('class_name');
+            $table->string('label');
             $table->timestamps();
         });
     }
@@ -29,6 +27,6 @@ class CreateRpcRepoRepositoryTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('rpc_repo_repository');
+        Schema::dropIfExists('client');
     }
 }
