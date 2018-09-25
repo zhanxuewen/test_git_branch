@@ -45,4 +45,11 @@ class SqlController extends Controller
         }
         return view('sql.query_id', compact('sql', 'total'));
     }
+    
+    public function ajaxQuerySql()
+    {
+        $start = microtime(true);
+        DB::setPdo($this->getPdo('dev'))->select(Input::get('sql'));
+        return round((microtime(true) - $start) * 1000, 2);
+    }
 }

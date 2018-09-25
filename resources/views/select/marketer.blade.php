@@ -14,7 +14,7 @@
                 <tr>
                     <td>{{$marketer['id']}}</td>
                     <td>{{$marketer['nickname']}}</td>
-                    <td>{{$marketer['phone']}}</td>
+                    <td>{{substr_replace($marketer['phone'], '****', 3, 4)}}</td>
                 </tr>
             @endforeach
         </table>

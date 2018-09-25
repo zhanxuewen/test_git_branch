@@ -16,6 +16,7 @@
                         @if(!isset($sql->count))
                             <span class="label @if($sql->time >= 1000) bg-red @else bg-gray @endif">{{$sql->time}}ms</span>
                             <a href="{!! url('/query/id/'.$sql->id) !!}" target="_blank">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
+                            @if($sql->time >= 1000) <span class="query_sql bg-orange btn btn-xs">Query Again</span> @endif
                         @else
                             <span class="label bg-green">{{isset($sql->count)?$sql->count:1}}</span>
                             <a href="{!! url('/query/sql').'?query='.($sql->query) !!}" target="_blank">{{$sql->query}}</a>
@@ -25,4 +26,29 @@
             @endforeach
         </table>
     </div>
+@endsection
+
+@section('script')
+    <script>
+        $(document).ready(function () {
+            $(".query_sql").click(function () {
+                let sql = $(this).prev().text();
+                let data = $.ajax({
+                    type: "GET",
+                    url: "/ajax/query/sql",
+                    async: false,
+                    data: "sql=" + sql,
+                });
+                let time = data.responseText;
+                $(this).html(time + 'ms');
+                $(this).removeClass();
+                $(this).addClass('label');
+                if (time > 1000) {
+                    $(this).addClass('bg-red');
+                } else {
+                    $(this).addClass('bg-green');
+                }
+            });
+        });
+    </script>
 @endsection

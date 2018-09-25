@@ -53,5 +53,7 @@
 
 @include('frame.script')
 
+@yield('script')
+
 </body>
 </html>
