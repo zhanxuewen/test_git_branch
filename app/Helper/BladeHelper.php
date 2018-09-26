@@ -71,7 +71,9 @@ class BladeHelper
         $angle  = '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>';
         $out    = '<li class="treeview'.$active.'"><a href="#">'.$parent.$angle.'</a><ul class="treeview-menu" '.$block.'>';
         foreach ($children as $name => $url) {
-            $out .= '<li><a href="'.url($url).'"><i class="fa fa-circle-o"></i> '.$name.'</a></li>';
+            $act = $url == $uri ? ' class="active"' : '';
+            $fa  = $url == $uri ? 'fa-check-circle-o' : 'fa-circle-o';
+            $out .= '<li'.$act.'><a href="'.url($url).'"><i class="fa '.$fa.'"></i> '.$name.'</a></li>';
         }
         $out .= '</ul></li>';
         return $out;
