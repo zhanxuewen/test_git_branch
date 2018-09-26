@@ -2,7 +2,10 @@
 <section class="sidebar">
     <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MAIN NAVIGATION</li>
-        {!! \App\Helper\BladeHelper::single_bar('Export', 'export', 'fa-download') !!}
+        {!! \App\Helper\BladeHelper::treeview('Export', [
+            'School' => 'export/school',
+            'Student' => 'export/student'
+        ], 'fa-download') !!}
         {!! \App\Helper\BladeHelper::treeview('Select', [
             'Marketer' => 'marketer',
             'Quit Student' => 'quit_student',

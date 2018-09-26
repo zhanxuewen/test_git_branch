@@ -1,27 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Export;
 
 use Input;
-use Excel;
+use App\Http\Controllers\Controller;
 
-class ExportController extends Controller
+class SchoolController extends Controller
 {
     protected $field_phone;
     
     protected $titles
         = [
-            'id' => 'ID',
-            '_id' => 'ID',
             'sum' => '总数',
-            'name' => '名称',
             'days' => '天数',
-            'date' => '日期',
             'time' => '时间',
             'count' => '数量',
-            '_name' => '名称',
             'phone' => '手机',
-            'labels' => '标签',
             '_phone' => '手机',
             'pay_fee' => '费用',
             'user_type' => '身份',
@@ -30,22 +24,15 @@ class ExportController extends Controller
             'c_p_sign' => '签到人数',
             'c_p_arena' => '摆擂人数',
             'c_p_attack' => '攻擂人数',
-            'mark_name' => '备注名',
             'student_id' => '学生ID',
             'created_at' => '创建时间',
-            'vocabulary' => '单词',
-            'translation' => '解释',
-            'joined_time' => '加入时间',
             'vanclass_id' => '班级ID',
-            'vanclass_name' => '班级名',
             'commodity_name' => '卡类型',
-            'fluency_level' => '熟练度',
-            'last_finish_at' => '最后完成'
         ];
     
-    public function index()
+    public function school()
     {
-        return view('export.index');
+        return view('export.school');
     }
     
     public function export()
@@ -55,9 +42,6 @@ class ExportController extends Controller
         $expire    = Input::get('expire', 0);
         $db_change = Input::get('database', 0) == 0 ? false : true;
         Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
-        Input::has('label_id') ? $params['label_id'] = Input::get('label_id', null) : null;
-        Input::has('label_ids') ? $params['label_ids'] = $this->handleIds(Input::get('label_ids', null)) : null;
-        Input::has('student_id') ? $params['student_id'] = Input::get('student_id', null) : null;
         Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
         Input::has('marketer_id') ? $params['marketer_id'] = Input::get('marketer_id', null) : null;
         Input::has('start') ? $params['start'] = Input::get('start', null) : null;
@@ -126,43 +110,6 @@ class ExportController extends Controller
         return "SELECT user_account.id, nickname, $this->field_phone FROM vanclass_student INNER JOIN vanclass_teacher ON vanclass_student.vanclass_id = vanclass_teacher.vanclass_id INNER JOIN user_account ON user_account.id = vanclass_student.student_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE vanclass_teacher.teacher_id = ".$params['teacher_id']." AND vanclass_student.is_active = 1 GROUP BY vanclass_student.student_id";
     }
     
-    protected function student_fluency($params)
-    {
-        !isset($params['student_id']) ? die('没有 学生ID') : null;
-        return "SELECT vocabulary, fluency_level, last_finish_at FROM word_student_fluency INNER JOIN wordbank ON wordbank.id = word_student_fluency.wordbank_id WHERE student_id = ".$params['student_id']." AND word_student_fluency.fluency_level > 0 ORDER BY	last_finish_at DESC";
-    }
-    
-    protected function fluency_record($params)
-    {
-        !isset($params['student_id']) ? die('没有 学生ID') : null;
-        return "SELECT vocabulary, word_student_fluency_record.fluency_level, word_student_fluency_record.created_at FROM word_student_fluency INNER JOIN wordbank ON wordbank.id = word_student_fluency.wordbank_id INNER JOIN word_student_fluency_record ON word_student_fluency_record.student_fluency_id = word_student_fluency.id WHERE student_id = ".$params['student_id']." AND word_student_fluency.fluency_level > 0 ORDER BY word_student_fluency_record.created_at DESC";
-    }
-    
-    protected function teacher_word_homework($params)
-    {
-        !isset($params['teacher_id']) ? die('没有 教师ID') : null;
-        return "SELECT word_homework.name, word_homework.id, word_homework_student.vanclass_id, vanclass.name as vanclass_name, group_concat(word_homework_student.label_ids) AS labels, word_homework.created_at FROM word_homework_student INNER JOIN word_homework ON word_homework.id = word_homework_student.word_homework_id INNER JOIN vanclass ON vanclass.id = word_homework_student.vanclass_id WHERE word_homework.teacher_id = ".$params['teacher_id']." GROUP BY word_homework_student.vanclass_id, word_homework.id";
-    }
-    
-    protected function student_vanclass_word($params)
-    {
-        !isset($params['student_id']) ? die('没有 学生ID') : null;
-        return "SELECT vanclass.`name`, vanclass.id, mark_name, joined_time, group_concat(word_homework.`name`) AS _name, group_concat(word_homework.id) AS _id FROM vanclass_student INNER JOIN vanclass ON vanclass_student.vanclass_id = vanclass.id INNER JOIN word_homework_student ON word_homework_student.student_id = vanclass_student.student_id INNER JOIN word_homework ON word_homework.id = word_homework_student.word_homework_id WHERE vanclass_student.student_id = ".$params['student_id']." GROUP BY vanclass.id";
-    }
-    
-    protected function get_labels($params)
-    {
-        !isset($params['label_ids']) ? die('没有 标签ID') : null;
-        return "SELECT label.id, concat_ws(' - ', label_5.`name`, label_4.`name`, label_3.`name`, label_2.`name`, label.`name`) AS _name FROM label LEFT JOIN label AS label_2 ON label.parent_id = label_2.id LEFT JOIN label AS label_3 ON label_2.parent_id = label_3.id LEFT JOIN label AS label_4 ON label_3.parent_id = label_4.id LEFT JOIN label AS label_5 ON label_4.parent_id = label_5.id WHERE label.id IN (".$params['label_ids'].") AND label.deleted_at IS NULL";
-    }
-    
-    protected function label_wordbank($params)
-    {
-        //group_concat(translation separator ';') as translation
-        !isset($params['label_id']) ? die('没有 标签ID') : null;
-        return "SELECT vocabulary FROM wordbank_translation_label INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id INNER JOIN wordbank_translation ON wordbank.id = wordbank_translation.wordbank_id WHERE label_id = ".$params['label_id']." GROUP BY wordbank.id ORDER BY wordbank_translation_label.id";
-    }
-    
     protected function word_pk_activity($params)
     {
         return "SELECT user_account.school_id, sch.`name`, count(DISTINCT arena.defender_id) AS c_p_arena, count(DISTINCT arena_record.attacker_id) AS c_p_attack, count(DISTINCT sign_in.account_id) AS c_p_sign FROM user_account INNER JOIN b_vanthink_online.school AS sch ON sch.id = user_account.school_id LEFT JOIN arena ON user_account.id = arena.defender_id ".$this->getTime($params, 'arena.created_at')." LEFT JOIN arena_record ON user_account.id = arena_record.attacker_id ".$this->getTime($params, 'arena_record.created_at')." LEFT JOIN user_sign_in_record AS sign_in ON user_account.id = sign_in.account_id ".$this->getTime($params, 'sign_in.sign_in_at')." GROUP BY user_account.school_id";
@@ -205,20 +152,12 @@ class ExportController extends Controller
     {
         $data = [];
         foreach ($row as $key => $value) {
-            if (!is_numeric($key)) $data[] = $this->titles[$key];
+            if (!is_numeric($key)) {
+                $data[] = isset($this->titles[$key]) ? $this->titles[$key] : $key;
+            }
         }
         if ($expire == 1) $data[] = '有效期';
         return $data;
-    }
-    
-    protected function exportExcel($name, $record)
-    {
-        $this->logContent($name);
-        Excel::create($name, function ($Excel) use ($record) {
-            $Excel->sheet('table', function ($sheet) use ($record) {
-                $sheet->rows($record);
-            });
-        })->export('xls');
     }
     
     protected function request_post($id)

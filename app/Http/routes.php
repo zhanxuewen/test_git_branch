@@ -43,8 +43,13 @@ Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);
 
 Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 
-Route::get('export', ['uses' => 'ExportController@index']);
-Route::post('export', ['uses' => 'ExportController@export']);
+Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
+    Route::get('school', ['uses' => 'SchoolController@school']);
+    Route::post('school', ['uses' => 'SchoolController@export']);
+    
+    Route::get('student', ['uses' => 'StudentController@student']);
+    Route::post('student', ['uses' => 'StudentController@export']);
+});
 
 Route::get('logs', ['uses' => 'LogController@logs']);
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Auth;
+use Excel;
 use Validator;
 use Predis\Client;
 use App\Helper\Builder;
@@ -95,6 +96,16 @@ abstract class Controller extends BaseController
         }
         $validator = Validator::make($request, isset($rules) ? $rules : []);
         return $validator->fails() ? $validator->messages()->toArray() : true;
+    }
+    
+    protected function exportExcel($name, $record)
+    {
+        $this->logContent($name);
+        Excel::create($name, function ($Excel) use ($record) {
+            $Excel->sheet('table', function ($sheet) use ($record) {
+                $sheet->rows($record);
+            });
+        })->export('xls');
     }
     
 }
