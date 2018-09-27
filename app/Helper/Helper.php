@@ -6,7 +6,7 @@ class Helper
 {
     public static function modifyDatabaseConfig($conn)
     {
-        $env     = include_once base_path().'/.env.array';
+        $env     = include base_path().'/.env.array';
         $default = config('database.default');
         foreach ($env[$conn] as $key => $vale) {
             config(["database.connections.$default.$key" => $vale]);

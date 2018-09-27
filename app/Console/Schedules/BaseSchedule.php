@@ -2,6 +2,10 @@
 
 namespace App\Console\Schedules;
 
+use Illuminate\Mail\Message;
+use Maatwebsite\Excel\Writers\LaravelExcelWriter;
+use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
+
 class BaseSchedule
 {
     private function queryToArray($query, $key, $alias)
@@ -50,5 +54,23 @@ class BaseSchedule
             $parts[$item->school_id] = $item->title;
         }
         return $parts;
+    }
+    
+    protected function store($filename, $path, $data)
+    {
+        \Excel::create($filename, function (LaravelExcelWriter $Excel) use ($data) {
+            $Excel->sheet('table', function (LaravelExcelWorksheet $sheet) use ($data) {
+                $sheet->rows($data);
+            });
+        })->store('xls', $path);
+        return $path.'/'.$filename.'.xls';
+    }
+    
+    protected function email($to, $blade, $data, $subject, $attach)
+    {
+        \Mail::send($blade, $data, function (Message $message) use ($to, $subject, $attach) {
+            $message->to($to)->subject($subject);
+            $message->attach($attach);
+        });
     }
 }

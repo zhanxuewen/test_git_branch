@@ -39,6 +39,10 @@ class Kernel extends ConsoleKernel
             $schedule->handle();
             $this->logSchedule('Export Order List Done At '.date('Y-m-d H:i:s'));
         })->dailyAt('08:00');
+        $schedule->call(function (Schedules\Order\ExportOfflineList $schedule) {
+            $schedule->handle();
+            $this->logSchedule('Export Offline List Done At '.date('Y-m-d H:i:s'));
+        })->weekly()->mondays()->at('08:20');
     }
     
     protected function logSchedule($log)

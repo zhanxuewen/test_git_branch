@@ -4,7 +4,6 @@ namespace App\Console\Schedules\Order;
 
 use Carbon\Carbon;
 use App\Helper\Helper;
-use Illuminate\Mail\Message;
 use App\Console\Schedules\BaseSchedule;
 
 class ExportOrderList extends BaseSchedule
@@ -17,9 +16,6 @@ class ExportOrderList extends BaseSchedule
     public function handle()
     {
         Helper::modifyDatabaseConfig('online');
-        $finish_at  = false;
-        $effect     = false;
-        $school_id  = null;
         $start      = Carbon::yesterday();
         $end        = Carbon::yesterday()->endOfDay();
         $marketers  = $this->getManagers();
@@ -31,21 +27,19 @@ class ExportOrderList extends BaseSchedule
         $app        = [1 => '微信X', 2 => '支付宝', 3 => 'IOS'];
         $report     = [];
         $report[]   = ['订单日期', '订单时间', '支付通道', '支付方式', '订单号', '学校ID', '学校名称', '省', '市', '区县', '市场专员', '加盟校', '合同档', '协议价', '昵称', '备注名', '学生手机', '金额', '拼团', '卡类别', '计数', '退款时间'];
-        $between    = $finish_at ? 'finished_at' : 'created_at';
-        $query      = \DB::table('order')
+        $orders     = \DB::table('order')
             ->selectRaw('out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, pay_fee, commodity_name, commodity_id, refunded_at, finished_at')
             ->join('user_account', 'user_account.id', '=', 'order.student_id')
             ->join('user', 'user.id', '=', 'user_account.user_id')
             ->join('school', 'school.id', '=', 'order.school_id', 'left')
             ->join('vanclass_student', 'order.student_id', '=', 'vanclass_student.student_id', 'left')
-            ->whereNotNull('order.transaction_id');
-        is_null($school_id) ? null : $query->where('school.id', $school_id);
-        $effect ? $query->where('order.pay_status', 'like', '%success') : null;
-        $orders = $query->whereBetween('order.'.$between, [$start, $end])->groupBy('order.id')->get();
+            ->whereNotNull('order.transaction_id')
+            ->whereBetween('order.created_at', [$start, $end])
+            ->groupBy('order.id')->get();
         foreach ($orders as $order) {
             $s_id   = $order->id;
             $num    = $order->out_trade_no;
-            $time   = Carbon::parse($finish_at ? $order->finished_at : substr($num, 0, 14));
+            $time   = Carbon::parse(substr($num, 0, 14));
             $type   = explode('_', substr($num, 15, 5));
             $region = is_null($s_id) ? null : explode('/', $regions[$s_id]);
             if ($type[2] != 1) {
@@ -82,22 +76,15 @@ class ExportOrderList extends BaseSchedule
             $report[] = $data;
         }
         
-        if ($effect) {
-            $file = $this->store($start, $end, $school_id, $report);
-            $this->email($file);
-            return;
-        }
-        
-        $query_2 = \DB::table('order_refund')
+        $refunds = \DB::table('order_refund')
             ->selectRaw('order_refund.out_refund_no, order.out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, refund_fee, commodity_name,commodity_id, order_refund.created_at')
             ->join('order', 'order.out_trade_no', '=', 'order_refund.out_trade_no')
             ->join('user_account', 'user_account.id', '=', 'order.student_id')
             ->join('user', 'user.id', '=', 'user_account.user_id')
             ->join('school', 'school.id', '=', 'order.school_id', 'left')
             ->join('vanclass_student', 'order.student_id', '=', 'vanclass_student.student_id', 'left')
-            ->whereBetween('order_refund.created_at', [$start, $end]);
-        is_null($school_id) ? null : $query_2->where('school.id', $school_id);
-        $refunds = $query_2->groupBy('order.id')->get();
+            ->whereBetween('order_refund.created_at', [$start, $end])
+            ->groupBy('order.id')->get();
         foreach ($refunds as $order) {
             $num    = $order->out_refund_no;
             $s_id   = $order->id;
@@ -136,28 +123,10 @@ class ExportOrderList extends BaseSchedule
             ];
             $report[]  = $data;
         }
-        $file = $this->store($start, $end, $school_id, $report);
-        $this->email($file);
+        $filename = $start->format('YmdHis').'_'.$end->format('YmdHis').'_Order';
+        $file     = $this->store($filename, storage_path('exports').'/order', $report);
+        $subject  = Carbon::yesterday()->toDateString().' Order Export';
+        $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每日线上'], $subject, realpath($file));
     }
     
-    protected function store($start, $end, $school_id, $report)
-    {
-        $path = storage_path('exports').'/order';
-        $file = (is_null($school_id) ? '' : $school_id.'_').$start->format('YmdHis').'_'.$end->format('YmdHis').'_Order';
-        \Excel::create($file, function ($Excel) use ($report) {
-            $Excel->sheet('table', function ($sheet) use ($report) {
-                $sheet->rows($report);
-            });
-        })->store('xls', $path);
-        return $path.'/'.$file.'.xls';
-    }
-    
-    protected function email($file)
-    {
-        \Mail::send('emails.export', [], function (Message $message) use ($file) {
-            $date = Carbon::yesterday()->toDateString();
-            $message->to('xuyayue@vanthink.org')->subject($date.' Order Export');
-            $message->attach(realpath($file));
-        });
-    }
 }
