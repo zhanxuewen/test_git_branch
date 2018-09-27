@@ -9,8 +9,8 @@ class VerifyUserLogin
 {
     protected $ignore
         = [
-            'login',
-            'register',
+            'auth/login',
+            'auth/register',
         ];
     
     /**

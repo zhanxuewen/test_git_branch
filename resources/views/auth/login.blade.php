@@ -18,7 +18,7 @@
             @endif
         </p>
 
-        <form action="{{url('login')}}" method="post">
+        <form action="{{url('auth/login')}}" method="post">
             {!! csrf_field() !!}
             <div class="form-group has-feedback">
                 <input type="text" name="username" class="form-control" placeholder="Username">
@@ -30,7 +30,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-8">
-                    <a href="{{url('register')}}" class="btn btn-info btn-block btn-flat">Register as a new member</a>
+                    <a href="{{route('register')}}" class="btn btn-info btn-block btn-flat">Register as a new member</a>
                 </div>
                 <div class="col-xs-4 pull-right">
                     <button type="submit" class="btn btn-primary btn-block btn-flat">Sign In</button>

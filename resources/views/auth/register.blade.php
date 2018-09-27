@@ -17,7 +17,7 @@
             @endif
         </p>
 
-        <form action="{{url('register')}}" method="post">
+        <form action="{{url('auth/register')}}" method="post">
             {!! csrf_field() !!}
             <div class="form-group has-feedback">
                 <input type="text" class="form-control" name="username" placeholder="Username" required="required">
@@ -33,7 +33,7 @@
             </div>
             <div class="row">
                 <div class="col-xs-8">
-                    <a href="{{url('login')}}" class="btn btn-info btn-block btn-flat">I already have a membership</a>
+                    <a href="{{route('login')}}" class="btn btn-info btn-block btn-flat">I already have a membership</a>
                 </div>
                 <!-- /.col -->
                 <div class="col-xs-4">
