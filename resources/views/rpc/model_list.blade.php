@@ -18,7 +18,7 @@
                     <tr>
                         <td><i class="fa fa-book"></i> <a href="{{url('db/get/modelInfo').'/'.$model['id']}}">{{$model['code']}}</a></td>
                         <td>{{$model['class_name']}}</td>
-                        <td>{{$model['table']}}</td>
+                        <td><a href="{{url('database/get/tableInfo/'.$model['table'])}}">{{$model['table']}}</a></td>
                     </tr>
                 @endforeach
             </table>

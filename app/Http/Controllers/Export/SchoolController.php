@@ -26,6 +26,7 @@ class SchoolController extends Controller
             'c_p_attack' => '攻擂人数',
             'student_id' => '学生ID',
             'created_at' => '创建时间',
+            'refunded_at' => '退款时间',
             'vanclass_id' => '班级ID',
             'commodity_name' => '卡类型',
         ];
@@ -77,7 +78,7 @@ class SchoolController extends Controller
     protected function school_offline($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id as student_id, vanclass.`name`, nickname, $this->field_phone, days, pay_fee FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = ".$params['school_id']." ".$this->getTime($params, '`order_offline`.created_at')." GROUP BY order_offline.id";
+        return "SELECT user_account.id as student_id, vanclass.`name`, nickname, $this->field_phone, days, pay_fee, order_offline.created_at, refunded_at FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = ".$params['school_id']." ".$this->getTime($params, '`order_offline`.created_at')." GROUP BY order_offline.id";
     }
     
     protected function no_pay_student($params)
@@ -101,7 +102,7 @@ class SchoolController extends Controller
     protected function school_student($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id as student_id, nickname, $this->field_phone, GROUP_CONCAT(vanclass.`name`) as name, user_account.created_at FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 GROUP BY student_id";
+        return "SELECT user_account.id as student_id, nickname, $this->field_phone, GROUP_CONCAT(vanclass.`name`) as name, user_account.created_at FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 ".$this->getTime($params, 'user_account.created_at')." GROUP BY student_id";
     }
     
     protected function teacher_student($params)

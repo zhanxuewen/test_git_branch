@@ -1,7 +1,13 @@
 @extends('frame.body')
-@section('title','Table Diff')
+@section('title','Diff')
 
 @section('section')
+    <div class="col-sm-12">
+        @foreach(['migration','table'] as $type)
+            <a class="btn btn-default @if($type == $_type) btn-primary active @endif"
+               href="{!! url('database/diff').'?type='.$type !!}">Diff {{ucfirst($type)}}</a>
+        @endforeach
+    </div>
     <div class="col-sm-6">
         {!! \App\Helper\BladeHelper::oneColumnTable('Dev - Test', array_diff($dev, $test)) !!}
         {!! \App\Helper\BladeHelper::oneColumnTable('Test - Dev', array_diff($test, $dev)) !!}

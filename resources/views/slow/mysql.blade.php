@@ -22,6 +22,17 @@
                 </tr>
             @endforeach
         </table>
+        @if(!empty($bad_s))
+            <hr>
+            <h1>Bad Log</h1>
+            @foreach($bad_s as $bad)
+                <p>{{$bad}}</p>
+            @endforeach
+        @endif
+    </div>
+    <hr>
+    <div class="col-sm-12">
+        <a class="btn btn-primary" href="#">Back to Top</a>
     </div>
 @endsection
 

@@ -12,9 +12,9 @@
             'Labels' => 'labels'
         ], 'fa-table') !!}
         {!! \App\Helper\BladeHelper::treeview('Database', [
-            'Migration Diff' => 'migrations',
-            'Table DIff' => 'table_diff',
-            'Table Correct' => 'table_correct'
+            'Diff' => 'database/diff',
+            'Table' => 'database/get/tableList',
+            'Table Correct' => 'database/table_correct'
         ], 'fa-database') !!}
         {!! \App\Helper\BladeHelper::treeview('Redis', ['Throttle' => 'redis_throttle'], 'fa-file') !!}
         {!! \App\Helper\BladeHelper::treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}

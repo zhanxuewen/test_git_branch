@@ -59,6 +59,14 @@ Route::get('marketer', ['uses' => 'SelectController@marketer']);
 Route::get('labels', ['uses' => 'SelectController@labels']);
 Route::get('quit_student', ['uses' => 'SelectController@quit_student']);
 
-Route::get('migrations', ['uses' => 'DatabaseController@migration_diff']);
-Route::get('table_diff', ['uses' => 'DatabaseController@table_diff']);
-Route::get('table_correct', ['uses' => 'DatabaseController@table_correct']);
+Route::group(['namespace' => 'Database', 'prefix' => 'database'], function () {
+    Route::group(['prefix' => 'get'], function () {
+        Route::get('tableList', ['uses' => 'TableController@getTableList']);
+        Route::get('tableInfo/{table_name}', ['uses' => 'TableController@getTableInfo']);
+    });
+    Route::get('diff', ['uses' => 'DiffController@diff']);
+    
+    Route::get('table_correct', ['uses' => 'DiffController@table_correct']);
+});
+
+

@@ -1,26 +1,23 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Database;
 
-class DatabaseController extends Controller
+use App\Http\Controllers\Controller;
+
+class DiffController extends Controller
 {
     /**
-     * List Migration Diff
+     * List Diff
      */
-    public function migration_diff()
+    public function diff()
     {
-        foreach (['dev', 'test', 'online'] as $env) {
-            $$env = $this->resultToArray($this->getPdo($env)->query($this->buildSql('list_migrations', null)));
+        $_type = \Input::get('type', 'migration');
+        $sql_s = ['migration' => 'list_migrations', 'table' => 'list_tables'];
+        $conf  = ['dev' => 'b_vanthink_core', 'test' => 'b_vanthink_online', 'online' => 'b_vanthink_online'];
+        foreach ($conf as $env => $db) {
+            $$env = $this->resultToArray($this->getPdo($env)->query($this->buildSql($sql_s[$_type], $db)));
         }
-        return view('database.migration_diff', compact('dev', 'test', 'online'));
-    }
-    
-    public function table_diff()
-    {
-        foreach (['dev' => 'b_vanthink_core', 'test' => 'b_vanthink_online', 'online' => 'b_vanthink_online'] as $env => $db) {
-            $$env = $this->resultToArray($this->getPdo($env)->query($this->buildSql('list_tables', $db)));
-        }
-        return view('database.table_diff', compact('dev', 'test', 'online'));
+        return view('database.diff', compact('dev', 'test', 'online', '_type'));
     }
     
     public function table_correct()

@@ -45,12 +45,17 @@ class SlowController extends Controller
         $logs  = $this->handleMysqlLog($log);
         $sql_s = [];
         $times = [];
+        $bad_s = [];
         foreach ($logs as $log) {
             if (empty($log)) continue;
             preg_match('/(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \d+ )/', $log, $match);
             $date = preg_replace('/ \d+ /', '', $match[1]);
             $log  = preg_replace('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \d+ /', '', $log);
             $log  = preg_replace('/#/', '', $log);
+            if (!strstr($log, 'Query_time: ')) {
+                $bad_s[] = $log;
+                continue;
+            }
             list($sql, $other) = explode('Query_time: ', $log);
             if (strstr($sql, '!40001 SQL_NO_CACHE')) continue;
             list($time, $other) = explode(' User@Host: ', $other);
@@ -61,7 +66,7 @@ class SlowController extends Controller
             $sql_s[] = ['sql' => trim($sql), 'user' => trim($user), 'host' => $host, 'date' => $date];
         }
         arsort($times);
-        return view('slow.mysql', compact('times', 'sql_s', '_day', '_sec'));
+        return view('slow.mysql', compact('times', 'sql_s', 'bad_s', '_day', '_sec'));
     }
     
     protected function handleMysqlLog($log)
