@@ -52,18 +52,22 @@ class SlowController extends Controller
             $date = preg_replace('/ \d+ /', '', $match[1]);
             $log  = preg_replace('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \d+ /', '', $log);
             $log  = preg_replace('/#/', '', $log);
-            if (!strstr($log, 'Query_time: ')) {
+            if (!strstr($log, 'Query_time:')) {
                 $bad_s[] = $log;
                 continue;
             }
-            list($sql, $other) = explode('Query_time: ', $log);
+            list($sql, $other) = explode('Query_time:', $log);
             if (strstr($sql, '!40001 SQL_NO_CACHE')) continue;
-            list($time, $other) = explode(' User@Host: ', $other);
-            list($user, $host) = explode(' @ ', $other);
+            if (!strstr($log, 'User@Host:')) {
+                $bad_s[] = $log;
+                continue;
+            }
+            list($time, $other) = explode('User@Host:', $other);
+            list($user, $host) = explode('@', $other);
             if (strstr($host, '10.30.176.166')) continue;
             $times[] = trim($time);
             $sql     = preg_replace('/;|(<br>)/', '', trim($sql));
-            $sql_s[] = ['sql' => trim($sql), 'user' => trim($user), 'host' => $host, 'date' => $date];
+            $sql_s[] = ['sql' => trim($sql), 'user' => trim($user), 'host' => trim($host), 'date' => $date];
         }
         arsort($times);
         return view('slow.mysql', compact('times', 'sql_s', 'bad_s', '_day', '_sec'));

@@ -25,9 +25,13 @@
         @if(!empty($bad_s))
             <hr>
             <h1>Bad Log</h1>
-            @foreach($bad_s as $bad)
-                <p>{{$bad}}</p>
-            @endforeach
+            <table class="table table-bordered table-hover">
+                @foreach($bad_s as $bad)
+                    <tr>
+                        <td>{{$bad}}</td>
+                    </tr>
+                @endforeach
+            </table>
         @endif
     </div>
     <hr>
