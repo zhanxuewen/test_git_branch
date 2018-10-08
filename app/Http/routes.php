@@ -7,9 +7,10 @@ Route::group(['namespace' => 'Auth'], function () {
         Route::post('login', ['uses' => 'LoginController@postLogin']);
         Route::get('register', ['as' => 'register', 'uses' => 'RegisterController@getRegister']);
         Route::post('register', ['uses' => 'RegisterController@postRegister']);
+        Route::post('edit', ['uses' => 'AuthController@edit']);
         Route::get('logout', ['as' => 'logout', 'uses' => 'LoginController@logout']);
     });
-    Route::get('/', ['as' => 'homepage', 'uses' => 'LoginController@index']);
+    Route::get('/', ['as' => 'homepage', 'uses' => 'AuthController@index']);
 });
 
 // Rpc Routes
@@ -39,6 +40,7 @@ Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']
 Route::get('query/id/{id}', ['uses' => 'SqlController@queryId']);
 Route::get('ajax/query/sql', ['uses' => 'SqlController@ajaxQuerySql']);
 Route::get('query/sql', ['uses' => 'SqlController@querySql']);
+Route::get('query/delete', ['uses' => 'SqlController@querySql']);
 
 Route::get('slow_rpc', ['uses' => 'SlowController@rpc']);
 Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);

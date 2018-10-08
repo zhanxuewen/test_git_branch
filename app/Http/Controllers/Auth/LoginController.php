@@ -8,11 +8,6 @@ use App\Http\Controllers\Controller;
 
 class LoginController extends Controller
 {
-    public function index()
-    {
-        return view('frame.homepage');
-    }
-    
     public function getLogin()
     {
         return view('auth.login');
