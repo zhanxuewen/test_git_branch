@@ -92,11 +92,11 @@ class ExportOfflineList extends BaseSchedule
                 'nickname' => $order->nickname,
                 'mark_name' => $order->_mark_name,
                 'phone' => substr_replace($order->phone, '****', 3, 4),
-                'fee' => $order->refund_fee,
+                'fee' => -$order->refund_fee,
                 'status' => '退款单',
                 'off' => '',
-                'days' => $order->refund_days,
-                'count' => 1,
+                'days' => -$order->refund_days,
+                'count' => -1,
             ];
             $report[] = $data;
         }
