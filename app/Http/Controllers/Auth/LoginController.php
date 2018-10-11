@@ -15,7 +15,7 @@ class LoginController extends Controller
     
     public function postLogin()
     {
-        if (!Auth::attempt(['username' => Input::get('username'), 'password' => Input::get('password')])) {
+        if (!Auth::attempt(['username' => Input::get('username'), 'password' => Input::get('password')], Input::has('remember_me'))) {
             return redirect()->back()->with('message', 'Username or Password is wrong!');
         }
         return redirect()->route('homepage');

@@ -28,6 +28,11 @@
                 <input type="password" name="password" class="form-control" placeholder="Password">
                 <span class="glyphicon glyphicon-lock form-control-feedback"></span>
             </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="remember_me"> Remember me
+                </label>
+            </div>
             <div class="row">
                 <div class="col-xs-8">
                     <a href="{{route('register')}}" class="btn btn-info btn-block btn-flat">Register as a new member</a>
