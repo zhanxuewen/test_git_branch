@@ -2,7 +2,7 @@
 @section('title','Table Info')
 
 @section('section')
-    <div class="col-sm-8">
+    <div class="col-sm-12">
         <div class="col-sm-4">
             <table class="table table-bordered table-hover">
                 <caption>{{$table['table_name']}}</caption>
@@ -31,6 +31,30 @@
                         <td>{{$column['is_nullable']}}</td>
                         <td>{{$column['data_type']}}</td>
                         <td>{{$column['column_type']}}</td>
+                    </tr>
+                @endforeach
+            </table>
+        </div>
+        <hr>
+        <div class="col-sm-9">
+            <table class="table table-bordered table-hover">
+                <caption>Index</caption>
+                <tr class="bg-gray">
+                    <th>Non Unique</th>
+                    <th>Key Name</th>
+                    <th>Column Name</th>
+                    <th>Cardinality</th>
+                    <th>Null</th>
+                    <th>Index Type</th>
+                </tr>
+                @foreach($index_s as $index)
+                    <tr>
+                        <td>{{$index['Non_unique']==0 ? '唯一' : ''}}</td>
+                        <td>{{$index['Key_name']}}</td>
+                        <td>{{$index['Column_name']}}</td>
+                        <td>{{$index['Cardinality']}}</td>
+                        <td>{{$index['Null']}}</td>
+                        <td>{{$index['Index_type']}}</td>
                     </tr>
                 @endforeach
             </table>

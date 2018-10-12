@@ -25,7 +25,8 @@ class TableController extends Controller
         $params  = ['database' => $this->getDbName($conn), 'table_name' => $table_name];
         $table   = $this->getRecord($pdo->query($this->buildSql('table_info', $params)))[0];
         $columns = $this->getRecord($pdo->query($this->buildSql('list_columns', $params)));
-        return view('database.table_info', compact('table', 'columns'));
+        $index_s = $this->getRecord($pdo->query($this->buildSql('list_index', $params)));
+        return view('database.table_info', compact('table', 'columns', 'index_s'));
     }
     
     protected function list_tables($database)
@@ -41,6 +42,11 @@ class TableController extends Controller
     protected function list_columns($params)
     {
         return "SELECT column_name, column_default, is_nullable, data_type, column_type FROM information_schema.columns WHERE table_schema = '".$params['database']."' AND table_name = '".$params['table_name']."' ORDER BY ordinal_position";
+    }
+    
+    protected function list_index($params)
+    {
+        return "show index from ".$params['table_name'];
     }
     
     protected function getRecord($rows)
