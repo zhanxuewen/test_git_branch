@@ -3,7 +3,7 @@
 
 @section('section')
     <div class="col-sm-6">
-        <form class="form-inline" action="{{url('quit_student')}}" method="get">
+        <form class="form-inline" action="{{route('select_quit_student')}}" method="get">
             <div class="form-group">
                 <label>Student ID</label>
                 <input class="form-control" type="number" name="student_id" value="{{$student_id}}" placeholder="Student ID" required="required">

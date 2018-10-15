@@ -7,9 +7,10 @@
             'Student' => 'export/student'
         ], 'fa-download') !!}
         {!! \App\Helper\BladeHelper::treeview('Select', [
-            'Marketer' => 'marketer',
-            'Quit Student' => 'quit_student',
-            'Labels' => 'labels'
+            'Marketer' => 'select/marketer',
+            'Labels' => 'select/labels',
+            'Feedback' => 'select/feedback',
+            'Quit Student' => route('select_quit_student'),
         ], 'fa-table') !!}
         {!! \App\Helper\BladeHelper::treeview('Database', [
             'Diff' => 'database/diff',

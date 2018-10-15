@@ -1,35 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Select;
 
 use Input;
+use App\Http\Controllers\Controller;
 
-class SelectController extends Controller
+class SearchController extends Controller
 {
-    /**
-     * List Marketer
-     */
-    public function marketer()
-    {
-        $pdo       = $this->getPdo('online');
-        $marketers = $this->getRecord($pdo->query($this->buildSql('list_marketer', 2)));
-        return view('select.marketer', compact('marketers'));
-    }
-    
-    /**
-     * List Label Tree
-     */
-    public function labels()
-    {
-        $pdo     = $this->getPdo('online');
-        $_labels = $pdo->query($this->buildSql('list_labels', 1));
-        $labels  = [];
-        foreach ($_labels as $label) {
-            $labels[$label['parent_id']][] = $label;
-        }
-        return view('select.label', compact('labels'));
-    }
-    
     /**
      * Search Quit Student
      */
@@ -46,16 +23,6 @@ class SelectController extends Controller
         $student  = $this->getArray($pdo->query($this->buildSql('find_student', $student_id)));
         $vanclass = $this->getRecord($pdo->query($this->buildSql('list_vanclass', $quit_ids)));
         return view('select.student', compact('vanclass', 'student', 'student_id'));
-    }
-    
-    protected function list_marketer($role_id)
-    {
-        return "SELECT user_account.id, nickname, phone FROM system_account_role INNER JOIN user_account ON user_account.id = system_account_role.account_id INNER JOIN user ON user.id = user_account.user_id WHERE role_id = ".$role_id;
-    }
-    
-    protected function list_labels($type_id)
-    {
-        return "SELECT * FROM label WHERE label_type_id = ".$type_id." AND deleted_at IS NULL ORDER BY power DESC";
     }
     
     protected function find_student($student_id)

@@ -47,6 +47,7 @@ Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);
 
 Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 
+// Export Routes
 Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
     Route::get('school', ['uses' => 'SchoolController@school']);
     Route::post('school', ['uses' => 'SchoolController@export']);
@@ -57,9 +58,12 @@ Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
 
 Route::get('logs', ['uses' => 'LogController@logs']);
 
-Route::get('marketer', ['uses' => 'SelectController@marketer']);
-Route::get('labels', ['uses' => 'SelectController@labels']);
-Route::get('quit_student', ['uses' => 'SelectController@quit_student']);
+Route::group(['namespace' => 'Select', 'prefix' => 'select'], function () {
+    Route::get('marketer', ['uses' => 'ShowController@marketer']);
+    Route::get('labels', ['uses' => 'ShowController@labels']);
+    Route::get('feedback', ['uses' => 'ShowController@feedback']);
+    Route::get('quit_student', ['as' => 'select_quit_student', 'uses' => 'SearchController@quit_student']);
+});
 
 Route::group(['namespace' => 'Database', 'prefix' => 'database'], function () {
     Route::group(['prefix' => 'get'], function () {
