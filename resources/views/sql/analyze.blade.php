@@ -16,7 +16,9 @@
                         @if(!isset($sql->count))
                             <span class="label @if($sql->time >= 1000) bg-red @else bg-gray @endif">{{$sql->time}}ms</span>
                             <a href="{!! url('/query/id/'.$sql->id) !!}" target="_blank">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
-                            @if($sql->time >= 1000) <span class="query_sql bg-orange btn btn-xs">Query Again</span> @endif
+                            @if($sql->time >= 1000 && $_type == 'select')
+                                <span class="query_sql bg-orange btn btn-xs">Query Again</span>
+                            @endif
                         @else
                             <span class="label bg-green">{{isset($sql->count)?$sql->count:1}}</span>
                             <a href="{!! url('/query/sql').'?query='.($sql->query) !!}" target="_blank">{{$sql->query}}</a>

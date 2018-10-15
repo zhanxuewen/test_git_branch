@@ -52,17 +52,17 @@ class SlowController extends Controller
             $date = preg_replace('/ \d+ /', '', $match[1]);
             $log  = preg_replace('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \d+ /', '', $log);
             $log  = preg_replace('/#/', '', $log);
-            if (!strstr($log, 'Query_time:')) {
+            if (count($exp = explode('Query_time:', $log)) == 1) {
                 $bad_s[] = $log;
                 continue;
             }
-            list($sql, $other) = explode('Query_time:', $log);
+            list($sql, $other) = $exp;
             if (strstr($sql, '!40001 SQL_NO_CACHE')) continue;
-            if (!strstr($log, 'User@Host:')) {
+            if (count($exp = explode('User@Host:', $other)) == 1) {
                 $bad_s[] = $log;
                 continue;
             }
-            list($time, $other) = explode('User@Host:', $other);
+            list($time, $other) = $exp;
             list($user, $host) = explode('@', $other);
             if (strstr($host, '10.30.176.166')) continue;
             $times[] = trim($time);
