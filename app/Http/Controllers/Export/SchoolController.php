@@ -43,7 +43,7 @@ class SchoolController extends Controller
         $field     = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
         $query     = Input::get('query');
         $expire    = Input::get('expire', 0);
-        $db_change = Input::get('database', 0) == 0 ? false : true;
+        $db_change = Input::get('database', 0) == 0 ? null : 'wordpk';
         Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
         Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
         Input::has('marketer_id') ? $params['marketer_id'] = Input::get('marketer_id', null) : null;

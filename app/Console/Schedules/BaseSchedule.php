@@ -3,11 +3,14 @@
 namespace App\Console\Schedules;
 
 use Illuminate\Mail\Message;
+use App\Foundation\PdoBuilder;
 use Maatwebsite\Excel\Writers\LaravelExcelWriter;
 use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
 
 class BaseSchedule
 {
+    use PdoBuilder;
+    
     private function queryToArray($query, $key, $alias)
     {
         $tmp = [];

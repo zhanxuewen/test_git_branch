@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Auth;
 use Excel;
 use Validator;
-use Predis\Client;
 use App\Helper\Builder;
+use App\Foundation\PdoBuilder;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -14,9 +14,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 abstract class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-    
-    protected $env = [];
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, PdoBuilder;
     
     protected $user;
     
@@ -33,23 +31,6 @@ abstract class Controller extends BaseController
         $this->builder = $builder;
     }
     
-    private function getEnv()
-    {
-        if (empty($this->env)) $this->env = include_once base_path().'/.env.array';
-        return $this->env;
-    }
-    
-    protected function getConf($conn)
-    {
-        return $this->getEnv()[$conn];
-    }
-    
-    protected function getRedis($conn)
-    {
-        $conf = $this->getEnv()['redis'][$conn];
-        return new Client($conf);
-    }
-    
     protected function getUser($field = null)
     {
         if (empty($this->user)) $this->user = Auth::user();
@@ -60,18 +41,6 @@ abstract class Controller extends BaseController
     {
         $data = ['log_type' => 'export', 'account_id' => $this->getUser('id'), 'content' => $content];
         $this->builder->setModel('log')->create($data);
-    }
-    
-    protected function getDbName($conn)
-    {
-        return $this->getConf($conn)['database'];
-    }
-    
-    protected function getPdo($conn, $is_word_pk = false)
-    {
-        $db = $this->getConf($conn);
-        if ($is_word_pk) $db['database'] = 'wordpk';
-        return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'], $db['username'], $db['password']);
     }
     
     protected function buildSql($query, $param)
@@ -86,7 +55,7 @@ abstract class Controller extends BaseController
     
     protected function getManageToken()
     {
-        return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1MzgxMTY5NjUsImV4cCI6MTUzOTMyNjU2NSwibmJmIjoxNTM4MTE2OTY1LCJqdGkiOiIwMVRQRFR3WjN5YzNtWk1xIn0.09NHZroWnErdx8SK4BcxCAABV8Y146Ws0AI3q2dTPQc';
+        return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1Mzk2NTY2MDEsImV4cCI6MTU0MDg2NjIwMSwibmJmIjoxNTM5NjU2NjAxLCJqdGkiOiI4Q3VvdDU2NFNUVTFnT0JZIn0.FIQKJWAnLJgfyzZHxmySfPXf9zNAUAWooSWeehL5Dns';
     }
     
     protected function validate($request)
