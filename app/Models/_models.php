@@ -3,6 +3,8 @@
 return [
     'log' => App\Models\Log\Log::class,
     
+    'tableIncrement' => App\Models\Monitor\TableIncrement::class,
+    
     'server' => App\Models\TcpServer::class,
     
     'account' => App\Models\User\Account::class,

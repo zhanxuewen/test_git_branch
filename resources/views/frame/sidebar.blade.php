@@ -2,6 +2,7 @@
 <section class="sidebar">
     <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MAIN NAVIGATION</li>
+        {!! \App\Helper\BladeHelper::single_bar('Dashboard', route('dashboard'), 'fa-dashboard') !!}
         {!! \App\Helper\BladeHelper::treeview('Export', [
             'School' => 'export/school',
             'Student' => 'export/student'

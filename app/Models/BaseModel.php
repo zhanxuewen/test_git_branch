@@ -12,4 +12,11 @@ class BaseModel extends Model
             $query->orderBy($order_by, $sort);
         }]);
     }
+    
+    public function withCertain($relation, array $columns)
+    {
+        return $this->with([$relation => function ($query) use ($columns) {
+            $query->select(array_merge(['id'], $columns));
+        }]);
+    }
 }

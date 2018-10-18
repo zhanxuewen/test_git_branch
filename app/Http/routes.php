@@ -13,6 +13,8 @@ Route::group(['namespace' => 'Auth'], function () {
     Route::get('/', ['as' => 'homepage', 'uses' => 'AuthController@index']);
 });
 
+Route::get('dashboard', ['as' => 'dashboard', 'uses' => 'DashboardController@dashboard']);
+
 // Rpc Routes
 Route::group(['namespace' => 'Rpc'], function () {
     Route::group(['prefix' => 'db'], function () {

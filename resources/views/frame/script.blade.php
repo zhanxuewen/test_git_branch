@@ -12,6 +12,8 @@
 <script src="{{asset('bower_components/admin-lte/dist/js/adminlte.min.js')}}"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="{{asset('bower_components/admin-lte/dist/js/demo.js')}}"></script>
-
+<!-- iCheck.js -->
 <script src="{{asset('bower_components/admin-lte/plugins/iCheck/icheck.min.js')}}"></script>
+<!-- Chart -->
+<script src="{{asset('bower_components/chart.js/dist/Chart.min.js')}}"></script>
 <!-- page script -->

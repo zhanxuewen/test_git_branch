@@ -10,7 +10,7 @@ trait PdoBuilder
     
     private function getEnv()
     {
-        if (empty($this->env)) $this->env = include_once base_path().'/.env.array';
+        if (empty($this->env)) $this->env = include base_path().'/.env.array';
         return $this->env;
     }
     
