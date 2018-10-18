@@ -6,7 +6,7 @@ class LogController extends Controller
 {
     public function logs()
     {
-        $logs = $this->builder->setModel('log')->with('account')->get()->toArray();
+        $logs = $this->builder->setModel('log')->with('account')->orderBy('id', 'desc')->paginate(15);
         return view('log.list', compact('logs'));
     }
 }

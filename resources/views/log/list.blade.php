@@ -18,5 +18,6 @@
                 </tr>
             @endforeach
         </table>
+        <nav aria-label="Page navigation">{!! $logs->render() !!}</nav>
     </div>
 @endsection
