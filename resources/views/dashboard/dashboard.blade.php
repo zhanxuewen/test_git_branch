@@ -4,9 +4,22 @@
 @section('section')
     <div class="col-sm-12">
         @foreach($rows as $key => $row)
-            <input type="hidden" id="row{{$key}}" value="{{$row}}">
-            <p>Level {{$key}}</p>
-            <canvas id="myChart{{$key}}" width="1000" height="600"></canvas>
+            <div class="box box-info">
+                <div class="box-header with-border">
+                    <h3 class="box-title">Group {{$key + 1}}</h3>
+
+                    <div class="box-tools pull-right">
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>
+                </div>
+                <div class="box-body">
+                    <input type="hidden" id="row{{$key}}" value="{{$row}}">
+                    <div class="chart">
+                        <canvas id="myChart{{$key}}" width="1000" height="400"></canvas>
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
         @endforeach
     </div>
 @endsection
@@ -15,7 +28,7 @@
     <script>
         let row;
         let data;
-        $.each(JSON.parse('{{$levels}}'), function () {
+        $.each(JSON.parse('{{$keys}}'), function () {
             row = $('#row' + this).val();
             let set = [];
             $.each(JSON.parse(row), function (index) {
