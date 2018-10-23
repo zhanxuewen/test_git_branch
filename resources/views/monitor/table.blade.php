@@ -1,23 +1,24 @@
 @extends('frame.body')
-@section('title','Dashboard')
+@section('title','Monitor Table')
 
 @section('section')
     <div class="col-sm-12">
-        @foreach(['table'=>'Table Increment', 'device'=>'Device Usage Amount'] as $key => $label)
+        @foreach($rows as $key => $row)
             <div class="box box-info">
                 <div class="box-header with-border">
-                    <h3 class="box-title">{{$label}} Top 10</h3>
+                    <h3 class="box-title">Group {{$key + 1}}</h3>
+
                     <div class="box-tools pull-right">
                         <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
                     </div>
                 </div>
                 <div class="box-body">
-                    <input type="hidden" id="{{$key}}_row" value="{{$rows[$key]}}">
-                    <input type="hidden" id="{{$key}}_date" value="{{$dates[$key]}}">
+                    <input type="hidden" id="row{{$key}}" value="{{$row}}">
                     <div class="chart">
-                        <canvas id="my{{$key}}Chart" width="1000" height="400"></canvas>
+                        <canvas id="myChart{{$key}}" width="1000" height="400"></canvas>
                     </div>
                 </div>
+                <!-- /.box-body -->
             </div>
         @endforeach
     </div>
@@ -25,23 +26,26 @@
 
 @section('script')
     <script>
-        $.each(['table', 'device'], function () {
+        let row;
+        let data;
+        $.each(JSON.parse('{{$keys}}'), function () {
+            row = $('#row' + this).val();
             let set = [];
-            $.each(JSON.parse($('#' + this + '_row').val()), function (index) {
+            $.each(JSON.parse(row), function (index) {
                 set.push({
-                    label: this.item,
+                    label: this.table,
                     fill: false,
                     backgroundColor: '#F' + (9 - index) + index,
                     borderColor: '#F' + (9 - index) + index,
-                    data: this._count.split(',')
+                    data: this._rows.split(',')
                 });
             });
-            let data;
+
             data = {
-                labels: JSON.parse($('#' + this + '_date').val()),
+                labels: JSON.parse('{!! $dates !!}'),
                 datasets: set
             };
-            new Chart($('#my' + this + 'Chart').get(0).getContext("2d"), {type: 'line', data: data});
+            new Chart($("#myChart" + this).get(0).getContext("2d"), {type: 'line', data: data});
         });
     </script>
 @endsection

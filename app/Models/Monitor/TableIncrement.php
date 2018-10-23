@@ -12,9 +12,4 @@ class TableIncrement extends BaseModel
     
     protected $fillable = ['table', 'rows', 'auto_increment_id', 'level', 'created_date'];
     
-    public function model()
-    {
-        return $this->belongsTo('App\Models\Rpc\DB\Model', 'table', 'table');
-    }
-    
 }

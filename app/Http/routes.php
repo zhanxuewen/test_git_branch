@@ -38,6 +38,9 @@ Route::group(['namespace' => 'Rpc'], function () {
     });
 });
 
+Route::get('monitor/table', ['uses' => 'MonitorController@table']);
+Route::get('monitor/device', ['uses' => 'MonitorController@device']);
+
 Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']);
 Route::get('query/id/{id}', ['uses' => 'SqlController@queryId']);
 Route::get('ajax/query/sql', ['uses' => 'SqlController@ajaxQuerySql']);

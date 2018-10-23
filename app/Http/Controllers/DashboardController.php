@@ -8,22 +8,32 @@ class DashboardController extends Controller
 {
     public function dashboard()
     {
-        $count    = $this->builder->setModel('tableIncrement')->distinct()->count('created_date');
-        $sub_days = $count > 14 ? 14 : $count;
+        $table  = $this->getRecord('tableIncrement', 'table', 'table', 'rows');
+        $device = $this->getRecord('deviceUsageAmount', 'device', 'device', 'user_amount');
+        $data   = array_merge_recursive($table, $device);
+        return view('dashboard.dashboard', $data);
+    }
+    
+    protected function getRecord($model, $label, $item, $count)
+    {
+        $sub_days = $this->getSubDays($model);
         $dates    = json_encode($this->listSubDays($sub_days));
-        $keys     = [];
-        $i        = 0;
-        $rows     = [];
-        $this->builder->setModel('tableIncrement')->selectRaw('`table`, group_concat(rows) as _rows')
+        $rows     = $this->getRows($model, $sub_days, $item, $count);
+        return ['rows' => [$label => $rows], 'dates' => [$label => $dates]];
+    }
+    
+    protected function getRows($model, $sub_days, $item, $count)
+    {
+        return $this->builder->setModel($model)->selectRaw("`$item` as item, group_concat($count) as _count")
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
-            ->groupBy('table')->orderBy('rows', 'desc')
-            ->chunk(10, function ($tables) use (&$i, &$rows, &$keys) {
-                $rows[$i] = $tables->toJson();
-                $keys[]   = $i;
-                $i++;
-            });
-        $keys = json_encode($keys);
-        return view('dashboard.dashboard', compact('rows', 'keys', 'dates'));
+            ->groupBy($item)->orderBy($count, 'desc')->take(10)->get()->toJson();
+    }
+    
+    
+    protected function getSubDays($model)
+    {
+        $count = $this->builder->setModel($model)->distinct()->count('created_date');
+        return $count > 14 ? 14 : $count;
     }
     
     protected function listSubDays($sub_days)

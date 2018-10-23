@@ -35,9 +35,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function (Schedules\Monitor\RecordTableIncrement $schedule) {
-            $schedule->handle();
+        $schedule->call(function () {
+            (new Schedules\Monitor\RecordTableIncrement())->handle();
             $this->logSchedule('Record Table Increment Done At '.date('Y-m-d H:i:s'));
+            (new Schedules\Monitor\RecordDeviceUsage())->handle();
+            $this->logSchedule('Record Device Usage Done At '.date('Y-m-d H:i:s'));
         })->daily();
         $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
             $schedule->handle();

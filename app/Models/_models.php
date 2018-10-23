@@ -4,6 +4,7 @@ return [
     'log' => App\Models\Log\Log::class,
     
     'tableIncrement' => App\Models\Monitor\TableIncrement::class,
+    'deviceUsageAmount' => App\Models\Monitor\DeviceUsageAmount::class,
     
     'server' => App\Models\TcpServer::class,
     

@@ -18,6 +18,10 @@
             'Table' => 'database/get/tableList',
             'Table Correct' => 'database/table_correct'
         ], 'fa-database') !!}
+        {!! \App\Helper\BladeHelper::treeview('Monitor', [
+            'Table' => 'monitor/table',
+            'Device' => 'monitor/device'
+        ], 'fa-database') !!}
         {!! \App\Helper\BladeHelper::treeview('Redis', ['Throttle' => 'redis_throttle'], 'fa-file') !!}
         {!! \App\Helper\BladeHelper::treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}
         {!! \App\Helper\BladeHelper::treeview('Build', [
