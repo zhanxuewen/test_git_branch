@@ -50,7 +50,7 @@ class ShowController extends Controller
     
     protected function list_labels($type_id)
     {
-        return "SELECT * FROM label WHERE label_type_id = ".$type_id." AND deleted_at IS NULL ORDER BY power DESC";
+        return "SELECT * FROM label WHERE label_type_id = ".$type_id." AND deleted_at IS NULL ORDER BY power DESC, id ASC";
     }
     
     protected function getRecord($rows)

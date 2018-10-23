@@ -6,6 +6,20 @@
         @foreach([$type_s,$group_s,$auth_s] as $key=>$item)
             {!! \App\Helper\BladeHelper::renderOptions($item,$key,[$_type,$_group,$_auth]) !!}
         @endforeach
+        <div class="pull-right">
+            <form class="form-inline" action="{{url('query/empty')}}" method="get">
+                <div class="form-group">
+                    <label for="auth">Auth</label>
+                    <select class="form-control" name="auth" id="auth">
+                        <option value="0">请选择</option>
+                        @foreach($auth_s as $auth)
+                            <option value="{{$auth}}">{{$auth}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <input class="btn btn-primary" type="submit" value="清空">
+            </form>
+        </div>
         <hr>
         <nav aria-label="Page navigation">{!! $sql_s->render() !!}</nav>
         <table class="table table-bordered table-hover">

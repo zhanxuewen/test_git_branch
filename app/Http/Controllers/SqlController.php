@@ -46,6 +46,13 @@ class SqlController extends Controller
         return view('sql.query_id', compact('sql', 'total'));
     }
     
+    public function emptySql()
+    {
+        $auth = Input::get('auth');
+        DB::setPdo($this->getPdo('dev'))->table('sql_log')->where('auth', $auth)->delete();
+        return back();
+    }
+    
     public function ajaxQuerySql()
     {
         $start = microtime(true);
