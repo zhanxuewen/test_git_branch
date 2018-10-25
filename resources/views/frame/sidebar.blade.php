@@ -21,7 +21,7 @@
         {!! \App\Helper\BladeHelper::treeview('Monitor', [
             'Table' => 'monitor/table',
             'Device' => 'monitor/device'
-        ], 'fa-database') !!}
+        ], 'fa-bar-chart') !!}
         {!! \App\Helper\BladeHelper::treeview('Redis', ['Throttle' => 'redis_throttle'], 'fa-file') !!}
         {!! \App\Helper\BladeHelper::treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}
         {!! \App\Helper\BladeHelper::treeview('Build', [
@@ -29,6 +29,11 @@
             'Rpc Repo' => 'repo/get/repositoryList',
             'Rpc Service' => 'service/get/serviceList'
         ], 'fa-object-group') !!}
+        {!! \App\Helper\BladeHelper::treeview('User', [
+            'Account' => 'user/listAccount',
+            'Role' => 'user/listRole',
+            'Power' => 'user/listPower',
+        ], 'fa-users') !!}
         {!! \App\Helper\BladeHelper::single_bar('Sql Analyze', 'analyze/select/no_group', 'fa-heartbeat') !!}
         {!! \App\Helper\BladeHelper::single_bar('Logs', 'logs', 'fa-hand-pointer-o') !!}
     </ul>

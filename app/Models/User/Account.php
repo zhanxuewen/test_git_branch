@@ -27,6 +27,11 @@ class Account extends BaseModel implements AuthenticateAbleContract,
     
     protected $fillable = ['username', 'password', 'avatar'];
     
+    public function role()
+    {
+        return $this->belongsToMany('App\Models\User\Role', 'user_account_role', 'account_id', 'role_id');
+    }
+    
     public function setUsernameAttribute($value)
     {
         $this->attributes['username'] = e($value);

@@ -8,7 +8,13 @@ return [
     
     'server' => App\Models\TcpServer::class,
     
+    'role' => App\Models\User\Role::class,
+    'power' => App\Models\User\Power::class,
     'account' => App\Models\User\Account::class,
+    'rolePower' => App\Models\User\RolePower::class,
+    'accountRole' => App\Models\User\AccountRole::class,
+    
+    'config' => App\Models\System\Config::class,
     
     'model' => App\Models\Rpc\DB\Model::class,
     'module' => App\Models\Rpc\DB\Module::class,
