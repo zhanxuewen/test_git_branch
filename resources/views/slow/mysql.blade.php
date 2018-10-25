@@ -12,9 +12,9 @@
             <caption>[ 时间阀值:{{$_sec}}s] {!! \Carbon\Carbon::now()->subDays($_day) !!} - {!! date('Y-m-d H:i:s') !!}</caption>
             @foreach($times as $key=>$v)
                 <tr>
-                    <td @if(strstr($sql_s[$key]['date'],' 00:')) class="need-hide" @endif>
+                    <td @if(strstr($sql_s[$key]['date'],' 00:') && strstr($sql_s[$key]['user'],'manage')) class="need-hide" @endif>
                         <span class="label @if($v >= $_sec) bg-red @else bg-gray @endif">{{$v}}s</span>
-                        <span class="label @if(strstr($sql_s[$key]['user'],'online')) bg-blue @else bg-green @endif">
+                        <span class="label @if(strstr($sql_s[$key]['user'],'manage')) bg-green @else bg-blue @endif">
                         {{$sql_s[$key]['user']}}</span><span>@ {{$sql_s[$key]['host']}}[{{$sql_s[$key]['date']}}]</span>
                         <br>
                         <span>{{$sql_s[$key]['sql']}}</span>
