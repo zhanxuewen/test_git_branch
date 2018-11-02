@@ -34,6 +34,6 @@ trait PdoBuilder
     {
         $db = $this->getConf($conn);
         if (!is_null($change_db)) $db['database'] = $change_db;
-        return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'], $db['username'], $db['password']);
+        return new \PDO("mysql:host=".$db['host'].";dbname=".$db['database'].";charset=utf8", $db['username'], $db['password']);
     }
 }
