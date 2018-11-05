@@ -55,7 +55,7 @@ abstract class Controller extends BaseController
     
     protected function getManageToken()
     {
-        return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1Mzk2NTY2MDEsImV4cCI6MTU0MDg2NjIwMSwibmJmIjoxNTM5NjU2NjAxLCJqdGkiOiI4Q3VvdDU2NFNUVTFnT0JZIn0.FIQKJWAnLJgfyzZHxmySfPXf9zNAUAWooSWeehL5Dns';
+        return 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjMzNDksImlzcyI6Imh0dHA6Ly9hcGkubWFuYWdlLnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1NDEwNjE4NDcsImV4cCI6MTU0MjI3MTQ0NywibmJmIjoxNTQxMDYxODQ3LCJqdGkiOiJoMmtFS2hkaUlSSW5RdmsyIn0.qsNh8Zc4VMhgZ8nmVq2PGuE4axwCgTXFsbPHh51y11k';
     }
     
     protected function validate($request)

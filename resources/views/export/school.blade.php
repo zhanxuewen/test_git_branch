@@ -10,6 +10,10 @@
                     <input class="form-control" type="number" name="school_id" placeholder="School ID"/>
                 </div>
                 <div class="form-group">
+                    <label>班级ID</label>
+                    <input class="form-control" type="number" name="vanclass_id" placeholder="Vanclass ID"/>
+                </div>
+                <div class="form-group">
                     <label>教师ID</label>
                     <input class="form-control" type="number" name="teacher_id" placeholder="Teacher ID"/>
                 </div>

@@ -45,6 +45,7 @@ class SchoolController extends Controller
         $expire    = Input::get('expire', 0);
         $db_change = Input::get('database', 0) == 0 ? null : 'wordpk';
         Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
+        Input::has('vanclass_id') ? $params['vanclass_id'] = Input::get('vanclass_id', null) : null;
         Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
         Input::has('marketer_id') ? $params['marketer_id'] = Input::get('marketer_id', null) : null;
         Input::has('start') ? $params['start'] = Input::get('start', null) : null;
@@ -104,7 +105,8 @@ class SchoolController extends Controller
     protected function school_student($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id as student_id, nickname, $this->field_phone, GROUP_CONCAT(vanclass.`name`) as name, user_account.created_at FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id']." AND school_member.account_type_id = 5 ".$this->getTime($params, 'user_account.created_at')." GROUP BY student_id";
+        $vanclass = isset($params['vanclass_id']) ? " AND vanclass_student.vanclass_id = ".$params['vanclass_id'] : "";
+        return "SELECT user_account.id as student_id, nickname, $this->field_phone, GROUP_CONCAT(vanclass.`name`) as name, user_account.created_at FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = ".$params['school_id'].$vanclass." AND school_member.account_type_id = 5 ".$this->getTime($params, 'user_account.created_at')." GROUP BY student_id";
     }
     
     protected function teacher_student($params)
