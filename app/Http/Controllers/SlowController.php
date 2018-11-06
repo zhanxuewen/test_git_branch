@@ -49,6 +49,10 @@ class SlowController extends Controller
         foreach ($logs as $log) {
             if (empty($log)) continue;
             preg_match('/(\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \d+ )/', $log, $match);
+            if (empty($match)) {
+                $bad_s[] = $log;
+                continue;
+            }
             $date = preg_replace('/ \d+ /', '', $match[1]);
             $log  = preg_replace('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \d+ /', '', $log);
             $log  = preg_replace('/#/', '', $log);
