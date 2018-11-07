@@ -15,6 +15,9 @@ class Helper
     
     public static function vsprintf($query, $bindings)
     {
+        if (is_null($bindings)) {
+            return str_replace('&apos;', '\'', str_replace('&quot;', '"', $query));
+        }
         $bindings = str_replace('&apos;', '\'', str_replace('&quot;', '"', self::decodeBindings($bindings)));
         return vsprintf(str_replace("?", "'%s'", $query), self::carbonToString($bindings));
     }

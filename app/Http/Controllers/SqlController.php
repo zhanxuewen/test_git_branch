@@ -34,8 +34,12 @@ class SqlController extends Controller
     {
         $db           = DB::setPdo($this->getPdo('dev'));
         $sql          = $db->select("SELECT * FROM sql_log WHERE id = ".$id." LIMIT 1")[0];
-        $bindings     = str_replace('&apos;', '\'', str_replace('&quot;', '"', Helper::decodeBindings($sql->bindings)));
-        $sql->query   = vsprintf(str_replace("?", "'%s'", $sql->query), Helper::carbonToString($bindings));
+        if (is_null($sql->bindings)){
+            $sql->query = str_replace('&apos;', '\'', str_replace('&quot;', '"', $sql->query));
+        }else{
+            $bindings     = str_replace('&apos;', '\'', str_replace('&quot;', '"', Helper::decodeBindings($sql->bindings)));
+            $sql->query   = vsprintf(str_replace("?", "'%s'", $sql->query), Helper::carbonToString($bindings));
+        }
         $sql->explain = $db->select("EXPLAIN ".$sql->query);
         $sql->trace   = Helper::convertQuot(json_decode($sql->trace, true));
         $total        = [];
