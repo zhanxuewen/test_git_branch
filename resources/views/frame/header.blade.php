@@ -21,7 +21,7 @@
             <li class="dropdown user user-menu">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                     <img src="{{asset('asset/image/user-3.jpg')}}" class="user-image" alt="User Image">
-                    <span class="hidden-xs">{{ Auth::user()->username }}</span>
+                    <span class="hidden-xs">[{{{ Auth::user()->role[0]->label }}}] <b>{{ Auth::user()->username }}</b></span>
                 </a>
                 <ul class="dropdown-menu">
                     <li class="user-footer">

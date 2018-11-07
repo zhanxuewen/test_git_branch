@@ -106,7 +106,6 @@ class AuthorityController extends Controller
         $now    = Carbon::now()->toDateTimeString();
         foreach (\Route::getRoutes() as $route) {
             $uri = $route->getUri();
-            if (strstr($uri, 'auth/') || $uri == '/') continue;
             $url = implode('|', $route->getMethods()).'@'.$uri;
             if (in_array($url, $routes)) continue;
             $create[] = [

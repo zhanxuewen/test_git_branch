@@ -5,14 +5,8 @@ namespace App\Http\Middleware;
 use Auth;
 use Closure;
 
-class VerifyUserLogin
+class VerifyUserLogin extends IgnoreRoute
 {
-    protected $ignore
-        = [
-            'auth/login',
-            'auth/register',
-        ];
-    
     /**
      * Handle an incoming request.
      *
@@ -22,8 +16,7 @@ class VerifyUserLogin
      */
     public function handle($request, Closure $next)
     {
-        $uri = substr(explode('?', $request->getRequestUri())[0], 1);
-        if (in_array($uri, $this->ignore))
+        if ($this->if_ignore($request))
             return $next($request);
         if (!Auth::check())
             return redirect()->route('login');
