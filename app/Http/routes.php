@@ -60,11 +60,13 @@ Route::group(['namespace' => 'Rpc'], function () {
 Route::get('monitor/table', ['uses' => 'MonitorController@table']);
 Route::get('monitor/device', ['uses' => 'MonitorController@device']);
 
-Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']);
-Route::get('query/id/{id}', ['uses' => 'SqlController@queryId']);
-Route::get('ajax/query/sql', ['uses' => 'SqlController@ajaxQuerySql']);
-Route::get('query/sql', ['uses' => 'SqlController@querySql']);
-Route::get('query/empty', ['uses' => 'SqlController@emptySql']);
+Route::group(['middleware' => 'cache.rows'], function () {
+    Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']);
+    Route::get('query/id/{id}', ['uses' => 'SqlController@queryId']);
+    Route::get('ajax/query/sql', ['uses' => 'SqlController@ajaxQuerySql']);
+    Route::get('query/sql', ['uses' => 'SqlController@querySql']);
+    Route::get('query/empty', ['uses' => 'SqlController@emptySql']);
+});
 
 Route::get('slow_rpc', ['uses' => 'SlowController@rpc']);
 Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);

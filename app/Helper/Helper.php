@@ -22,6 +22,26 @@ class Helper
         return vsprintf(str_replace("?", "'%s'", $query), self::carbonToString($bindings));
     }
     
+    public static function showExplain($explain)
+    {
+        $cache   = \Cache::get('dev_table_rows');
+        $tables  = json_decode($cache, true);
+        $explain = json_decode(str_replace('&quot;', '"', $explain), true);
+        $out     = '';
+        foreach ($explain as $item) {
+            $label = '';
+            $table = $item['table'];
+            if ($item['type'] == 'ALL') $label .= ' <span class="label bg-red">全表扫描</span>';
+            if (empty($item['key'])) $label .= ' <span class="label bg-red">未使用索引</span>';
+            $_row = $item['rows'];
+            $rows = $tables[$table];
+            if ($_row / $rows > 0.05)
+                $label .= ' <span class="label bg-red">获取行 '.$_row.' / '.$rows.' ('.round($_row / $rows * 100, 2).'%)</span>';
+            if (!empty($label)) $out .= '<span class="label bg-red">'.$item['table'].'</span>'.$label;
+        }
+        return $out;
+    }
+    
     /**
      * @param mixed
      * @return mixed
