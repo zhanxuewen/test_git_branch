@@ -29,7 +29,7 @@
                     <td>
                         @if(!isset($sql->count))
                             <span class="label @if($sql->time >= 1000) bg-red @else bg-gray @endif">{{$sql->time}}ms</span>
-                            <span>{!! empty($sql->explain) or \App\Helper\Helper::showExplain($sql->explain) !!}</span><br>
+                            <span>{!! \App\Helper\Helper::showExplain($sql->explain) !!}</span><br>
                             <a href="{!! url('/query/id/'.$sql->id) !!}" target="_blank">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
                             @if($sql->time >= 1000 && $_type == 'select')
                                 <span class="query_sql bg-orange btn btn-xs">Query Again</span>

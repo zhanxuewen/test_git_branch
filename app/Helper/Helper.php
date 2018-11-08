@@ -24,6 +24,7 @@ class Helper
     
     public static function showExplain($explain)
     {
+        if (empty($explain)) return '';
         $cache   = \Cache::get('dev_table_rows');
         $tables  = json_decode($cache, true);
         $explain = json_decode(str_replace('&quot;', '"', $explain), true);
