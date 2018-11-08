@@ -40,7 +40,7 @@ class Kernel extends ConsoleKernel
             $this->logSchedule('Record Table Increment Done At '.date('Y-m-d H:i:s'));
             (new Schedules\Monitor\RecordDeviceUsage())->handle();
             $this->logSchedule('Record Device Usage Done At '.date('Y-m-d H:i:s'));
-        })->daily();
+        })->dailyAt('01:00');
         $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
             $schedule->handle();
             $this->logSchedule('Export Order List Done At '.date('Y-m-d H:i:s'));
