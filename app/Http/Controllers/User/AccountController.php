@@ -33,6 +33,7 @@ class AccountController extends Controller
         } else if ($accountRole->role_id != $role_id) {
             $accountRole->fill(['role_id' => $role_id])->save();
         }
+        $this->delUserCache([$account_id]);
         return redirect('user/listAccount');
     }
     

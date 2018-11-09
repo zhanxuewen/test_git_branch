@@ -68,7 +68,13 @@ class AuthorityController extends Controller
         }
         $this->builder->setModel('rolePower')->insert($create);
         $this->builder->setModel('rolePower')->where('role_id', $role_id)->whereIn('power_id', $delete)->delete();
+        $this->delUserCache($this->getUsersByRoleId($role_id));
         return back();
+    }
+    
+    protected function getUsersByRoleId($role_id)
+    {
+        return $this->builder->setModel('accountRole')->where('role_id', $role_id)->lists('account_id')->all();
     }
     
     public function listPower()
