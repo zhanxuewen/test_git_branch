@@ -18,7 +18,8 @@ class CacheTableRows extends IgnoreRoute
      */
     public function handle($request, Closure $next)
     {
-        if (\Cache::get('dev_table_rows')) {
+        $redis = $this->getRedis('analyze');
+        if ($redis->get('dev_table_rows')) {
             return $next($request);
         }
         $database = $this->getDbName('dev');
@@ -28,7 +29,7 @@ class CacheTableRows extends IgnoreRoute
         foreach ($tables as $table) {
             $cache[$table->table_name] = $table->table_rows;
         }
-        \Cache::put('dev_table_rows', json_encode($cache), 60);
+        $redis->setex('dev_table_rows', 60 * 60, json_encode($cache));
         return $next($request);
     }
 }

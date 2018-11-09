@@ -2,11 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use App\Foundation\PdoBuilder;
 use Auth;
 use Closure;
 
 class VerifyRolePower extends IgnoreRoute
 {
+    use PdoBuilder;
+    
     /**
      * Handle an incoming request.
      *
@@ -23,8 +26,9 @@ class VerifyRolePower extends IgnoreRoute
         $route  = implode('|', $router->getMethods()).'@'.$router->getUri();
         $powers = Auth::user()->role[0]->power;
         $id     = Auth::user()->id;
-        if (!\Cache::get($id.'_routes')) {
-            \Cache::put($id.'_routes', json_encode($powers->pluck('route')->toArray()), 60 * 24);
+        $redis  = $this->getRedis('analyze');
+        if (!$redis->get($id.'_routes')) {
+            $redis->setex($id.'_routes', 60 * 60 * 24, json_encode($powers->pluck('route')->toArray()));
         }
         if ($powers->contains('route', $route)) {
             return $next($request);

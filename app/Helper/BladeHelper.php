@@ -2,8 +2,22 @@
 
 namespace App\Helper;
 
+use App\Foundation\PdoBuilder;
+
 class BladeHelper
 {
+    use PdoBuilder;
+    
+    protected static $cache = null;
+    
+    public static function getCache($id)
+    {
+        if (is_null(self::$cache)) {
+            self::$cache = (new self())->getRedis('analyze')->get($id.'_routes');
+        }
+        return self::$cache;
+    }
+    
     protected static $level
         = [
             1 => 'I',
@@ -86,12 +100,12 @@ class BladeHelper
     public static function single_bar($name, $url, $icon)
     {
         if (!self::checkRoute($url)) return '';
-        return '<li><a href="'.url($url).'"><i class="fa '.$icon.'"></i> <span>'.$name.'</span></a></li>';
+        return '<li><a href="'.url($url).'"><i class="fa '.$icon.'"></i><span>'.$name.'</span></a></li>';
     }
     
     protected static function checkRoute($route)
     {
-        $json  = \Cache::get(\Auth::user()->id.'_routes');
+        $json  = self::getCache(\Auth::user()->id);
         $exist = false;
         foreach (json_decode($json, true) as $item) {
             if ($route == 'analyze/select/no_group' && $item == 'GET|HEAD@analyze/{type}/{group}/{auth?}') $exist = true;

@@ -2,8 +2,22 @@
 
 namespace App\Helper;
 
+use App\Foundation\PdoBuilder;
+
 class Helper
 {
+    use PdoBuilder;
+    
+    protected static $cache = null;
+    
+    public static function getCache()
+    {
+        if (is_null(self::$cache)) {
+            self::$cache = (new self())->getRedis('analyze')->get('dev_table_rows');
+        }
+        return self::$cache;
+    }
+    
     public static function modifyDatabaseConfig($conn)
     {
         $env     = include base_path().'/.env.array';
@@ -25,7 +39,7 @@ class Helper
     public static function showExplain($explain)
     {
         if (empty($explain)) return '';
-        $cache   = \Cache::get('dev_table_rows');
+        $cache   = self::getCache();
         $tables  = json_decode($cache, true);
         $explain = json_decode(str_replace('&quot;', '"', $explain), true);
         $out     = '';
@@ -33,15 +47,22 @@ class Helper
             $label = '';
             $table = $item['table'];
             if (!isset($tables[$table])) continue;
-            if ($item['type'] == 'ALL') $label .= ' <span class="label bg-red">全表扫描</span>';
-            if (empty($item['key'])) $label .= ' <span class="label bg-red">未使用索引</span>';
+            if ($item['type'] == 'ALL') $label .= ' '.self::spanLabelBgColor('全表扫描');
+            if (empty($item['key'])) $label .= ' '.self::spanLabelBgColor('未使用索引');
             $_row = $item['rows'];
             $rows = $tables[$table];
-            if ($_row / $rows > 0.05)
-                $label .= ' <span class="label bg-red">获取行 '.$_row.' / '.$rows.' ('.round($_row / $rows * 100, 2).'%)</span>';
-            if (!empty($label)) $out .= '<span class="label bg-red">'.$item['table'].'</span>'.$label;
+            if ($_row / $rows > 0.05) {
+                $info  = '获取行 '.$_row.' / '.$rows.' ('.round($_row / $rows * 100, 2).'%)';
+                $label .= ' '.self::spanLabelBgColor($info);
+            }
+            if (!empty($label)) $out .= self::spanLabelBgColor($item['table']).$label;
         }
         return $out;
+    }
+    
+    protected static function spanLabelBgColor($item, $color = 'bg-red')
+    {
+        return '<span class="label '.$color.'">'.$item.'</span>';
     }
     
     /**
