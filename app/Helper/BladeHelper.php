@@ -64,6 +64,10 @@ class BladeHelper
     
     public static function treeview($label, $children, $icon)
     {
+        foreach ($children as $k => $child) {
+            if (!self::checkRoute($child)) unset($children[$k]);
+        }
+        if (empty($children)) return '';
         $uri    = substr(explode('?', \Request::getRequestUri())[0], 1);
         $active = in_array($uri, $children) ? ' menu-open' : '';
         $block  = in_array($uri, $children) ? 'style="display: block;"' : '';
@@ -81,7 +85,19 @@ class BladeHelper
     
     public static function single_bar($name, $url, $icon)
     {
+        if (!self::checkRoute($url)) return '';
         return '<li><a href="'.url($url).'"><i class="fa '.$icon.'"></i> <span>'.$name.'</span></a></li>';
+    }
+    
+    protected static function checkRoute($route)
+    {
+        $json  = \Cache::get(\Auth::user()->id.'_routes');
+        $exist = false;
+        foreach (json_decode($json, true) as $item) {
+            if ($route == 'analyze/select/no_group' && $item == 'GET|HEAD@analyze/{type}/{group}/{auth?}') $exist = true;
+            if ($route == explode('@', $item)[1]) $exist = true;
+        }
+        return $exist;
     }
     
     public static function modifierToIcon($modifier)
