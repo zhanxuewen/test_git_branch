@@ -2,7 +2,7 @@
 <section class="sidebar">
     <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MAIN NAVIGATION</li>
-        {!! \App\Helper\BladeHelper::single_bar('Dashboard', route('dashboard'), 'fa-dashboard') !!}
+        {!! \App\Helper\BladeHelper::single_bar('Dashboard', 'dashboard', 'fa-dashboard') !!}
         {!! \App\Helper\BladeHelper::treeview('Export', [
             'School' => 'export/school',
             'Student' => 'export/student'
@@ -11,7 +11,7 @@
             'Marketer' => 'select/marketer',
             'Labels' => 'select/labels',
             'Feedback' => 'select/feedback',
-            'Quit Student' => route('select_quit_student'),
+            'Quit Student' => 'select/quit_student',
         ], 'fa-table') !!}
         {!! \App\Helper\BladeHelper::treeview('Database', [
             'Diff' => 'database/diff',
