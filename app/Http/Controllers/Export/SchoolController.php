@@ -174,16 +174,7 @@ class SchoolController extends Controller
     {
         $postUrl  = 'http://api.manage.wxzxzj.com/api/user/get/expiredTime?token='.$this->getManageToken();
         $curlPost = 'student_id='.$id;
-        $curl     = curl_init();  //初始化
-        curl_setopt($curl, CURLOPT_URL, $postUrl);  //设置url
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);  //设置http验证方法
-        curl_setopt($curl, CURLOPT_HEADER, 0);  //设置头信息
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);  //设置curl_exec获取的信息的返回方式
-        curl_setopt($curl, CURLOPT_POST, 1);  //设置发送方式为post请求
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $curlPost);  //设置post的数据
-        $data = curl_exec($curl);//运行curl
-        curl_close($curl);
-        $data = json_decode($data)->data;
+        $data     = $this->curlPost($postUrl, $curlPost);
         return $data;
     }
     

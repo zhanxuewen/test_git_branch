@@ -3,11 +3,13 @@
 
 @section('section')
     <h3>Attention</h3>
-    <ol>
-        <li>除测试人员外，其他人请不用使用导出功能;</li>
-        <li><b>测试人员只允许使用带颜色的导出选项.</b></li>
-    </ol>
+    @if(Auth::user()->role[0]->code == 'guest')
+        <blockquote>
+            <p>Please contact [<b>LuminEe</b>] to change your role.</p>
+        </blockquote>
+    @endif
     <div class="col-sm-4">
+        <p>You Can Reset Your Password Blow:</p>
         <form action="{{url('auth/edit')}}" method="post">
             {!! csrf_field() !!}
             <div class="form-group has-feedback">

@@ -18,7 +18,9 @@ class RegisterController extends Controller
         if ($validator !== true) {
             return redirect()->back()->with('message', array_shift($validator)[0]);
         }
-        $this->builder->setModel('account')->create(Input::all());
+        $guest = $this->builder->setModel('role')->where('code', 'guest')->first();
+        $user  = $this->builder->setModel('account')->create(Input::all());
+        $this->builder->setModel('accountRole')->create(['account_id' => $user->id, 'role_id' => $guest->id]);
         return redirect()->route('login');
     }
     
