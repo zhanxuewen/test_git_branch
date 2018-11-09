@@ -32,6 +32,7 @@ class Helper
         foreach ($explain as $item) {
             $label = '';
             $table = $item['table'];
+            if (!isset($tables[$table])) continue;
             if ($item['type'] == 'ALL') $label .= ' <span class="label bg-red">全表扫描</span>';
             if (empty($item['key'])) $label .= ' <span class="label bg-red">未使用索引</span>';
             $_row = $item['rows'];

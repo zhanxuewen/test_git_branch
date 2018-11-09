@@ -55,6 +55,7 @@ class SlowController extends Controller
             }
             $date = preg_replace('/ \d+ /', '', $match[1]);
             $log  = preg_replace('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d \d+ /', '', $log);
+            $log  = preg_replace('/\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d\.\d+Z/', '', $log);
             $log  = preg_replace('/#/', '', $log);
             if (count($exp = explode('Query_time:', $log)) == 1) {
                 $bad_s[] = $log;
