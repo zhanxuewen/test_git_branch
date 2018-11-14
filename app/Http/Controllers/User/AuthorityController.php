@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\User;
 
-use Input;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class AuthorityController extends Controller
@@ -19,9 +19,9 @@ class AuthorityController extends Controller
         return view('user.createRole');
     }
     
-    public function saveRole()
+    public function saveRole(Request $request)
     {
-        $this->builder->setModel('role')->create(Input::all());
+        $this->builder->setModel('role')->create($request->all());
         return redirect('user/listRole');
     }
     
@@ -31,10 +31,10 @@ class AuthorityController extends Controller
         return view('user.editRole', compact('role'));
     }
     
-    public function updateRole($role_id)
+    public function updateRole(Request $request, $role_id)
     {
         $role = $this->builder->setModel('role')->find($role_id);
-        $role->fill(Input::all())->save();
+        $role->fill($request->all())->save();
         return redirect('user/listRole');
     }
     
@@ -52,10 +52,10 @@ class AuthorityController extends Controller
         return view('user.editRolePower', compact('role', 'ids', 'keys', 'groups'));
     }
     
-    public function updateRolePower($role_id)
+    public function updateRolePower(Request $request, $role_id)
     {
         $ids       = $this->builder->setModel('rolePower')->where('role_id', $role_id)->lists('power_id')->toArray();
-        $power_ids = Input::get('power_id');
+        $power_ids = $request->get('power_id');
         $delete    = [];
         foreach ($ids as $id) {
             if (!in_array($id, $power_ids)) $delete[] = $id;
@@ -98,10 +98,10 @@ class AuthorityController extends Controller
         return view('user.editPower', compact('power', 'groups'));
     }
     
-    public function updatePower($power_id)
+    public function updatePower(Request $request, $power_id)
     {
         $power = $this->builder->setModel('power')->find($power_id);
-        $power->fill(Input::all())->save();
+        $power->fill($request->all())->save();
         return back();
     }
     

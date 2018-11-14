@@ -3,26 +3,28 @@
 namespace App\Http\Controllers\Database;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class DiffController extends Controller
 {
-    /**
-     * List Diff
-     */
-    public function diff()
+    public function diff(Request $request)
     {
-        $_type = \Input::get('type', 'migration');
+        $_type = $request->get('type', 'migration');
         $sql_s = ['migration' => 'list_migrations', 'table' => 'list_tables'];
-        $conf  = ['dev' => 'b_vanthink_core', 'test' => 'b_vanthink_online', 'online' => 'b_vanthink_online'];
+        $conf  = ['dev' => 'b_vanthink_core',
+//                  'test' => 'b_vanthink_online',
+                  'online' => 'b_vanthink_online'];
+        $data = [];
         foreach ($conf as $env => $db) {
-            $$env = $this->resultToArray($this->getPdo($env)->query($this->buildSql($sql_s[$_type], $db)));
+            $data[$env] = $this->resultToArray($this->getPdo($env)->query($this->buildSql($sql_s[$_type], $db)));
         }
-        return view('database.diff', compact('dev', 'test', 'online', '_type'));
+        $data['_type'] = $_type;
+        return view('database.diff', $data);
     }
     
-    public function table_correct()
+    public function table_correct(Request $request)
     {
-        $conn   = \Input::get('conn', 'dev');
+        $conn   = $request->get('conn', 'dev');
         $Dir    = '/vanthink/rpc_server';
         $dir    = realpath($Dir.'/database/migrations');
         $pdo    = $this->getPdo($conn);

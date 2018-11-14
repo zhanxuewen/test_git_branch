@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Export;
 
-use Input;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class StudentController extends Controller
@@ -29,18 +29,18 @@ class StudentController extends Controller
         return view('export.student');
     }
     
-    public function export()
+    public function export(Request $request)
     {
-        $query = Input::get('query');
-        Input::has('label_id') ? $params['label_id'] = Input::get('label_id', null) : null;
-        Input::has('label_ids') ? $params['label_ids'] = $this->handleIds(Input::get('label_ids', null)) : null;
-        Input::has('student_id') ? $params['student_id'] = Input::get('student_id', null) : null;
-        Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
+        $query = $request->get('query');
+        $request->filled('label_id') ? $params['label_id'] = $request->get('label_id', null) : null;
+        $request->filled('label_ids') ? $params['label_ids'] = $this->handleIds($request->get('label_ids', null)) : null;
+        $request->filled('student_id') ? $params['student_id'] = $request->get('student_id', null) : null;
+        $request->filled('teacher_id') ? $params['teacher_id'] = $request->get('teacher_id', null) : null;
         isset($params) or die('没有参数');
         $pdo  = $this->getPdo('online');
         $rows = $pdo->query($this->buildSql($query, $params));
         $name = $query.'_'.$this->handleTableName($params);
-        $this->exportExcel($name, $this->getRecord($rows));
+        return $this->exportExcel($name, $this->getRecord($rows));
     }
     
     protected function handleTableName($params)

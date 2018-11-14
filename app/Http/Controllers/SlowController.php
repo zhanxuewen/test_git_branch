@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
-use Input;
+use Illuminate\Http\Request;
 
 class SlowController extends Controller
 {
-    public function rpc()
+    public function rpc(Request $request)
     {
-        $_day   = Input::get('day', 1);
-        $_count = Input::get('count', 5);
-        $_sec   = Input::get('sec', 10);
+        $_day   = $request->get('day', 1);
+        $_count = $request->get('count', 5);
+        $_sec   = $request->get('sec', 10);
         $this->setDay($_day, 33469);
         $log  = $this->getLog('rpc');
         $_log = str_replace('&quot;', '"', $log);
@@ -36,10 +36,10 @@ class SlowController extends Controller
         return view('slow.rpc', compact('res', 'time', '_day', '_count', '_sec'));
     }
     
-    public function mysql()
+    public function mysql(Request $request)
     {
-        $_day = Input::get('day', 1);
-        $_sec = Input::get('sec', 10);
+        $_day = $request->get('day', 1);
+        $_sec = $request->get('sec', 10);
         $this->setDay($_day, 29168);
         $log   = $this->getLog('mysql');
         $logs  = $this->handleMysqlLog($log);

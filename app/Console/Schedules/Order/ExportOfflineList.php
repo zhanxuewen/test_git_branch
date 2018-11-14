@@ -102,7 +102,7 @@ class ExportOfflineList extends BaseSchedule
         }
         
         $filename = $start->format('YmdHis').'_'.$end->format('YmdHis').'_Offline';
-        $file     = $this->store($filename, storage_path('exports').'/offline', $report);
+        $file     = $this->store($filename, storage_path('exports').'/offline', 'offline', $report);
         $subject  = $start->format('Y-m-d').' - '.$end->format('Y-m-d').' Offline Export';
         $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每周代交'], $subject, realpath($file));
     }

@@ -14,14 +14,14 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\Inspire::class,
-
+    
         Commands\Capture::class,
         Commands\CaptureTcpServer::class,
         Commands\BuildDbWiki::class,
-
+    
         Commands\Core\ModuleMigrate::class,
         Commands\Core\MakeModuleMigration::class,
-        
+    
         Commands\Rpc\CaptureRpcDB::class,
         Commands\Rpc\CaptureRpcRepo::class,
         Commands\Rpc\CaptureRpcService::class,
@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
             $schedule->handle();
             $this->logSchedule('Export Order List Done At '.date('Y-m-d H:i:s'));
-        })->dailyAt('08:00');
+        })->dailyAt('17:46');
         $schedule->call(function (Schedules\Order\ExportOfflineList $schedule) {
             $schedule->handle();
             $this->logSchedule('Export Offline List Done At '.date('Y-m-d H:i:s'));
@@ -58,5 +58,17 @@ class Kernel extends ConsoleKernel
         } else {
             \Storage::append('schedule.log', $log);
         }
+    }
+
+    /**
+     * Register the commands for the application.
+     *
+     * @return void
+     */
+    protected function commands()
+    {
+        $this->load(__DIR__.'/Commands');
+
+        require base_path('routes/console.php');
     }
 }

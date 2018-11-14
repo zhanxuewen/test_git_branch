@@ -2,17 +2,14 @@
 
 namespace App\Http\Controllers\Select;
 
-use Input;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class SearchController extends Controller
 {
-    /**
-     * Search Quit Student
-     */
-    public function quit_student()
+    public function quit_student(Request $request)
     {
-        $student_id = Input::get('student_id', null);
+        $student_id = $request->get('student_id', null);
         if (is_null($student_id)) return view('select.student', compact('student_id'));
         $pdo       = $this->getPdo('online');
         $quit_ids  = $this->getArray($pdo->query($this->buildSql('quit_vanclass', $student_id)));

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Rpc;
 
-use Input;
 use App\Http\Controllers\Controller;
 
 class ServiceController extends Controller

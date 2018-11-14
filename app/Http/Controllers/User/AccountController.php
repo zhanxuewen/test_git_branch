@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\User;
 
-use Input;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class AccountController extends Controller
@@ -20,14 +20,14 @@ class AccountController extends Controller
         return view('user.editAccount', compact('account', 'roles'));
     }
     
-    public function updateAccount($account_id)
+    public function updateAccount(Request $request, $account_id)
     {
         $account  = $this->builder->setModel('account')->find($account_id);
-        $username = Input::get('username');
+        $username = $request->get('username');
         if ($account->username != $username) {
             $account->fill(['username' => $username])->save();
         }
-        $role_id = Input::get('role_id');
+        $role_id = $request->get('role_id');
         if (empty($accountRole = $this->builder->setModel('accountRole')->where('account_id', $account_id)->first())) {
             $this->builder->setModel('accountRole')->create(['account_id' => $account_id, 'role_id' => $role_id]);
         } else if ($accountRole->role_id != $role_id) {

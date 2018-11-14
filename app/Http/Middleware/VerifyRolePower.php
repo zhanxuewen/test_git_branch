@@ -23,7 +23,7 @@ class VerifyRolePower extends IgnoreRoute
             return $next($request);
         }
         $router = \Route::getRoutes()->match($request);
-        $route  = implode('|', $router->getMethods()).'@'.$router->getUri();
+        $route  = implode('|', $router->methods()).'@'.$router->uri();
         $powers = Auth::user()->role[0]->power;
         $id     = Auth::user()->id;
         $redis  = $this->getRedis('analyze');

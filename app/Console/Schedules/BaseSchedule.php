@@ -2,8 +2,10 @@
 
 namespace App\Console\Schedules;
 
+use App\Export;
 use Illuminate\Mail\Message;
 use App\Foundation\PdoBuilder;
+use Maatwebsite\Excel\Facades\Excel;
 use Maatwebsite\Excel\Writers\LaravelExcelWriter;
 use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
 
@@ -59,13 +61,9 @@ class BaseSchedule
         return $parts;
     }
     
-    protected function store($filename, $path, $data)
+    protected function store($filename, $path, $folder, $data)
     {
-        \Excel::create($filename, function (LaravelExcelWriter $Excel) use ($data) {
-            $Excel->sheet('table', function (LaravelExcelWorksheet $sheet) use ($data) {
-                $sheet->rows($data);
-            });
-        })->store('xls', $path);
+        Excel::store(new Export($data), $folder.'/'.$filename.'.xls', 'export');
         return $path.'/'.$filename.'.xls';
     }
     

@@ -16,7 +16,7 @@ class MonitorController extends Controller
         $rows     = [];
         $this->builder->setModel('tableIncrement')->selectRaw('`table`, group_concat(rows) as _rows')
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
-            ->groupBy('table')->orderBy('rows', 'desc')
+            ->groupBy('table')->orderByRaw('max(rows) desc')
             ->chunk(10, function ($tables) use (&$i, &$rows, &$keys) {
                 $rows[$i] = $tables->toJson();
                 $keys[]   = $i;
@@ -36,7 +36,7 @@ class MonitorController extends Controller
         $rows     = [];
         $this->builder->setModel('deviceUsageAmount')->selectRaw('`device`, group_concat(user_amount) as _rows')
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
-            ->groupBy('device')->orderBy('user_amount', 'desc')
+            ->groupBy('device')->orderByRaw('max(user_amount) desc')
             ->chunk(10, function ($tables) use (&$i, &$rows, &$keys) {
                 $rows[$i] = $tables->toJson();
                 $keys[]   = $i;

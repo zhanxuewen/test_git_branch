@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Excel;
+use App\Export;
+use Maatwebsite\Excel\Facades\Excel;
 use Validator;
 use App\Helper\Builder;
 use App\Foundation\PdoBuilder;
@@ -47,7 +48,7 @@ abstract class Controller extends BaseController
     
     protected function logContent($content)
     {
-        $data = ['log_type' => 'export', 'account_id' => $this->getUser('id'), 'content' => $content];
+        $data = ['section' => '', 'log_type' => 'export', 'account_id' => $this->getUser('id'), 'content' => $content];
         $this->builder->setModel('log')->create($data);
     }
     
@@ -86,11 +87,7 @@ abstract class Controller extends BaseController
     protected function exportExcel($name, $record)
     {
         $this->logContent($name);
-        Excel::create($name, function ($Excel) use ($record) {
-            $Excel->sheet('table', function ($sheet) use ($record) {
-                $sheet->rows($record);
-            });
-        })->export('xls');
+        return Excel::download(new Export($record), $name.'.xls');
     }
     
     protected function curlPost($url, $data)

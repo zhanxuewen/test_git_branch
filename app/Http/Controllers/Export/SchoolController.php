@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Export;
 
-use Input;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class SchoolController extends Controller
@@ -38,24 +38,24 @@ class SchoolController extends Controller
         return view('export.school');
     }
     
-    public function export()
+    public function export(Request $request)
     {
         $field     = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
-        $query     = Input::get('query');
-        $expire    = Input::get('expire', 0);
-        $db_change = Input::get('database', 0) == 0 ? null : 'wordpk';
-        Input::has('school_id') ? $params['school_id'] = Input::get('school_id', null) : null;
-        Input::has('vanclass_id') ? $params['vanclass_id'] = Input::get('vanclass_id', null) : null;
-        Input::has('teacher_id') ? $params['teacher_id'] = Input::get('teacher_id', null) : null;
-        Input::has('marketer_id') ? $params['marketer_id'] = Input::get('marketer_id', null) : null;
-        Input::has('start') ? $params['start'] = Input::get('start', null) : null;
-        Input::has('end') ? $params['end'] = Input::get('end', null).' 23:59:59' : null;
-        $this->field_phone = $field[Input::get('field_phone')];
+        $query     = $request->get('query');
+        $expire    = $request->get('expire', 0);
+        $db_change = $request->get('database', 0) == 0 ? null : 'wordpk';
+        $request->filled('school_id') ? $params['school_id'] = $request->get('school_id', null) : null;
+        $request->filled('vanclass_id') ? $params['vanclass_id'] = $request->get('vanclass_id', null) : null;
+        $request->filled('teacher_id') ? $params['teacher_id'] = $request->get('teacher_id', null) : null;
+        $request->filled('marketer_id') ? $params['marketer_id'] = $request->get('marketer_id', null) : null;
+        $request->filled('start') ? $params['start'] = $request->get('start', null) : null;
+        $request->filled('end') ? $params['end'] = $request->get('end', null).' 23:59:59' : null;
+        $this->field_phone = $field[$request->get('field_phone')];
         isset($params) or die('没有参数');
         $pdo  = $this->getPdo('online', $db_change);
         $rows = $pdo->query($this->buildSql($query, $params));
         $name = $query.'_'.$this->handleTableName($params);
-        $this->exportExcel($name, $this->getRecord($rows, $expire));
+        return $this->exportExcel($name, $this->getRecord($rows, $expire));
     }
     
     protected function handleTableName($params)

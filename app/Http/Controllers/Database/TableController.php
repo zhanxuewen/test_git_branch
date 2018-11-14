@@ -3,24 +3,22 @@
 namespace App\Http\Controllers\Database;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
 class TableController extends Controller
 {
-    /**
-     * List Tables
-     */
-    public function getTableList()
+    public function getTableList(Request $request)
     {
-        $conn   = \Input::get('conn', 'dev');
+        $conn   = $request->get('conn', 'dev');
         $pdo    = $this->getPdo($conn);
         $sql    = $this->buildSql('list_tables', $this->getDbName($conn));
         $tables = $this->getRecord($pdo->query($sql));
         return view('database.table_list', compact('tables'));
     }
     
-    public function getTableInfo($table_name)
+    public function getTableInfo(Request $request, $table_name)
     {
-        $conn    = \Input::get('conn', 'dev');
+        $conn    = $request->get('conn', 'dev');
         $pdo     = $this->getPdo($conn);
         $params  = ['database' => $this->getDbName($conn), 'table_name' => $table_name];
         $table   = $this->getRecord($pdo->query($this->buildSql('table_info', $params)))[0];

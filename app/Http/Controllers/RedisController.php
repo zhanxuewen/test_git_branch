@@ -3,15 +3,15 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
-use Input;
 
 class RedisController extends Controller
 {
-    public function throttle()
+    public function throttle(Request $request)
     {
-        $date = Carbon::parse(Input::get('date', date('Y-m-d')));
-        $op   = Input::get('op', null);
+        $date = Carbon::parse($request->get('date', date('Y-m-d')));
+        $op   = $request->get('op', null);
         !is_null($op) ? $date = $date->$op() : null;
         $data    = Redis::get('throttle_record_'.$date->format('Ymd'));
         $list    = json_decode($data);

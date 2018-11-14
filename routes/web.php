@@ -100,5 +100,3 @@ Route::group(['namespace' => 'Database', 'prefix' => 'database'], function () {
     
     Route::get('table_correct', ['uses' => 'DiffController@table_correct']);
 });
-
-

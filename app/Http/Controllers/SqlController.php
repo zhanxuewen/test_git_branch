@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Helper\Helper;
 use DB;
-use Input;
+use App\Helper\Helper;
+use Illuminate\Http\Request;
 
 class SqlController extends Controller
 {
     public function analyze($_type, $_group, $_auth = null)
     {
         $db      = DB::setPdo($this->getPdo('dev'));
-        $auth_s  = $db->table('sql_log')->distinct()->lists('auth');
-        $type_s  = $db->table('sql_log')->distinct()->lists('type');
+        $auth_s  = $db->table('sql_log')->distinct()->pluck('auth');
+        $type_s  = $db->table('sql_log')->distinct()->pluck('type');
         $group_s = ['no_group', 'in_group'];
         $query   = $db->table('sql_log')->where('type', $_type);
         isset($_auth) ? $query->where('auth', $_auth) : null;
@@ -23,9 +23,9 @@ class SqlController extends Controller
         return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group'));
     }
     
-    public function querySql()
+    public function querySql(Request $request)
     {
-        $query = Input::get('query');
+        $query = $request->get('query');
         $sql_s = DB::setPdo($this->getPdo('dev'))->table('sql_log')->where('query', $query)->orderBy('time', 'desc')->paginate(30);
         return view('sql.query_sql', compact('sql_s'));
     }
@@ -50,17 +50,17 @@ class SqlController extends Controller
         return view('sql.query_id', compact('sql', 'total'));
     }
     
-    public function emptySql()
+    public function emptySql(Request $request)
     {
-        $auth = Input::get('auth');
+        $auth = $request->get('auth');
         DB::setPdo($this->getPdo('dev'))->table('sql_log')->where('auth', $auth)->delete();
         return back();
     }
     
-    public function ajaxQuerySql()
+    public function ajaxQuerySql(Request $request)
     {
         $start = microtime(true);
-        DB::setPdo($this->getPdo('dev'))->select(Input::get('sql'));
+        DB::setPdo($this->getPdo('dev'))->select($request->get('sql'));
         return round((microtime(true) - $start) * 1000, 2);
     }
 }

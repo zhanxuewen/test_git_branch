@@ -26,7 +26,7 @@ class DashboardController extends Controller
     {
         return $this->builder->setModel($model)->selectRaw("`$item` as item, group_concat($count) as _count")
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
-            ->groupBy($item)->orderBy($count, 'desc')->take(10)->get()->toJson();
+            ->groupBy($item)->orderByRaw("max($count) desc")->take(10)->get()->toJson();
     }
     
     
