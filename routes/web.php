@@ -89,6 +89,7 @@ Route::group(['namespace' => 'Select', 'prefix' => 'select'], function () {
     Route::get('labels', ['uses' => 'ShowController@labels']);
     Route::get('feedback', ['uses' => 'ShowController@feedback']);
     Route::get('quit_student', ['as' => 'select_quit_student', 'uses' => 'SearchController@quit_student']);
+    Route::get('yellow_account', ['uses' => 'SearchController@yellow_account']);
 });
 
 Route::group(['namespace' => 'Database', 'prefix' => 'database'], function () {

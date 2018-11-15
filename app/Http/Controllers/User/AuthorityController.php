@@ -41,7 +41,7 @@ class AuthorityController extends Controller
     public function editRolePower($role_id)
     {
         $role   = $this->builder->setModel('role')->find($role_id);
-        $ids    = $this->builder->setModel('rolePower')->where('role_id', $role_id)->lists('power_id')->toArray();
+        $ids    = $this->builder->setModel('rolePower')->where('role_id', $role_id)->pluck('power_id')->toArray();
         $config = $this->builder->setModel('config')->where('key', 'group_sets')->first();
         $keys   = json_decode($config->value, true);
         $groups = [];
@@ -54,7 +54,7 @@ class AuthorityController extends Controller
     
     public function updateRolePower(Request $request, $role_id)
     {
-        $ids       = $this->builder->setModel('rolePower')->where('role_id', $role_id)->lists('power_id')->toArray();
+        $ids       = $this->builder->setModel('rolePower')->where('role_id', $role_id)->pluck('power_id')->toArray();
         $power_ids = $request->get('power_id');
         $delete    = [];
         foreach ($ids as $id) {
@@ -74,7 +74,7 @@ class AuthorityController extends Controller
     
     protected function getUsersByRoleId($role_id)
     {
-        return $this->builder->setModel('accountRole')->where('role_id', $role_id)->lists('account_id')->all();
+        return $this->builder->setModel('accountRole')->where('role_id', $role_id)->pluck('account_id')->all();
     }
     
     public function listPower()
@@ -107,12 +107,12 @@ class AuthorityController extends Controller
     
     public function initRoute()
     {
-        $routes = $this->builder->setModel('power')->lists('route')->toArray();
+        $routes = $this->builder->setModel('power')->pluck('route')->toArray();
         $create = [];
         $now    = Carbon::now()->toDateTimeString();
         foreach (\Route::getRoutes() as $route) {
-            $uri = $route->getUri();
-            $url = implode('|', $route->getMethods()).'@'.$uri;
+            $uri = $route->uri();
+            $url = implode('|', $route->methods()).'@'.$uri;
             if (in_array($url, $routes)) continue;
             $create[] = [
                 'route' => $url,

@@ -12,7 +12,7 @@ class DiffController extends Controller
         $_type = $request->get('type', 'migration');
         $sql_s = ['migration' => 'list_migrations', 'table' => 'list_tables'];
         $conf  = ['dev' => 'b_vanthink_core',
-//                  'test' => 'b_vanthink_online',
+                  'test' => 'b_vanthink_online',
                   'online' => 'b_vanthink_online'];
         $data = [];
         foreach ($conf as $env => $db) {

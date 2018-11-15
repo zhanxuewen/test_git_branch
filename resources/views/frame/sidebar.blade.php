@@ -12,6 +12,7 @@
             'Labels' => 'select/labels',
             'Feedback' => 'select/feedback',
             'Quit Student' => 'select/quit_student',
+            'Yellow Account' => 'select/yellow_account',
         ], 'fa-table') !!}
         {!! \App\Helper\BladeHelper::treeview('Database', [
             'Diff' => 'database/diff',
