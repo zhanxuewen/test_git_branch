@@ -24,11 +24,13 @@ class SearchController extends Controller
 
     public function yellow_account(Request $request)
     {
+        $channel_id = $request->get('channel_id', 0);
+        $field = $request->get('field', 'phone');
+        $value = $request->get('value', '');
         $pdo = $this->getPdo('online');
         $accounts = $this->getRecord($pdo->query($this->buildSql('search_yellow_account', $request)));
         $channels = $this->getRecord($pdo->query($this->buildSql('list_channels', $request)));
-        $compact = array_merge_recursive(compact('accounts','channels'),$request->all());
-        return view('select.yellow', $compact);
+        return view('select.yellow', compact('accounts', 'channels', 'channel_id', 'field', 'value'));
     }
 
     protected function find_student($student_id)
