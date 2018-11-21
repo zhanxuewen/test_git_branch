@@ -15,7 +15,12 @@
         <ul class="nav navbar-nav">
             @if(session('message'))
                 <li class="user user-menu bg-red">
-                    <a class="s_error">{{session('message')}}</a>
+                    <a>{{session('message')}}</a>
+                </li>
+            @endif
+            @if(session('success'))
+                <li class="user user-menu bg-green">
+                    <a>{{session('success')}}</a>
                 </li>
             @endif
             <li class="dropdown user user-menu">

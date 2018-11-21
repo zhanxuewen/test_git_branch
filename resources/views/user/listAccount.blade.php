@@ -16,7 +16,9 @@
                     <td>{{$account->username}}</td>
                     <td>{!! isset($account->role[0]->label)? $account->role[0]->label : '' !!}</td>
                     <td>{{$account->created_at}}</td>
-                    <td><a href="{{url('user/editAccount/'.$account->id)}}">编辑</a></td>
+                    <td><a class="btn btn-default" href="{{url('user/editAccount/'.$account->id)}}">编辑</a>
+                        <a class="btn btn-danger" href="{{url('user/resetPassword/'.$account->id)}}">重置密码</a>
+                    </td>
                 </tr>
             @endforeach
         </table>

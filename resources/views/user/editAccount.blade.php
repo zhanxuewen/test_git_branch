@@ -19,6 +19,12 @@
                     @endforeach
                 </select>
             </div>
+            @if($captcha)
+                <div class="form-group">
+                    <label for="captcha">Captcha</label>
+                    <input id="captcha" class="form-control" value="{{$captcha}}" readonly>
+                </div>
+            @endif
             <button type="submit" class="btn btn-primary">Submit</button>
             <a href="{{url('user/listAccount')}}" class="btn btn-success pull-right">Back To List</a>
         </form>

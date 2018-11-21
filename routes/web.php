@@ -7,6 +7,8 @@ Route::group(['namespace' => 'Auth'], function () {
         Route::post('login', ['uses' => 'LoginController@postLogin']);
         Route::get('register', ['as' => 'register', 'uses' => 'RegisterController@getRegister']);
         Route::post('register', ['uses' => 'RegisterController@postRegister']);
+        Route::get('forget/password', ['as' => 'forget_pwd', 'uses' => 'RegisterController@getForgetPassword']);
+        Route::post('forget/password', ['uses' => 'RegisterController@postForgetPassword']);
         Route::post('edit', ['uses' => 'AuthController@edit']);
         Route::get('logout', ['as' => 'logout', 'uses' => 'LoginController@logout']);
     });
@@ -17,7 +19,8 @@ Route::group(['namespace' => 'User', 'prefix' => 'user'], function () {
     Route::get('listAccount', ['uses' => 'AccountController@listAccount']);
     Route::get('editAccount/{account_id}', ['uses' => 'AccountController@editAccount']);
     Route::post('updateAccount/{account_id}', ['uses' => 'AccountController@updateAccount']);
-    
+    Route::get('resetPassword/{account_id}', ['uses' => 'AccountController@resetPassword']);
+
     Route::get('listRole', ['uses' => 'AuthorityController@listRole']);
     Route::get('createRole', ['uses' => 'AuthorityController@createRole']);
     Route::post('saveRole', ['uses' => 'AuthorityController@saveRole']);
@@ -25,7 +28,7 @@ Route::group(['namespace' => 'User', 'prefix' => 'user'], function () {
     Route::post('updateRole/{role_id}', ['uses' => 'AuthorityController@updateRole']);
     Route::get('editRolePower/{role_id}', ['uses' => 'AuthorityController@editRolePower']);
     Route::post('updateRolePower/{role_id}', ['uses' => 'AuthorityController@updateRolePower']);
-    
+
     Route::get('listPower', ['uses' => 'AuthorityController@listPower']);
     Route::get('initRoute', ['uses' => 'AuthorityController@initRoute']);
     Route::get('editPower/{power_id}', ['uses' => 'AuthorityController@editPower']);
@@ -42,7 +45,7 @@ Route::group(['namespace' => 'Rpc'], function () {
             Route::get('modelInfo/{model_id}', 'DBController@getModelInfo');
         });
     });
-    
+
     Route::group(['prefix' => 'repo'], function () {
         Route::group(['prefix' => 'get'], function () {
             Route::get('repositoryList', 'RepoController@getRepositoryList');
@@ -77,7 +80,7 @@ Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
     Route::get('school', ['uses' => 'SchoolController@school']);
     Route::post('school', ['uses' => 'SchoolController@export']);
-    
+
     Route::get('student', ['uses' => 'StudentController@student']);
     Route::post('student', ['uses' => 'StudentController@export']);
 });
@@ -98,6 +101,6 @@ Route::group(['namespace' => 'Database', 'prefix' => 'database'], function () {
         Route::get('tableInfo/{table_name}', ['uses' => 'TableController@getTableInfo']);
     });
     Route::get('diff', ['uses' => 'DiffController@diff']);
-    
+
     Route::get('table_correct', ['uses' => 'DiffController@table_correct']);
 });

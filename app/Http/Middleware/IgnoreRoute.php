@@ -11,6 +11,7 @@ class IgnoreRoute
         = [
             'auth/login',
             'auth/register',
+            'auth/forget/password'
         ];
     
     /**
