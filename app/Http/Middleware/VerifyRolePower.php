@@ -9,7 +9,7 @@ use Closure;
 class VerifyRolePower extends IgnoreRoute
 {
     use PdoBuilder;
-    
+
     /**
      * Handle an incoming request.
      *
@@ -23,12 +23,12 @@ class VerifyRolePower extends IgnoreRoute
             return $next($request);
         }
         $router = \Route::getRoutes()->match($request);
-        $route  = implode('|', $router->methods()).'@'.$router->uri();
+        $route = implode('|', $router->methods()) . '@' . $router->uri();
         $powers = Auth::user()->role[0]->power;
-        $id     = Auth::user()->id;
-        $redis  = $this->getRedis('analyze');
-        if (!$redis->get($id.'_routes')) {
-            $redis->setex($id.'_routes', 60 * 60 * 24, json_encode($powers->pluck('route')->toArray()));
+        $id = Auth::user()->id;
+        $redis = $this->getRedis('analyze', true);
+        if (!$redis->get($id . '_routes')) {
+            $redis->setex($id . '_routes', 60 * 60 * 24, json_encode($powers->pluck('route')->toArray()));
         }
         if ($powers->contains('route', $route)) {
             return $next($request);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Select;
 
+use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -31,6 +32,13 @@ class SearchController extends Controller
         $accounts = $this->getRecord($pdo->query($this->buildSql('search_yellow_account', $request)));
         $channels = $this->getRecord($pdo->query($this->buildSql('list_channels', $request)));
         return view('select.yellow', compact('accounts', 'channels', 'channel_id', 'field', 'value'));
+    }
+
+    public function wordbank(Request $request)
+    {
+        $word = $request->get('word');
+        $words = DB::setPdo($this->getPdo('online'))->table('wordbank')->orderBy('initial', 'acs')->paginate(30);
+        return view('select.wordbank', compact('words'));
     }
 
     protected function find_student($student_id)

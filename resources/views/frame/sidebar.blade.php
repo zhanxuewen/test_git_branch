@@ -21,7 +21,8 @@
         ], 'fa-database') !!}
         {!! \App\Helper\BladeHelper::treeview('Monitor', [
             'Table' => 'monitor/table',
-            'Device' => 'monitor/device'
+            'Device' => 'monitor/device',
+            'Order' => 'monitor/order'
         ], 'fa-bar-chart') !!}
         {!! \App\Helper\BladeHelper::treeview('Redis', ['Throttle' => 'redis_throttle'], 'fa-file') !!}
         {!! \App\Helper\BladeHelper::treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}

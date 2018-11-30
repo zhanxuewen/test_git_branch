@@ -62,6 +62,7 @@ Route::group(['namespace' => 'Rpc'], function () {
 
 Route::get('monitor/table', ['uses' => 'MonitorController@table']);
 Route::get('monitor/device', ['uses' => 'MonitorController@device']);
+Route::get('monitor/order', ['uses' => 'MonitorController@order']);
 
 Route::group(['middleware' => 'cache.rows'], function () {
     Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']);
@@ -91,6 +92,8 @@ Route::group(['namespace' => 'Select', 'prefix' => 'select'], function () {
     Route::get('marketer', ['uses' => 'ShowController@marketer']);
     Route::get('labels', ['uses' => 'ShowController@labels']);
     Route::get('feedback', ['uses' => 'ShowController@feedback']);
+
+    Route::get('wordbank', ['uses' => 'SearchController@wordbank']);
     Route::get('quit_student', ['as' => 'select_quit_student', 'uses' => 'SearchController@quit_student']);
     Route::get('yellow_account', ['uses' => 'SearchController@yellow_account']);
 });
