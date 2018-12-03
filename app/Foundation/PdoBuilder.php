@@ -25,7 +25,7 @@ trait PdoBuilder
             return new Client($this->getEnv()['redis'][$conn]);
         }
         $conf = $this->getEnv()['redis']['cluster'][$conn];
-        $option = ['cluster' => 'redis', 'parameters' => ['password' => $conf['password']]];
+        $option = ['parameters' => ['password' => $conf['password']]];
         return new Client($conf['host'], $option);
     }
 
