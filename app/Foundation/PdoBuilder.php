@@ -19,14 +19,27 @@ trait PdoBuilder
         return $this->getEnv()[$conn];
     }
 
-    public function getRedis($conn, $cluster = false)
+    public function getRedis($conn)
     {
-        if (!$cluster) {
-            return new Client($this->getEnv()['redis'][$conn]);
-        }
         $conf = $this->getEnv()['redis']['cluster'][$conn];
         $option = ['parameters' => ['password' => $conf['password']]];
-        return new Client($conf['host'], $option);
+        $redis = null;
+        foreach ($conf['host'] as $host) {
+            $redis = $this->getMasterRedis($host, $option);
+            if ($redis !== false) break;
+        }
+        return $redis;
+    }
+
+    protected function getMasterRedis($host, $option)
+    {
+        $redis = new Client($host, $option);
+        try {
+            $redis->setex('test_master', 30, 'test');
+        } catch (\Exception $e) {
+            return false;
+        }
+        return $redis;
     }
 
     public function getDbName($conn)

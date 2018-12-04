@@ -26,7 +26,7 @@ class VerifyRolePower extends IgnoreRoute
         $route = implode('|', $router->methods()) . '@' . $router->uri();
         $powers = Auth::user()->role[0]->power;
         $id = Auth::user()->id;
-        $redis = $this->getRedis('analyze', true);
+        $redis = $this->getRedis('analyze');
         if (!$redis->get($id . '_routes')) {
             $redis->setex($id . '_routes', 60 * 60 * 24, json_encode($powers->pluck('route')->toArray()));
         }

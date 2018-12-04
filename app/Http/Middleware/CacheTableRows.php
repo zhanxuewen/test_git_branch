@@ -18,7 +18,7 @@ class CacheTableRows extends IgnoreRoute
      */
     public function handle($request, Closure $next)
     {
-        $redis = $this->getRedis('analyze', true);
+        $redis = $this->getRedis('analyze');
         if ($redis->get('dev_table_rows')) {
             return $next($request);
         }
