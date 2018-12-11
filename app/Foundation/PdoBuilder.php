@@ -51,6 +51,10 @@ trait PdoBuilder
         return $this->getEnv()[$conn];
     }
 
+    /**
+     * @param $conn
+     * @return \Predis\Client;
+     */
     public function getRedis($conn)
     {
         if (isset($this->redis[$conn])) return $this->redis[$conn];

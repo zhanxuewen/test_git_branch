@@ -63,6 +63,7 @@ Route::group(['namespace' => 'Rpc'], function () {
 Route::get('monitor/table', ['uses' => 'MonitorController@table']);
 Route::get('monitor/device', ['uses' => 'MonitorController@device']);
 Route::get('monitor/order', ['uses' => 'MonitorController@order']);
+Route::get('monitor/circleTable', ['uses' => 'MonitorController@circleTable']);
 
 Route::group(['middleware' => 'cache.rows'], function () {
     Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']);

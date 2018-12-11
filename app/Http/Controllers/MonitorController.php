@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class MonitorController extends Controller
 {
@@ -24,6 +25,27 @@ class MonitorController extends Controller
             });
         $keys = json_encode($keys);
         return view('monitor.table', compact('rows', 'keys', 'dates'));
+    }
+
+    public function circleTable(Request $request)
+    {
+        $tables = $this->builder->setModel('tableIncrement')->distinct()->orderBy('table')->pluck('table');
+        $table = $request->get('table', $tables[0]);
+        $start = $request->filled('start') ? $request->get('start') : null;
+        $start = is_null($start) || $this->earlyThan($request, 14) ? Carbon::today()->subDays(14)->toDateString() : $start;
+        $db_a = \DB::table('monitor_table_increment')->selectRaw('created_date AS date, `rows`')
+            ->where('table', $table)->where('created_date', '>=', $start);
+        $db_b = \DB::table('monitor_table_increment')->selectRaw('DATE_ADD( created_date, INTERVAL 1 DAY ) AS date, `rows`')
+            ->where('table', $table)->where('created_date', '>=', $start);
+        $db_c = \DB::table(\DB::raw("({$db_a->toSql()}) AS a"))->mergeBindings($db_a)
+            ->join(\DB::raw("({$db_b->toSql()}) AS b"), 'a.date', '=', 'b.date', 'left')->mergeBindings($db_b)
+            ->selectRaw('a.date, a.rows AS this, b.rows AS last');
+        $rate = "(CASE WHEN (c.last IS NULL OR c.last = 0) THEN 0.00 ELSE cast(c.this AS signed) - cast(c.last AS signed) END)";
+        $circles = \DB::table(\DB::raw("({$db_c->toSql()}) AS c"))->mergeBindings($db_c)
+            ->selectRaw("c.date, $rate AS rate")->get();
+        $dates = json_encode($circles->pluck('date')->toArray());
+        $circles = json_encode($circles->pluck('rate')->implode(','));
+        return view('monitor.circle_table', compact('tables', 'start', 'table', 'dates', 'circles'));
     }
 
     public function device()
@@ -74,5 +96,10 @@ class MonitorController extends Controller
             $days[] = $subDay->addDay()->toDateString();
         }
         return $days;
+    }
+
+    protected function earlyThan(Request $request, $days)
+    {
+        return Carbon::parse($request->get('start'))->lessThan(Carbon::today()->subDays($days));
     }
 }

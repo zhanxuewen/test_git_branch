@@ -71,7 +71,7 @@ abstract class Controller extends BaseController
             $data = 'phone=18202542402&password=fuminny&remberme=n';
             $data = $this->curlPost($url, $data);
             $token = $data->token;
-            $redis->set('manage_token', $token);
+            $redis->setex('manage_token', 60 * 60 * 24, $token);
         }
         return $token;
     }
