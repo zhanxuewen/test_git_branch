@@ -11,6 +11,7 @@
             'Marketer' => 'select/marketer',
             'Labels' => 'select/labels',
             'Feedback' => 'select/feedback',
+            'Abnormal' => 'select/abnormal',
             'Quit Student' => 'select/quit_student',
             'Yellow Account' => 'select/yellow_account',
         ], 'fa-table') !!}
