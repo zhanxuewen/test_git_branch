@@ -41,6 +41,7 @@ abstract class Controller extends BaseController
 
     protected function delUserCache($ids)
     {
+        if (empty($ids)) return 0;
         foreach ($ids as &$id) {
             $id = $id . '_routes';
         }
@@ -108,6 +109,18 @@ abstract class Controller extends BaseController
         $data = curl_exec($curl);//运行curl
         curl_close($curl);
         $data = json_decode($data)->data;
+        return $data;
+    }
+
+    protected function curlGet($url, $decode = true)
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url); //设置抓取的url
+        curl_setopt($curl, CURLOPT_HEADER, 0); //设置头文件的信息作为数据流输出
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); //设置获取的信息以文件流的形式返回，而不是直接输出。
+        $data = curl_exec($curl); //执行命令
+        curl_close($curl); //关闭URL请求
+        if ($decode) $data = json_decode($data)->data;
         return $data;
     }
 

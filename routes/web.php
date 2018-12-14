@@ -78,6 +78,9 @@ Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);
 
 Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 
+Route::get('tool/download', ['uses' => 'ToolController@getDownload']);
+Route::post('tool/download', ['uses' => 'ToolController@postDownload']);
+
 // Export Routes
 Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
     Route::get('school', ['uses' => 'SchoolController@school']);

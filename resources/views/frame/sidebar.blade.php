@@ -33,6 +33,9 @@
             'Rpc Repo' => 'repo/get/repositoryList',
             'Rpc Service' => 'service/get/serviceList'
         ], 'fa-object-group') !!}
+        {!! \App\Helper\BladeHelper::treeview('Tool', [
+            'Download' => 'tool/download'
+        ], 'fa-legal') !!}
         {!! \App\Helper\BladeHelper::treeview('User', [
             'Account' => 'user/listAccount',
             'Role' => 'user/listRole',

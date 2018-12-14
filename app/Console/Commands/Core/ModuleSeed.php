@@ -66,7 +66,7 @@ class ModuleSeed extends Command
     protected function prepareSeederTable()
     {
         $this->createSeedersTable();
-        $this->seeders = \DB::table('seeders')->pluck('seeder');
+        $this->seeders = \DB::table('seeders')->pluck('seeder')->toArray();
         $this->batch = \DB::table('seeders')->max('batch') + 1;
     }
 
