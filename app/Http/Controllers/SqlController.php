@@ -10,7 +10,7 @@ class SqlController extends Controller
 {
     public function analyze($_type, $_group, $_auth = null)
     {
-        $db      = DB::setPdo($this->getPdo('dev'));
+        $db      = DB::setPdo($this->getPdo('test'));
         $auth_s  = $db->table('sql_log')->distinct()->pluck('auth');
         $type_s  = $db->table('sql_log')->distinct()->pluck('type');
         $group_s = ['no_group', 'in_group'];
@@ -26,13 +26,13 @@ class SqlController extends Controller
     public function querySql(Request $request)
     {
         $query = $request->get('query');
-        $sql_s = DB::setPdo($this->getPdo('dev'))->table('sql_log')->where('query', $query)->orderBy('time', 'desc')->paginate(30);
+        $sql_s = DB::setPdo($this->getPdo('test'))->table('sql_log')->where('query', $query)->orderBy('time', 'desc')->paginate(30);
         return view('sql.query_sql', compact('sql_s'));
     }
     
     public function queryId($id)
     {
-        $db           = DB::setPdo($this->getPdo('dev'));
+        $db           = DB::setPdo($this->getPdo('test'));
         $sql          = $db->select("SELECT * FROM sql_log WHERE id = ".$id." LIMIT 1")[0];
         if (is_null($sql->bindings)){
             $sql->query = str_replace('&apos;', '\'', str_replace('&quot;', '"', $sql->query));
@@ -53,14 +53,14 @@ class SqlController extends Controller
     public function emptySql(Request $request)
     {
         $auth = $request->get('auth');
-        DB::setPdo($this->getPdo('dev'))->table('sql_log')->where('auth', $auth)->delete();
+        DB::setPdo($this->getPdo('test'))->table('sql_log')->where('auth', $auth)->delete();
         return back();
     }
     
     public function ajaxQuerySql(Request $request)
     {
         $start = microtime(true);
-        DB::setPdo($this->getPdo('dev'))->select($request->get('sql'));
+        DB::setPdo($this->getPdo('test'))->select($request->get('sql'));
         return round((microtime(true) - $start) * 1000, 2);
     }
 }

@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 class ToolController extends Controller
 {
+    protected $result = [];
+
     public function getDownload()
     {
         return view('tool.download');
@@ -19,24 +21,36 @@ class ToolController extends Controller
             $tmp = explode('/', $url);
             $file = $this->storeFiles($url, end($tmp), $error);
             $f_name = end($tmp);
+            $this->appendResult($f_name, ($file == false ? 'fail' : 'success'));
         } else {
             $text = trim($request->get('text'));
-            $items = explode("\r\n", $text);
+            $separator = $request->filled('separator') ? $request->get('separator') : "\r\n";
+            $items = $separator == '\r\n' ? explode("\r\n", $text) : explode($separator, $text);
             $zip = new \ZipArchive();
             $file = storage_path('app') . '/public/dump.zip';
             foreach ($items as $item) {
                 $_url = str_replace('{replace}', trim($item), $url);
                 $tmp = explode('/', $_url);
-                $f = $this->storeFiles($_url, end($tmp), $error);
+                $name = end($tmp);
+                $f = $this->storeFiles($_url, $name, $error);
+                $this->appendResult(trim($item), ($f == false ? 'fail' : 'success'));
                 if ($f === false) continue;
                 if ($zip->open($file, \ZipArchive::CREATE) !== true) return response('Zip Error', 500);
-                $zip->addFile($f, end($tmp));
+                $zip->addFile($f, $name);
                 $zip->close();
                 unlink($f);
             }
             $f_name = 'dump.zip';
         }
-        return response()->download($file, $f_name)->deleteFileAfterSend(true);
+        return redirect('tool/download')->with('file', json_encode($file . '|' . $f_name))->with('result', json_encode($this->result));
+
+    }
+
+    public function ajaxDownload(Request $request)
+    {
+        $file = $request->get('file');
+        $name = $request->get('name');
+        return response()->download($file, $name)->deleteFileAfterSend(true);
     }
 
     protected function storeFiles($url, $name, $error = null)
@@ -49,5 +63,10 @@ class ToolController extends Controller
         fputs($f, $data);
         fclose($f);
         return $file;
+    }
+
+    protected function appendResult($content, $type)
+    {
+        $this->result[$type][] = $content;
     }
 }

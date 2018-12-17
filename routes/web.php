@@ -80,6 +80,7 @@ Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 
 Route::get('tool/download', ['uses' => 'ToolController@getDownload']);
 Route::post('tool/download', ['uses' => 'ToolController@postDownload']);
+Route::post('ajax/tool/download', ['uses' => 'ToolController@ajaxDownload']);
 
 // Export Routes
 Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
