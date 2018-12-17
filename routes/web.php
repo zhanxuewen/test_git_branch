@@ -15,6 +15,7 @@ Route::group(['namespace' => 'Auth'], function () {
     Route::get('/', ['as' => 'homepage', 'uses' => 'AuthController@index']);
 });
 
+// User Routes
 Route::group(['namespace' => 'User', 'prefix' => 'user'], function () {
     Route::get('listAccount', ['uses' => 'AccountController@listAccount']);
     Route::get('editAccount/{account_id}', ['uses' => 'AccountController@editAccount']);
@@ -60,11 +61,13 @@ Route::group(['namespace' => 'Rpc'], function () {
     });
 });
 
+// Monitor Routes
 Route::get('monitor/table', ['uses' => 'MonitorController@table']);
 Route::get('monitor/device', ['uses' => 'MonitorController@device']);
 Route::get('monitor/order', ['uses' => 'MonitorController@order']);
 Route::get('monitor/circleTable', ['uses' => 'MonitorController@circleTable']);
 
+// Sql Analyze Routes
 Route::group(['middleware' => 'cache.rows'], function () {
     Route::get('analyze/{type}/{group}/{auth?}', ['uses' => 'SqlController@analyze']);
     Route::get('query/id/{id}', ['uses' => 'SqlController@queryId']);
@@ -73,14 +76,21 @@ Route::group(['middleware' => 'cache.rows'], function () {
     Route::get('query/empty', ['uses' => 'SqlController@emptySql']);
 });
 
+// Slow Routes
 Route::get('slow_rpc', ['uses' => 'SlowController@rpc']);
 Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);
 
+// Redis Routes
 Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 
+// Tool Routes
 Route::get('tool/download', ['uses' => 'ToolController@getDownload']);
 Route::post('tool/download', ['uses' => 'ToolController@postDownload']);
 Route::post('ajax/tool/download', ['uses' => 'ToolController@ajaxDownload']);
+
+// System Routes
+Route::get('system/config', ['uses' => 'SystemController@getConfig']);
+Route::post('system/config', ['uses' => 'SystemController@postConfig']);
 
 // Export Routes
 Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
@@ -91,8 +101,10 @@ Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
     Route::post('student', ['uses' => 'StudentController@export']);
 });
 
+// Logs Routes
 Route::get('logs', ['uses' => 'LogController@logs']);
 
+// Select Routes
 Route::group(['namespace' => 'Select', 'prefix' => 'select'], function () {
     Route::get('marketer', ['uses' => 'ShowController@marketer']);
     Route::get('labels', ['uses' => 'ShowController@labels']);
@@ -104,6 +116,7 @@ Route::group(['namespace' => 'Select', 'prefix' => 'select'], function () {
     Route::get('yellow_account', ['uses' => 'SearchController@yellow_account']);
 });
 
+// Database Routes
 Route::group(['namespace' => 'Database', 'prefix' => 'database'], function () {
     Route::group(['prefix' => 'get'], function () {
         Route::get('tableList', ['uses' => 'TableController@getTableList']);

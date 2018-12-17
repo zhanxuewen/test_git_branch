@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head>
-    @include('frame.head')
-</head>
+
+@include('frame.head')
+
 <body class="hold-transition skin-blue sidebar-mini">
 <!-- Site wrapper -->
 <div class="wrapper">
@@ -42,10 +42,10 @@
 
 
     <!-- Control Sidebar -->
-    {{--<aside class="control-sidebar control-sidebar-dark">--}}
-        {{--@include('frame.control')--}}
-    {{--</aside>--}}
-    <!-- /.control-sidebar -->
+{{--<aside class="control-sidebar control-sidebar-dark">--}}
+{{--@include('frame.control')--}}
+{{--</aside>--}}
+<!-- /.control-sidebar -->
     <!-- Add the sidebar's background. This div must be placed
          immediately after the control sidebar -->
     <div class="control-sidebar-bg"></div>

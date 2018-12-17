@@ -43,6 +43,7 @@
         ], 'fa-users') !!}
         {!! \App\Helper\BladeHelper::single_bar('Sql Analyze', 'analyze/select/no_group', 'fa-heartbeat') !!}
         {!! \App\Helper\BladeHelper::single_bar('Logs', 'logs', 'fa-hand-pointer-o') !!}
+        {!! \App\Helper\BladeHelper::single_bar('Config', 'system/config', 'fa-cogs') !!}
     </ul>
 </section>
 <!-- /.sidebar -->
