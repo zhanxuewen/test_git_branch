@@ -42,8 +42,9 @@ class ToolController extends Controller
             }
             $f_name = 'dump.zip';
         }
-        return redirect('tool/download')->with('file', json_encode($file . '|' . $f_name))->with('result', json_encode($this->result));
-
+        return redirect('tool/download')
+            ->with(is_file($file) ? 'file' : 'none_file', json_encode($file . '|' . $f_name))
+            ->with('result', json_encode($this->result));
     }
 
     public function ajaxDownload(Request $request)
@@ -55,7 +56,7 @@ class ToolController extends Controller
 
     protected function storeFiles($url, $name, $error = null)
     {
-        $data = $this->curlGet($url, false);
+        $data = $this->curlGet(str_replace(' ', '%20', $url), false);
         if (!is_null($error) && $data == $error) return false;
         $dir = storage_path('app') . '/public';
         $file = $dir . '/' . $name;
