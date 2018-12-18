@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Export;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -45,6 +46,7 @@ class SchoolController extends Controller
         $field = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
         $query = $request->get('query');
         $expire = $request->get('expire', 0);
+        $compare = $request->get('compare', 'no');
         $db_change = $request->get('database', 0) == 0 ? null : 'wordpk';
         $request->filled('school_id') ? $params['school_id'] = $request->get('school_id', null) : null;
         $request->filled('vanclass_id') ? $params['vanclass_id'] = $request->get('vanclass_id', null) : null;
@@ -56,16 +58,22 @@ class SchoolController extends Controller
         isset($params) or die('没有参数');
         $pdo = $this->getPdo('online', $db_change);
         $rows = $pdo->query($this->buildSql($query, $params));
-        $name = $query . '_' . $this->handleTableName($params);
-        return $this->exportExcel($name, $this->getRecord($rows, $expire));
+        $name = $query . '_' . $this->handleTableName($params, $pdo);
+        return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare));
     }
 
-    protected function handleTableName($params)
+    protected function handleTableName($params, $pdo)
     {
-        foreach ($params as &$param) {
-            $param = substr($param, 0, 20);
+        foreach ($params as $key => &$param) {
+            $param = $this->transParams($pdo, $key, $param);
+            $param = mb_substr($param, 0, 20);
         }
         return implode('_', $params);
+    }
+
+    protected function transParams(\PDO $pdo, $key, $value)
+    {
+        if ($key == 'school_id') return $pdo->query("SELECT `name` FROM school WHERE id = $value")->fetchColumn();
     }
 
     protected function handleIds($ids)
@@ -89,7 +97,7 @@ class SchoolController extends Controller
     protected function no_pay_student($params)
     {
         !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id, nickname, $this->field_phone FROM user_account INNER JOIN `user` ON `user`.id = user_account.user_id WHERE user_account.id IN (SELECT DISTINCT school_member.account_id FROM school_member LEFT JOIN `order` ON `order`.student_id = school_member.account_id LEFT JOIN order_offline ON order_offline.student_id = school_member.account_id WHERE school_member.school_id = " . $params['school_id'] . " AND school_member.account_type_id = 5 AND `order`.id IS NULL AND order_offline.id IS NULL)";
+        return "SELECT user_account.id as student_id, nickname, $this->field_phone FROM user_account INNER JOIN `user` ON `user`.id = user_account.user_id WHERE user_account.id IN (SELECT DISTINCT school_member.account_id FROM school_member LEFT JOIN `order` ON `order`.student_id = school_member.account_id LEFT JOIN order_offline ON order_offline.student_id = school_member.account_id WHERE school_member.school_id = " . $params['school_id'] . " AND school_member.account_type_id = 5 AND `order`.id IS NULL AND order_offline.id IS NULL)";
     }
 
     protected function marketer_school($params)
@@ -101,7 +109,7 @@ class SchoolController extends Controller
     protected function marketer_order_sum($params)
     {
         !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
-        return "SELECT id, `name`, count(DISTINCT student_id) AS count, sum(pay_fee) AS sum FROM ((SELECT school.id, school.`name`, `order`.student_id, `order`.pay_fee FROM school INNER JOIN `order` ON `order`.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1 AND `order`.pay_status LIKE '%success') UNION (SELECT school.id, school.`name`, order_offline.student_id, order_offline.pay_fee FROM school INNER JOIN order_offline ON order_offline.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1)) AS record GROUP BY	id";
+        return "SELECT id as school_id, `name`, count(DISTINCT student_id) AS count, sum(pay_fee) AS sum FROM ((SELECT school.id, school.`name`, `order`.student_id, `order`.pay_fee FROM school INNER JOIN `order` ON `order`.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1 AND `order`.pay_status LIKE '%success') UNION (SELECT school.id, school.`name`, order_offline.student_id, order_offline.pay_fee FROM school INNER JOIN order_offline ON order_offline.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1)) AS record GROUP BY	id";
     }
 
     protected function school_student($params)
@@ -114,7 +122,7 @@ class SchoolController extends Controller
     protected function teacher_student($params)
     {
         !isset($params['teacher_id']) ? die('没有 教师ID') : null;
-        return "SELECT user_account.id, nickname, $this->field_phone FROM vanclass_student INNER JOIN vanclass_teacher ON vanclass_student.vanclass_id = vanclass_teacher.vanclass_id INNER JOIN user_account ON user_account.id = vanclass_student.student_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE vanclass_teacher.teacher_id = " . $params['teacher_id'] . " AND vanclass_student.is_active = 1 GROUP BY vanclass_student.student_id";
+        return "SELECT user_account.id as student_id, nickname, $this->field_phone FROM vanclass_student INNER JOIN vanclass_teacher ON vanclass_student.vanclass_id = vanclass_teacher.vanclass_id INNER JOIN user_account ON user_account.id = vanclass_student.student_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE vanclass_teacher.teacher_id = " . $params['teacher_id'] . " AND vanclass_student.is_active = 1 GROUP BY vanclass_student.student_id";
     }
 
     protected function word_pk_activity($params)
@@ -129,7 +137,7 @@ class SchoolController extends Controller
 
     protected function contract_balance_fee($params)
     {
-        return "SELECT school.id, pop.`value` as contract, school.`name`, nickname, school_popularize_data.`value` as balance FROM school_popularize_data INNER JOIN school ON school.id = school_popularize_data.school_id INNER JOIN user_account ON school.marketer_id = user_account.id LEFT JOIN school_popularize_data AS pop ON pop.school_id = school.id AND pop.`key` = 'contract_class' WHERE school_popularize_data.`key` = 'balance_fee'";
+        return "SELECT school.id as school_id, pop.`value` as contract, school.`name`, nickname, school_popularize_data.`value` as balance FROM school_popularize_data INNER JOIN school ON school.id = school_popularize_data.school_id INNER JOIN user_account ON school.marketer_id = user_account.id LEFT JOIN school_popularize_data AS pop ON pop.school_id = school.id AND pop.`key` = 'contract_class' WHERE school_popularize_data.`key` = 'balance_fee'";
     }
 
     protected function getTime($params, $column)
@@ -139,24 +147,28 @@ class SchoolController extends Controller
         return $time;
     }
 
-    protected function getRecord($rows, $expire = 0)
+    protected function getRecord($rows, $expire = 0, $compare = 'no')
     {
         $record = [];
+        $token = $this->getManageToken();
         foreach ($rows as $i => $row) {
             if ($i == 0) $record[] = $this->getTitle($row, $expire);
             $data = [];
             foreach ($row as $key => $item) {
-                is_numeric($key) ? $data[] = $item : null;
+                if (!is_numeric($key) && !in_array($key, ['student_id', 'school_id'])) $data[] = $item;
             }
-            if ($expire == 1) $data[] = $this->appendExpire($row);
+            if ($expire == 1) {
+                $data[] = $exp = $this->appendExpire($row, $token);
+                if ($compare !== 'no' && !Carbon::now()->$compare($exp)) continue;
+            }
             $record[] = $data;
         }
         return $record;
     }
 
-    protected function appendExpire($row)
+    protected function appendExpire($row, $token)
     {
-        $res = $this->request_post($row['student_id']);
+        $res = $this->request_post($row['student_id'], $token);
         return $res->expired_time;
     }
 
@@ -164,7 +176,7 @@ class SchoolController extends Controller
     {
         $data = [];
         foreach ($row as $key => $value) {
-            if (!is_numeric($key)) {
+            if (!is_numeric($key) && !in_array($key, ['student_id', 'school_id'])) {
                 $data[] = isset($this->titles[$key]) ? $this->titles[$key] : $key;
             }
         }
@@ -172,9 +184,9 @@ class SchoolController extends Controller
         return $data;
     }
 
-    protected function request_post($id)
+    protected function request_post($id, $token)
     {
-        $postUrl = 'http://api.manage.wxzxzj.com/api/user/get/expiredTime?token=' . $this->getManageToken();
+        $postUrl = 'http://api.manage.wxzxzj.com/api/user/get/expiredTime?token=' . $token;
         $curlPost = 'student_id=' . $id;
         $data = $this->curlPost($postUrl, $curlPost);
         return $data;

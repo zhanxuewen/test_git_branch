@@ -68,7 +68,14 @@
                         <option value="1">是</option>
                     </select>
                 </div>
-
+                <div class="form-group">
+                    <label for="compare">有效期比较</label>
+                    <select class="form-control" name="compare" id="compare">
+                        <option value="no">否</option>
+                        <option value="lte">有效</option>
+                        <option value="gt">失效</option>
+                    </select>
+                </div>
                 <input class="btn btn-primary" type="submit" value="导出">
             </div>
         </form>
