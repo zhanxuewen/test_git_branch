@@ -46,7 +46,7 @@ class RecordOrderIncrement extends BaseSchedule
             ];
         }
         $all = $this->getAllSum($create);
-        if ($all !== 0) $create['All'] = ['type' => 'All', 'count' => $all, 'created_date' => $date];
+        $create['All'] = ['type' => 'All', 'count' => $all, 'created_date' => $date];
         \DB::setPdo($local_pdo)->table('monitor_order_increment')->insert($create);
     }
 
