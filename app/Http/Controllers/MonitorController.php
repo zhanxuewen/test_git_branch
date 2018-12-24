@@ -9,14 +9,17 @@ class MonitorController extends Controller
 {
     public function table()
     {
-        $count = $this->builder->setModel('tableIncrement')->distinct()->count('created_date');
-        $sub_days = $count > 14 ? 14 : $count;
+        $empty = $this->builder->setModel('tableIncrement')->groupBy('table')->havingRaw('max(rows) < 1000')->pluck('table');
+//        $count = $this->builder->setModel('tableIncrement')->distinct()->count('created_date');
+//        $sub_days = $count > 14 ? 14 : $count;
+        $sub_days = 14;
         $dates = json_encode($this->listSubDays($sub_days));
         $keys = [];
         $i = 0;
         $rows = [];
         $this->builder->setModel('tableIncrement')->selectRaw('`table`, group_concat(rows) as _rows')
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
+            ->whereNotIn('table', $empty)
             ->groupBy('table')->orderByRaw('max(rows) desc')
             ->chunk(10, function ($tables) use (&$i, &$rows, &$keys) {
                 $rows[$i] = $tables->toJson();

@@ -39,10 +39,9 @@ class RecordOrderIncrement extends BaseSchedule
             $table = strstr($type, 'Offline') ? '`order_offline`' : '`order`';
             $sql = $this->buildSql($table, $where);
             $sum = $pdo->select($sql)[0]->sum;
-            if (is_null($sum)) continue;
             $create[$type] = [
                 'type' => $type,
-                'count' => $sum,
+                'count' => is_null($sum) ? 0 : $sum,
                 'created_date' => $date
             ];
         }
