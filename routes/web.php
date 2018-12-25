@@ -99,6 +99,9 @@ Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
 
     Route::get('student', ['uses' => 'StudentController@student']);
     Route::post('student', ['uses' => 'StudentController@export']);
+
+    Route::get('single', ['uses' => 'SingleController@single']);
+    Route::post('ajax/single', ['uses' => 'SingleController@export']);
 });
 
 // Logs Routes

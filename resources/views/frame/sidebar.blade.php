@@ -5,7 +5,8 @@
         {!! \App\Helper\BladeHelper::single_bar('Dashboard', 'dashboard', 'fa-dashboard') !!}
         {!! \App\Helper\BladeHelper::treeview('Export', [
             'School' => 'export/school',
-            'Student' => 'export/student'
+            'Student' => 'export/student',
+            'Single' => 'export/single'
         ], 'fa-download') !!}
         {!! \App\Helper\BladeHelper::treeview('Select', [
             'Marketer' => 'select/marketer',

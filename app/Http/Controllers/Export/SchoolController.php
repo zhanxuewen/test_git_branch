@@ -74,6 +74,7 @@ class SchoolController extends Controller
     protected function transParams(\PDO $pdo, $key, $value)
     {
         if ($key == 'school_id') return $pdo->query("SELECT `name` FROM school WHERE id = $value")->fetchColumn();
+        return $value;
     }
 
     protected function handleIds($ids)
