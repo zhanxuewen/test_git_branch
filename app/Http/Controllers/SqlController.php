@@ -21,7 +21,7 @@ class SqlController extends Controller
             ? $query->selectRaw('*, count(*) as count')->groupBy('query')->orderBy('count', 'desc')
             : $query->orderBy('time', 'desc');
         $sql_s = $query->paginate(30);
-        return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group'));
+        return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group', 'conn'));
     }
 
     public function querySql(Request $request)

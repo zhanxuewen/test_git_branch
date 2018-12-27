@@ -3,7 +3,7 @@
 
 @section('section')
     <div class="col-sm-12">
-        @foreach(['migration','table'] as $type)
+        @foreach($types as $type)
             <a class="btn btn-default @if($type == $_type) btn-primary active @endif"
                href="{!! url('database/diff').'?type='.$type !!}">Diff {{ucfirst($type)}}</a>
         @endforeach

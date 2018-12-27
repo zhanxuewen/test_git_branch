@@ -23,7 +23,7 @@
         <hr>
         <nav aria-label="Page navigation">{!! $sql_s->render() !!}</nav>
         <table class="table table-bordered table-hover">
-            <caption>total : {{count($sql_s)}}</caption>
+            <caption><b>[{{$conn}}]</b> total : {{count($sql_s)}}</caption>
             @foreach($sql_s as $sql)
                 <tr>
                     <td>

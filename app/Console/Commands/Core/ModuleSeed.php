@@ -75,11 +75,12 @@ class ModuleSeed extends Command
         $seeders = scandir(database_path('seeds') . '/' . $module);
         foreach ($seeders as $key => $seeder) {
             if (in_array($seeder, ['.', '..'])) continue;
-            $class = $this->convertUnderline(str_replace('.php', '', $seeder));
+            $name = str_replace('.php', '', $seeder);
+            if (in_array($name, $this->seeders)) continue;
+            $class = $this->convertUnderline(substr($name, 18));
             if (!is_null($_class) && $class != $_class) continue;
-            if (in_array($class, $this->seeders)) continue;
             $Class = new $class;
-            $this->seedClass($Class);
+            $this->seedClass($Class, $name);
         }
         if ($this->count == 0) {
             $this->line('Module ' . $module . ' Nothing to seed.');
@@ -89,12 +90,12 @@ class ModuleSeed extends Command
         }
     }
 
-    protected function seedClass($class)
+    protected function seedClass($class, $name)
     {
         $class->run();
-        $this->recordSeeder(get_class($class));
+        $this->recordSeeder($name);
         $this->count++;
-        $this->info(get_class($class) . ' Seed.');
+        $this->info($name . ' Seed.');
     }
 
     protected function convertUnderline($str)
