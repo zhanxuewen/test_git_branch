@@ -107,7 +107,7 @@ class SlowController extends Controller
     {
         $params = [
             'rpc' => 'itemids%5B33469%5D=33469&itemids%5B33470%5D=33470&itemids%5B33475%5D=33475',
-            'mysql' => 'itemids%5B29168%5D=29168&itemids%5B29169%5D=29169&itemids%5B30673%5D=30673'
+            'mysql' => 'itemids%5B152040%5D=152040&itemids%5B152351%5D=152351&itemids%5B252547%5D=252547'
         ];
         $url    = 'http://zabbix.vanthink.cn:3780/history.php?sid=4ff0c881f59d64c0&form_refresh=1&'
             .$params[$key].
