@@ -15,9 +15,11 @@ class SchoolController extends Controller
             'sum' => '总数',
             'days' => '天数',
             'time' => '时间',
+            'name' => '名称',
             'count' => '数量',
             'phone' => '手机',
             '_phone' => '手机',
+            'region' => '区域',
             'm_name' => '备注名',
             'pay_fee' => '费用',
             'balance' => '余额',
@@ -25,6 +27,7 @@ class SchoolController extends Controller
             'nickname' => '昵称',
             'contract' => '合作档',
             'school_id' => '学校ID',
+            '_school_id' => '学校ID',
             'c_p_sign' => '签到人数',
             't_nickname' => '教师昵称',
             'c_p_arena' => '摆擂人数',
@@ -138,7 +141,7 @@ class SchoolController extends Controller
 
     protected function contract_balance_fee($params)
     {
-        return "SELECT school.id as school_id, pop.`value` as contract, school.`name`, nickname, school_popularize_data.`value` as balance FROM school_popularize_data INNER JOIN school ON school.id = school_popularize_data.school_id INNER JOIN user_account ON school.marketer_id = user_account.id LEFT JOIN school_popularize_data AS pop ON pop.school_id = school.id AND pop.`key` = 'contract_class' WHERE school_popularize_data.`key` = 'balance_fee'";
+        return "SELECT school.id as _school_id, school.`name`, attr.value as region, nickname, pop.`value` as contract, school_popularize_data.`value` as balance FROM school_popularize_data INNER JOIN school ON school.id = school_popularize_data.school_id INNER JOIN user_account ON school.marketer_id = user_account.id LEFT JOIN school_popularize_data AS pop ON pop.school_id = school.id AND pop.`key` = 'contract_class' LEFT JOIN school_attribute as attr ON attr.school_id = school.id AND attr.`key` = 'region' WHERE school_popularize_data.`key` = 'balance_fee'";
     }
 
     protected function getTime($params, $column)
