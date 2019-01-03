@@ -42,16 +42,20 @@
 </div>
 <div class="col-sm-5">
     <table class="table table-bordered table-hover">
-        <caption>异常学生</caption>
+        <caption>重复身份账号</caption>
         <tr>
             <th>手机号</th>
             <th>数量</th>
+            <th>身份</th>
         </tr>
-        @foreach($collect['student'] as $student)
-            <tr>
-                <td>{{$student->phone}}</td>
-                <td>{{$student->coo}}</td>
-            </tr>
+        @foreach($collect['multi'] as $type => $accounts)
+            @foreach($accounts as $account)
+                <tr>
+                    <td>{{$account->phone}}</td>
+                    <td>{{$account->coo}}</td>
+                    <td>{{$type}}</td>
+                </tr>
+            @endforeach
         @endforeach
     </table>
 </div>

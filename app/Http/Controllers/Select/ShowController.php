@@ -76,9 +76,29 @@ class ShowController extends Controller
             ->selectRaw($select)->where('a.user_type_id', 3)->where('b.user_type_id', 4)->get()->toArray();
         $school = DB::setPdo($pdo)->table(DB::raw('user_account AS a'))->join(DB::raw('user_account AS b'), 'a.user_id', '=', 'b.user_id')
             ->selectRaw($select)->where('a.user_type_id', 6)->where('b.user_type_id', 7)->get()->toArray();
-        $student = DB::setPdo($pdo)->table('user_account')->join('user', 'user.id', '=', 'user_account.user_id')->selectRaw('count(*) AS coo, phone')
-            ->where('user_type_id', 5)->groupBy('user_id')->havingRaw('coo > 1')->get()->toArray();
-        return ['teacher' => $teacher, 'school' => $school, 'student' => $student];
+        return ['teacher' => $teacher, 'school' => $school,
+            'multi' => [
+                'free_teacher' => $this->getMultiAccount($pdo, 3),
+                'school_teacher' => $this->getMultiAccount($pdo, 4),
+                'student' => $this->getMultiAccount($pdo, 5),
+                'principal' => $this->getMultiAccount($pdo, 6),
+                'manager' => $this->getMultiAccount($pdo, 7),
+            ]
+        ];
+    }
+
+    protected function abnormal_member($conn)
+    {
+        $pdo = $this->getPdo($conn);
+        $members = DB::setPdo($pdo)->table('school_member')->selectRaw('account_id, school_id, count(*) as coo')
+            ->groupBy(['account_id', 'school_id'])->orderBy('coo', 'desc')->having('coo', '>', 1)->get()->toArray();
+        return ['member' => $members];
+    }
+
+    protected function getMultiAccount($pdo, $type_id)
+    {
+        return DB::setPdo($pdo)->table('user_account')->join('user', 'user.id', '=', 'user_account.user_id')->selectRaw('count(*) AS coo, phone')
+            ->where('user_type_id', $type_id)->groupBy('user_id')->havingRaw('coo > 1')->get()->toArray();
     }
 
     protected function getRecord($rows)
