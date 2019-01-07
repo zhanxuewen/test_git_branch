@@ -92,7 +92,9 @@ class ShowController extends Controller
         $pdo = $this->getPdo($conn);
         $members = DB::setPdo($pdo)->table('school_member')->selectRaw('account_id, school_id, count(*) as coo')
             ->groupBy(['account_id', 'school_id'])->orderBy('coo', 'desc')->having('coo', '>', 1)->get()->toArray();
-        return ['member' => $members];
+        $student = DB::setPdo($pdo)->table('vanclass_student')->selectRaw('student_id, vanclass_id, count(*) as coo')
+            ->groupBy(['student_id', 'vanclass_id'])->orderBy('coo', 'desc')->having('coo', '>', 1)->get()->toArray();
+        return ['member' => $members, 'student' => $student];
     }
 
     protected function getMultiAccount($pdo, $type_id)
