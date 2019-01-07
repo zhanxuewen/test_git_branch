@@ -15,14 +15,14 @@ class ModuleMigrate extends Command
      * @var string
      */
     protected $signature = 'module:migrate {module=all}';
-    
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Migrate Database Like module:migrate';
-    
+
     /**
      * Create a new command instance.
      *
@@ -32,7 +32,7 @@ class ModuleMigrate extends Command
     {
         parent::__construct();
     }
-    
+
     /**
      * Execute the console command.
      *
@@ -40,7 +40,8 @@ class ModuleMigrate extends Command
      */
     public function handle()
     {
-        $module  = $this->argument('module');
+        $this->configDbaPassword();
+        $module = $this->argument('module');
         $modules = $this->listModules(database_path('migrations'));
         if (in_array($module, $modules)) {
             $this->migrate($module);
@@ -52,12 +53,18 @@ class ModuleMigrate extends Command
         }
         $this->info('Module Migrate Has Done! ^_^');
     }
-    
+
+    protected function configDbaPassword()
+    {
+        config(['database.connections.mysql.username' => 'dbadmin']);
+        config(['database.connections.mysql.password' => env('DBA_PASSWORD')]);
+    }
+
     protected function migrate($module)
     {
-        $this->call('migrate', ['--path' => 'database/migrations/'.$module]);
+        $this->call('migrate', ['--path' => 'database/migrations/' . $module]);
     }
-    
+
     protected function migrateAll($modules)
     {
         foreach ($modules as $module) {
@@ -65,11 +72,11 @@ class ModuleMigrate extends Command
         }
         $this->call('migrate');
     }
-    
+
     protected function listModules($Dir)
     {
         foreach (scandir($Dir) as $dir) {
-            if (is_dir(realpath($Dir.'/'.$dir)) && !in_array($dir, ['.', '..'])) $modules[] = $dir;
+            if (is_dir(realpath($Dir . '/' . $dir)) && !in_array($dir, ['.', '..'])) $modules[] = $dir;
         }
         return isset($modules) ? $modules : [];
     }
