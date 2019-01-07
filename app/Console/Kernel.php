@@ -36,6 +36,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function () {
+            $this->logSchedule('Monitor Record Start At ' . date('Y-m-d H:i:s'));
             (new Schedules\Monitor\RecordTableIncrement())->handle();
             $this->logSchedule('Record Table Increment Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Monitor\RecordDeviceUsage())->handle();
@@ -44,10 +45,12 @@ class Kernel extends ConsoleKernel
             $this->logSchedule('Record Order Increment Done At ' . date('Y-m-d H:i:s'));
         })->dailyAt('01:00');
         $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
+            $this->logSchedule('Export Order Start At ' . date('Y-m-d H:i:s'));
             $schedule->handle();
             $this->logSchedule('Export Order List Done At ' . date('Y-m-d H:i:s'));
         })->dailyAt('08:00');
         $schedule->call(function (Schedules\Order\ExportOfflineList $schedule) {
+            $this->logSchedule('Export Offline Start At ' . date('Y-m-d H:i:s'));
             $schedule->handle();
             $this->logSchedule('Export Offline List Done At ' . date('Y-m-d H:i:s'));
         })->weekly()->mondays()->at('08:20');
@@ -55,10 +58,11 @@ class Kernel extends ConsoleKernel
 
     protected function logSchedule($log)
     {
-        if (!\Storage::exists('schedule.log')) {
-            \Storage::put('schedule.log', $log);
+        $disk = \Storage::disk('logs');
+        if (!$disk->exists('schedule.log')) {
+            $disk->put('schedule.log', $log);
         } else {
-            \Storage::append('schedule.log', $log);
+            $disk->append('schedule.log', $log);
         }
     }
 

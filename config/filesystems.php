@@ -55,6 +55,11 @@ return [
             'visibility' => 'public',
         ],
 
+        'logs' => [
+            'driver' => 'local',
+            'root'   => storage_path('logs'),
+        ],
+
         'export' => [
             'driver' => 'local',
             'root' => storage_path('exports'),
