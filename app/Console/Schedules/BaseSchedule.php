@@ -6,13 +6,11 @@ use App\Export;
 use Illuminate\Mail\Message;
 use App\Foundation\PdoBuilder;
 use Maatwebsite\Excel\Facades\Excel;
-use Maatwebsite\Excel\Writers\LaravelExcelWriter;
-use Maatwebsite\Excel\Classes\LaravelExcelWorksheet;
 
 class BaseSchedule
 {
     use PdoBuilder;
-    
+
     private function queryToArray($query, $key, $alias)
     {
         $tmp = [];
@@ -21,13 +19,13 @@ class BaseSchedule
         }
         return $tmp;
     }
-    
+
     protected function getManagers()
     {
         $list = \DB::table('user_account')->selectRaw('id, nickname')->where('user_type_id', 1)->get();
         return $this->queryToArray($list, 'id', 'nickname');
     }
-    
+
     protected function setPrices()
     {
         return [
@@ -37,36 +35,36 @@ class BaseSchedule
             4 => ['F' => 365, 'D' => '', 'C' => 150, 'B' => 99, 'A' => 99]
         ];
     }
-    
+
     public function getContract()
     {
         $list = \DB::table('school_popularize_data')->selectRaw('school_id, value')->where('key', 'contract_class')->get();
         return $this->queryToArray($list, 'school_id', 'value');
     }
-    
+
     public function getRegions()
     {
         $list = \DB::table('school_attribute')->selectRaw('school_id, value')->where('key', 'region')->get();
         return $this->queryToArray($list, 'school_id', 'value');
     }
-    
+
     public function getParts()
     {
         $league = \DB::table('school_league')->selectRaw("DISTINCT school_member.school_id, (CASE leader_school_id WHEN 1579 THEN 'X' WHEN 3043 THEN 'L' END) AS title")->join('school_member', 'school_league.principal_id', '=', 'school_member.account_id')->join('school', 'school.id', '=', 'school_member.school_id')->whereIn('school_league.leader_school_id', [1579])->where('school.is_active', 1)->where('school.created_at', '>', '2018-01-01')->get();
-        $parts  = [];
+        $parts = [];
         foreach ($league as $item) {
             if (in_array($item->school_id, [2147, 2518])) continue;
             $parts[$item->school_id] = $item->title;
         }
         return $parts;
     }
-    
+
     protected function store($filename, $path, $folder, $data)
     {
-        Excel::store(new Export($data), $folder.'/'.$filename.'.xls', 'export');
-        return $path.'/'.$filename.'.xls';
+        Excel::store(new Export($data), $folder . '/' . $filename . '.xls', 'export');
+        return $path . '/' . $filename . '.xls';
     }
-    
+
     protected function email($to, $blade, $data, $subject, $attach)
     {
         \Mail::send($blade, $data, function (Message $message) use ($to, $subject, $attach) {
