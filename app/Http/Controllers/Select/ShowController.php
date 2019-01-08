@@ -20,16 +20,20 @@ class ShowController extends Controller
 
     /**
      * List Label Tree
+     * @param Request $request
+     * @return mixed
      */
-    public function labels()
+    public function labels(Request $request)
     {
+        $type_id = $request->get('type_id', 1);
         $pdo = $this->getPdo('online');
-        $_labels = $pdo->query($this->buildSql('list_labels', 1));
+        $types = $this->getRecord($pdo->query("SELECT * FROM label_type"));
+        $_labels = $pdo->query($this->buildSql('list_labels', $type_id));
         $labels = [];
         foreach ($_labels as $label) {
             $labels[$label['parent_id']][] = $label;
         }
-        return view('select.label', compact('labels'));
+        return view('select.label', compact('labels', 'types', 'type_id'));
     }
 
     /**
