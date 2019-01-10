@@ -47,6 +47,30 @@ class Helper
         return vsprintf(str_replace("?", "'%s'", $query), self::carbonToString($bindings));
     }
 
+    public static function needHide($explain)
+    {
+        if (empty($explain)) return true;
+        $cache = self::getCache();
+        $tables = json_decode($cache, true);
+        $explain = json_decode(str_replace('&quot;', '"', $explain), true);
+        foreach ($explain as $item) {
+            $table = $item['table'];
+            if (!isset($tables[$table]) || self::exceptTables($item['table']) == true) continue;
+            if ($item['type'] == 'ALL') return false;
+            if (empty($item['key'])) return false;
+            $_row = $item['rows'];
+            $rows = $tables[$table];
+            if ($_row / $rows > 0.05) return false;
+        }
+        return true;
+    }
+
+    protected static function exceptTables($table)
+    {
+        $excepts = ['user_type', 'system_role', 'log_type', 'system_config','payment_commodity'];
+        return in_array($table, $excepts) ? true : false;
+    }
+
     public static function showExplain($explain)
     {
         if (empty($explain)) return '';

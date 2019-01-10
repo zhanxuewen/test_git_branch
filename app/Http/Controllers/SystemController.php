@@ -10,7 +10,8 @@ class SystemController extends Controller
     {
         $configs = $this->builder->setModel('config')->get()->toArray();
         $conn = $this->getRedis('analyze')->get($this->getUser('id') . '_sql_analyze_conn');
-        return view('system.config', compact('configs', 'conn'));
+        $perPage = $this->getRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;
+        return view('system.config', compact('configs', 'conn', 'perPage'));
     }
 
     public function postConfig(Request $request)
@@ -22,11 +23,13 @@ class SystemController extends Controller
 
     protected function personalConfig(Request $request)
     {
-        $conn = $request->get('conn');
         $redis = $this->getRedis('analyze');
         $user_id = $this->getUser('id');
-        $key = $user_id . '_sql_analyze_conn';
-        $redis->setex($key, 60 * 60 * 24, $conn);
+        $keys = ['_sql_analyze_conn' => 'conn', '_per_page' => 'perPage'];
+        foreach ($keys as $key => $param) {
+            $redis->setex($user_id . $key, 60 * 60 * 24, $request->get($param));
+        }
+
     }
 
 }

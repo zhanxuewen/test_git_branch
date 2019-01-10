@@ -20,7 +20,7 @@ class SqlController extends Controller
         $_group == 'in_group'
             ? $query->selectRaw('*, count(*) as count')->groupBy('query')->orderBy('count', 'desc')
             : $query->orderBy('time', 'desc');
-        $sql_s = $query->paginate(30);
+        $sql_s = $query->paginate($this->getPerPage());
         return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group', 'conn'));
     }
 
@@ -28,7 +28,7 @@ class SqlController extends Controller
     {
         $conn = $this->getAnalyzeConn();
         $query = $request->get('query');
-        $sql_s = DB::setPdo($this->getPdo($conn))->table('sql_log')->where('query', $query)->orderBy('time', 'desc')->paginate(30);
+        $sql_s = DB::setPdo($this->getPdo($conn))->table('sql_log')->where('query', $query)->orderBy('time', 'desc')->paginate($this->getPerPage());
         return view('sql.query_sql', compact('sql_s'));
     }
 

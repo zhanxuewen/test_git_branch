@@ -44,7 +44,7 @@ class ShowController extends Controller
         $feedback_s = DB::setPdo($this->getPdo('online'))->table('aftersale_feedback')
             ->join('user_account', 'user_account.id', '=', 'aftersale_feedback.account_id')
             ->selectRaw('aftersale_feedback.*, nickname, user_type_id')
-            ->orderBy('created_at', 'desc')->paginate(30);
+            ->orderBy('created_at', 'desc')->paginate($this->getPerPage());
         return view('select.feedback', compact('feedback_s'));
     }
 

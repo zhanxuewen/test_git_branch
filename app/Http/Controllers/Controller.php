@@ -59,6 +59,11 @@ abstract class Controller extends BaseController
         return $this->$query($param);
     }
 
+    protected function getPerPage()
+    {
+        return $this->getRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;
+    }
+
     protected function getZabbixToken()
     {
         return 'Cookie:zbx_sessionid=6b594637293a09024ff0c881f59d64c0';

@@ -21,22 +21,25 @@
             </form>
         </div>
         <hr>
+        <a class="btn btn-warning pull-right" id="toggle-hide">Bad Sql / All</a>
         <nav aria-label="Page navigation">{!! $sql_s->render() !!}</nav>
         <table class="table table-bordered table-hover">
             <caption><b>[{{$conn}}]</b> total : {{count($sql_s)}}</caption>
             @foreach($sql_s as $sql)
                 <tr>
-                    <td>
+                    <td @if(\App\Helper\Helper::needHide($sql->explain) == true) class="need-hide" @endif>
                         @if(!isset($sql->count))
                             <span class="label @if($sql->time >= 1000) bg-red @else bg-gray @endif">{{$sql->time}}ms</span>
                             <span>{!! \App\Helper\Helper::showExplain($sql->explain) !!}</span><br>
-                            <a href="{!! url('/query/id/'.$sql->id) !!}" target="_blank">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
+                            <a href="{!! url('/query/id/'.$sql->id) !!}"
+                               target="_blank">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
                             @if($sql->time >= 1000 && $_type == 'select')
                                 <span class="query_sql bg-orange btn btn-xs">Query Again</span>
                             @endif
                         @else
                             <span class="label bg-green">{{isset($sql->count)?$sql->count:1}}</span>
-                            <a href="{!! url('/query/sql').'?query='.($sql->query) !!}" target="_blank">{{$sql->query}}</a>
+                            <a href="{!! url('/query/sql').'?query='.($sql->query) !!}"
+                               target="_blank">{{$sql->query}}</a>
                         @endif
                     </td>
                 </tr>
@@ -48,6 +51,10 @@
 @section('script')
     <script>
         $(document).ready(function () {
+            $("#toggle-hide").click(function () {
+                $(".need-hide").toggle();
+            });
+
             $(".query_sql").click(function () {
                 let sql = $(this).prev().text();
                 let data = $.ajax({

@@ -37,7 +37,7 @@ class SearchController extends Controller
     public function wordbank(Request $request)
     {
         $word = $request->get('word');
-        $words = DB::setPdo($this->getPdo('online'))->table('wordbank')->orderBy('initial', 'acs')->paginate(30);
+        $words = DB::setPdo($this->getPdo('online'))->table('wordbank')->orderBy('initial', 'acs')->paginate($this->getPerPage());
         return view('select.wordbank', compact('words'));
     }
 
