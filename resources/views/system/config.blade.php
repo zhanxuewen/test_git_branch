@@ -26,7 +26,6 @@
                 </div>
                 <div class="form-group col-sm-1">
                     <label for="per-page">分页条数</label>
-                    {{--<input type="number" name="perPage" class="form-control" id="per-page">--}}
                     <input type="text" name="perPage" id="per-page" value="{{$perPage}}" size="5"
                            style="ime-mode:disabled" onKeyUp="this.value = numberCheck(this.value, 100)"/>
                 </div>
