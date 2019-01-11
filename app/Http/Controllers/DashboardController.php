@@ -25,7 +25,7 @@ class DashboardController extends Controller
 
     protected function getRows($model, $sub_days, $item, $count)
     {
-        return $this->builder->setModel($model)->selectRaw("`$item` as item, group_concat($count) as _count")
+        return $this->builder->setModel($model)->selectRaw("`$item` as item, group_concat($count ORDER BY id) as _count")
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
             ->groupBy($item)->orderByRaw("max($count) desc")->take(10)->get()->toJson();
     }

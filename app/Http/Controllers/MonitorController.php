@@ -17,7 +17,7 @@ class MonitorController extends Controller
         $keys = [];
         $i = 0;
         $rows = [];
-        $this->builder->setModel('tableIncrement')->selectRaw('`table`, group_concat(rows) as _rows')
+        $this->builder->setModel('tableIncrement')->selectRaw('`table`, group_concat(rows ORDER BY id) as _rows')
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
             ->whereNotIn('table', $empty)
             ->groupBy('table')->orderByRaw('max(rows) desc')
@@ -59,7 +59,7 @@ class MonitorController extends Controller
         $keys = [];
         $i = 0;
         $rows = [];
-        $this->builder->setModel('deviceUsageAmount')->selectRaw('`device`, group_concat(user_amount) as _rows')
+        $this->builder->setModel('deviceUsageAmount')->selectRaw('`device`, group_concat(user_amount ORDER BY id) as _rows')
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
             ->groupBy('device')->orderByRaw('max(user_amount) desc')
             ->chunk(10, function ($tables) use (&$i, &$rows, &$keys) {
@@ -79,7 +79,7 @@ class MonitorController extends Controller
         $keys = [];
         $i = 0;
         $rows = [];
-        $this->builder->setModel('orderIncrement')->selectRaw('`type` as _type, group_concat(count) as _rows')
+        $this->builder->setModel('orderIncrement')->selectRaw('`type` as _type, group_concat(count ORDER BY id) as _rows')
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
             ->groupBy('type')->orderByRaw('max(count) desc')
             ->chunk(10, function ($tables) use (&$i, &$rows, &$keys) {
