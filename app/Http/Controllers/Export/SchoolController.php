@@ -113,7 +113,7 @@ class SchoolController extends Controller
     protected function marketer_order_sum($params)
     {
         !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
-        return "SELECT id as school_id, `name`, count(DISTINCT student_id) AS count, sum(pay_fee) AS sum FROM ((SELECT school.id, school.`name`, `order`.student_id, `order`.pay_fee FROM school INNER JOIN `order` ON `order`.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1 AND `order`.pay_status LIKE '%success') UNION (SELECT school.id, school.`name`, order_offline.student_id, order_offline.pay_fee FROM school INNER JOIN order_offline ON order_offline.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1)) AS record GROUP BY	id";
+        return "SELECT id as _school_id, GROUP_CONCAT(DISTINCT `name`) as `name`, count(DISTINCT student_id) AS count, sum(pay_fee) AS sum FROM ((SELECT school.id, school.`name`, `order`.student_id, `order`.pay_fee FROM school INNER JOIN `order` ON `order`.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1 AND `order`.pay_status LIKE '%success') UNION ALL (SELECT school.id, school.`name`, order_offline.student_id, order_offline.pay_fee FROM school INNER JOIN order_offline ON order_offline.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1)) AS record GROUP BY id";
     }
 
     protected function school_student($params)

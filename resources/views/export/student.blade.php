@@ -33,6 +33,7 @@
                         <option value="teacher_word_homework">教师布置单词</option>
                         <option value="get_labels">获取标签</option>
                         <option value="label_wordbank">标签下单词</option>
+                        <option value="parent_label_wordbank">本标签下所有子标签的单词</option>
                     </select>
                 </div>
                 <input class="btn btn-primary" type="submit" value="导出">
@@ -45,5 +46,6 @@
         <p><u>学生班级单词</u> 必填参数: [<b>学生 ID</b>]</p>
         <p><u>教师布置单词</u> 必填参数: [<b>教师 ID</b>]</p>
         <p><u>获取标签</u> 必填参数: [<b>标签 IDs</b>] <i>(逗号隔开:1,2,3)</i></p>
+        <p><u>本标签下所有子标签的单词</u> 必填参数: [<b>标签 ID</b>]</p>
     </div>
 @endsection
