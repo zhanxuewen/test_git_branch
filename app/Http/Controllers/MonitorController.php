@@ -91,6 +91,21 @@ class MonitorController extends Controller
         return view('monitor.order', compact('rows', 'keys', 'dates'));
     }
 
+    public function zabbix(Request $request)
+    {
+        $_day = $request->get('day', 1);
+        $time = $time = Carbon::now()->subDays($_day)->format('YmdHis');
+        $config = [
+            'mysql_1' => ['id' => 18017],
+            'mysql_2' => ['id' => 18048],
+            'mysql_3' => ['id' => 30110]
+        ];
+        foreach ($config as $item) {
+            $data[] = 'http://zabbix.vanthink.cn:3780/chart2.php?graphid=' . $item['id'] . '&period=' . (86400 * $_day) . '&stime=' . $time . '&isNow=1&profileIdx=web.graphs&profileIdx2=18017&width=847&sid=63fd9a3fd67d7a39';
+        }
+        return view('monitor.zabbix', compact('data', '_day'));
+    }
+
     protected function listSubDays($sub_days)
     {
         $subDay = Carbon::now()->subDays($sub_days);

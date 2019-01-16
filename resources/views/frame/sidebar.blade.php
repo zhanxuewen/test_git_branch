@@ -25,7 +25,8 @@
             'Table' => 'monitor/table',
             'Device' => 'monitor/device',
             'Order' => 'monitor/order',
-            'Circle Table' => 'monitor/circleTable'
+            'Circle Table' => 'monitor/circleTable',
+            'Zabbix' => 'monitor/zabbix'
         ], 'fa-bar-chart') !!}
         {!! \App\Helper\BladeHelper::treeview('Redis', ['Throttle' => 'redis_throttle'], 'fa-file') !!}
         {!! \App\Helper\BladeHelper::treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}
@@ -35,7 +36,8 @@
             'Rpc Service' => 'service/get/serviceList'
         ], 'fa-object-group') !!}
         {!! \App\Helper\BladeHelper::treeview('Tool', [
-            'Download' => 'tool/download'
+            'Download' => 'tool/download',
+            'Upload' => 'tool/upload'
         ], 'fa-legal') !!}
         {!! \App\Helper\BladeHelper::treeview('User', [
             'Account' => 'user/listAccount',

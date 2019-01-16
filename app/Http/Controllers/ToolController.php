@@ -13,6 +13,11 @@ class ToolController extends Controller
         return view('tool.download');
     }
 
+    public function getUpload()
+    {
+        return view('tool.upload');
+    }
+
     public function postDownload(Request $request)
     {
         $url = $request->get('url');
@@ -45,6 +50,15 @@ class ToolController extends Controller
         return redirect('tool/download')
             ->with(is_file($file) ? 'file' : 'none_file', json_encode($file . '|' . $f_name))
             ->with('result', json_encode($this->result));
+    }
+
+    protected function ajaxUpload(Request $request)
+    {
+        $type = $request->get('type', 'image');
+        $file = $request->file('file');
+        $info = [];
+        if ($type == 'image') $info = $this->aliOss->uploadImage($file);
+        return isset($info['src']) ? $info['src'] : false;
     }
 
     public function ajaxDownload(Request $request)

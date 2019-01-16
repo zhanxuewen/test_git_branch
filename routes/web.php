@@ -66,6 +66,7 @@ Route::get('monitor/table', ['uses' => 'MonitorController@table']);
 Route::get('monitor/device', ['uses' => 'MonitorController@device']);
 Route::get('monitor/order', ['uses' => 'MonitorController@order']);
 Route::get('monitor/circleTable', ['uses' => 'MonitorController@circleTable']);
+Route::get('monitor/zabbix', ['uses' => 'MonitorController@zabbix']);
 
 // Sql Analyze Routes
 Route::group(['middleware' => 'cache.rows'], function () {
@@ -87,6 +88,8 @@ Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 Route::get('tool/download', ['uses' => 'ToolController@getDownload']);
 Route::post('tool/download', ['uses' => 'ToolController@postDownload']);
 Route::post('ajax/tool/download', ['uses' => 'ToolController@ajaxDownload']);
+Route::get('tool/upload', ['uses' => 'ToolController@getUpload']);
+Route::post('ajax/tool/upload', ['uses' => 'ToolController@ajaxUpload']);
 
 // System Routes
 Route::get('system/config', ['uses' => 'SystemController@getConfig']);

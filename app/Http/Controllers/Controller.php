@@ -7,6 +7,7 @@ use App\Export;
 use Validator;
 use App\Helper\Helper;
 use App\Helper\Builder;
+use App\Library\AliOss;
 use App\Foundation\PdoBuilder;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -27,10 +28,12 @@ abstract class Controller extends BaseController
         ];
 
     protected $builder;
+    protected $aliOss;
 
-    public function __construct(Builder $builder)
+    public function __construct(Builder $builder, AliOss $aliOss)
     {
         $this->builder = $builder;
+        $this->aliOss = $aliOss;
     }
 
     protected function getUser($field = null)
