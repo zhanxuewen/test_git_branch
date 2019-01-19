@@ -19,17 +19,17 @@ class CacheTableRows extends IgnoreRoute
     public function handle($request, Closure $next)
     {
         $redis = $this->getRedis('analyze');
-        if ($redis->get('dev_table_rows')) {
-            return $next($request);
+        foreach (['dev', 'test', 'dev_shorthand'] as $conn) {
+            if ($redis->get($conn . '_table_rows')) continue;
+            $database = $this->getDbName($conn);
+            $sql = "SELECT table_name, table_rows FROM information_schema.tables where table_schema='$database'";
+            $tables = \DB::setPdo($this->getPdo($conn))->select($sql);
+            $cache = [];
+            foreach ($tables as $table) {
+                $cache[$table->table_name] = $table->table_rows;
+            }
+            $redis->setex($conn . '_table_rows', 60 * 60, json_encode($cache));
         }
-        $database = $this->getDbName('dev');
-        $sql = "SELECT table_name, table_rows FROM information_schema.tables where table_schema='$database'";
-        $tables = \DB::setPdo($this->getPdo('dev'))->select($sql);
-        $cache = [];
-        foreach ($tables as $table) {
-            $cache[$table->table_name] = $table->table_rows;
-        }
-        $redis->setex('dev_table_rows', 60 * 60, json_encode($cache));
         return $next($request);
     }
 }

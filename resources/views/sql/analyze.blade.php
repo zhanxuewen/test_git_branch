@@ -27,10 +27,10 @@
             <caption><b>[{{$conn}}]</b> total : {{count($sql_s)}}</caption>
             @foreach($sql_s as $sql)
                 <tr>
-                    <td @if(\App\Helper\Helper::needHide($sql->explain) == true && $sql->time < 1000) class="need-hide" @endif>
+                    <td @if(\App\Helper\Helper::needHide($sql->explain, $conn) == true && $sql->time < 1000) class="need-hide" @endif>
                         @if(!isset($sql->count))
                             <span class="label @if($sql->time >= 1000) bg-red @else bg-gray @endif">{{$sql->time}}ms</span>
-                            <span>{!! \App\Helper\Helper::showExplain($sql->explain) !!}</span><br>
+                            <span>{!! \App\Helper\Helper::showExplain($sql->explain, $conn) !!}</span><br>
                             <a href="{!! url('/query/id/'.$sql->id) !!}"
                                target="_blank">{!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
                             @if($sql->time >= 1000 && $_type == 'select')

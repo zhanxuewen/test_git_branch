@@ -10,10 +10,10 @@ class Helper
 
     protected static $cache = null;
 
-    public static function getCache()
+    public static function getCache($conn)
     {
         if (is_null(self::$cache)) {
-            self::$cache = (new self())->getRedis('analyze')->get('dev_table_rows');
+            self::$cache = (new self())->getRedis('analyze')->get($conn . '_table_rows');
         }
         return self::$cache;
     }
@@ -47,10 +47,10 @@ class Helper
         return vsprintf(str_replace("?", "'%s'", $query), self::carbonToString($bindings));
     }
 
-    public static function needHide($explain)
+    public static function needHide($explain, $conn)
     {
         if (empty($explain)) return true;
-        $cache = self::getCache();
+        $cache = self::getCache($conn);
         $tables = json_decode($cache, true);
         $explain = json_decode(str_replace('&quot;', '"', $explain), true);
         foreach ($explain as $item) {
@@ -67,14 +67,14 @@ class Helper
 
     protected static function exceptTables($table)
     {
-        $excepts = ['user_type', 'system_role', 'log_type', 'system_config','payment_commodity'];
+        $excepts = ['user_type', 'system_role', 'log_type', 'system_config', 'payment_commodity'];
         return in_array($table, $excepts) ? true : false;
     }
 
-    public static function showExplain($explain)
+    public static function showExplain($explain, $conn)
     {
         if (empty($explain)) return '';
-        $cache = self::getCache();
+        $cache = self::getCache($conn);
         $tables = json_decode($cache, true);
         $explain = json_decode(str_replace('&quot;', '"', $explain), true);
         $out = '';
