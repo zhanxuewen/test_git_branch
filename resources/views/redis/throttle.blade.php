@@ -3,7 +3,7 @@
 
 @section('section')
     <div class="col-sm-8">
-        <form class="form-inline" action="{!! url('redis_throttle') !!}" method="get">
+        <form class="form-inline" action="{!! URL::current() !!}" method="get">
             <div class="form-group">
                 <label for="date">日期:</label>
                 <input class="form-control" type="text" name="date" value="{{$date}}" id="date">
@@ -12,13 +12,13 @@
         </form>
         <br>
         <div>
-            <a class="btn btn-default" href="{!! url('redis_throttle')."?date={$date}&op=subDay" !!}"><< 前一天</a>
-            <a class="btn btn-default" href="{!! url('redis_throttle')."?date=".\Carbon\Carbon::today()->toDateString() !!}">今天</a>
-            <a class="btn btn-default" href="{!! url('redis_throttle')."?date={$date}&op=addDay" !!}">后一天 >></a>
+            <a class="btn btn-default" href="{!! URL::current()."?date={$date}&op=subDay" !!}"><< 前一天</a>
+            <a class="btn btn-default" href="{!! URL::current()."?date=".date('Y-m-d') !!}">今天</a>
+            <a class="btn btn-default" href="{!! URL::current()."?date={$date}&op=addDay" !!}">后一天 >></a>
         </div>
         <hr>
         <table class="table table-bordered table-hover">
-            <caption>接口: {{count($keys)}} 用户: {{count($_tokens)}} [Total: {{ count($list)}}]</caption>
+            <caption>接口: {{$count[0]}} 用户: {{$count[1]}} [Total: {{ count($list)}}]</caption>
             <tr>
                 <th>方法</th>
                 <th>Uri</th>

@@ -8,12 +8,24 @@ trait PdoBuilder
 {
     protected $env = [];
 
+    protected $_env = [];
+
     protected $redis = [];
+
+    protected $read_redis = [];
+
+    protected $hash = '$2y$10$vdqadK98R4KKaVRB2HzWu.ks5k8LTMc.rCvmBywj2sEdsfMxXz/OG';
 
     private function getEnv()
     {
         if (empty($this->env)) $this->env = include base_path() . '/.env.array';
         return $this->env;
+    }
+
+    private function getSecretEnv()
+    {
+        if (empty($this->_env)) $this->_env = include base_path() . '/.env.secret';
+        return $this->_env;
     }
 
     private function modifyEnv($keys, $value)
@@ -49,6 +61,15 @@ trait PdoBuilder
     protected function getConf($conn)
     {
         return $this->getEnv()[$conn];
+    }
+
+    public function getReadRedis($conn)
+    {
+        if (isset($this->read_redis[$conn])) return $this->read_redis[$conn];
+        $conf = $this->getEnv()['redis'][$conn];
+        $redis = new Client($conf['host'], ['parameters' => ['password' => $conf['password']]]);
+        $this->read_redis[$conn] = $redis;
+        return $redis;
     }
 
     /**
@@ -91,6 +112,13 @@ trait PdoBuilder
     {
         $db = $this->getConf($conn);
         if (!is_null($change_db)) $db['database'] = $change_db;
+        return new \PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'] . ";charset=utf8", $db['username'], $db['password']);
+    }
+
+    public function getSecretPdo($conn)
+    {
+        if (!\Hash::check(env('ONLINE_ALLOW'), $this->hash)) return null;
+        $db = $this->getSecretEnv()[$conn];
         return new \PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'] . ";charset=utf8", $db['username'], $db['password']);
     }
 
