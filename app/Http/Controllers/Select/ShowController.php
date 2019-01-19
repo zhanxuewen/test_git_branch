@@ -94,7 +94,7 @@ class ShowController extends Controller
     protected function abnormal_member($conn)
     {
         $pdo = $this->getPdo($conn);
-        $members = DB::setPdo($pdo)->table('school_member')->selectRaw('account_id, school_id, count(*) as coo')
+        $members = DB::setPdo($pdo)->table('school_member')->selectRaw('account_id, school_id, group_concat(DISTINCT account_type_id) as type_id, count(*) as coo')
             ->groupBy(['account_id', 'school_id'])->orderBy('coo', 'desc')->having('coo', '>', 1)->get()->toArray();
         $student = DB::setPdo($pdo)->table('vanclass_student')->selectRaw('student_id, vanclass_id, count(*) as coo')
             ->groupBy(['student_id', 'vanclass_id'])->orderBy('coo', 'desc')->having('coo', '>', 1)->get()->toArray();

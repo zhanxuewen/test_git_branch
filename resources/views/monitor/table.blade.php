@@ -3,13 +3,21 @@
 
 @section('section')
     <div class="col-sm-12">
+        <div class="btn-group" role="group">
+            @foreach([14, 30, 60, 90] as $days)
+                <a class="btn btn-default @if($days == $sub_days) btn-primary active @endif"
+                   href="{!! URL::current().'?days='.$days !!}">{{$days}} Days</a>
+            @endforeach
+        </div>
+        <hr>
         @foreach($rows as $key => $row)
             <div class="box box-info">
                 <div class="box-header with-border">
                     <h3 class="box-title">Group {{$key + 1}}</h3>
 
                     <div class="box-tools pull-right">
-                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                    class="fa fa-minus"></i></button>
                     </div>
                 </div>
                 <div class="box-body">

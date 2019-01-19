@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 
 class MonitorController extends Controller
 {
-    public function table()
+    public function table(Request $request)
     {
+        $sub_days = $request->get('days', 14);
         $empty = $this->builder->setModel('tableIncrement')->groupBy('table')->havingRaw('max(rows) < 1000')->pluck('table');
 //        $count = $this->builder->setModel('tableIncrement')->distinct()->count('created_date');
 //        $sub_days = $count > 14 ? 14 : $count;
-        $sub_days = 14;
         $dates = json_encode($this->listSubDays($sub_days));
         $keys = [];
         $i = 0;
@@ -27,7 +27,7 @@ class MonitorController extends Controller
                 $i++;
             });
         $keys = json_encode($keys);
-        return view('monitor.table', compact('rows', 'keys', 'dates'));
+        return view('monitor.table', compact('rows', 'keys', 'dates', 'sub_days'));
     }
 
     public function circleTable(Request $request)
@@ -93,17 +93,21 @@ class MonitorController extends Controller
 
     public function zabbix(Request $request)
     {
-        $_day = $request->get('day', 1);
-        $time = $time = Carbon::now()->subDays($_day)->format('YmdHis');
-        $config = [
-            'mysql_1' => ['id' => 18017],
-            'mysql_2' => ['id' => 18048],
-            'mysql_3' => ['id' => 30110]
+        $day = $request->get('day', 1);
+        $group = $request->get('group', 'mysql_cpu');
+        $time = $time = Carbon::now()->subDays($day)->format('YmdHis');
+        $period = !strstr($day, '.') ? 86400 * $day : 3600 * $day * 10;
+        $ids = [
+            'mysql_cpu' => [18017, 18048, 30110],
+            'mysql_operation' => [18008, 18039, 30101],
+            'web_cpu' => [712, 721, 1179, 1725],
+            'web_nginx_conn' => [707, 716, 1171, 1717]
         ];
-        foreach ($config as $item) {
-            $data[] = 'http://zabbix.vanthink.cn:3780/chart2.php?graphid=' . $item['id'] . '&period=' . (86400 * $_day) . '&stime=' . $time . '&isNow=1&profileIdx=web.graphs&profileIdx2=18017&width=847&sid=63fd9a3fd67d7a39';
+        foreach ($ids[$group] as $item) {
+            $data[] = 'http://zabbix.vanthink.cn:3780/chart2.php?graphid=' . $item . '&period=' . $period .
+                '&stime=' . $time . '&isNow=1&profileIdx=web.graphs&profileIdx2=' . $item . '&width=847&sid=63fd9a3fd67d7a39';
         }
-        return view('monitor.zabbix', compact('data', '_day'));
+        return view('monitor.zabbix', compact('data', 'day', 'group'));
     }
 
     protected function listSubDays($sub_days)

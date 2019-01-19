@@ -4,12 +4,14 @@
         <tr>
             <th>Account ID</th>
             <th>School ID</th>
+            <th>Type ID</th>
             <th>Count</th>
         </tr>
         @foreach($collect['member'] as $member)
             <tr>
                 <td>{{$member->account_id}}</td>
                 <td>{{$member->school_id}}</td>
+                <td>{{$member->type_id}}</td>
                 <td>{{$member->coo}}</td>
             </tr>
         @endforeach
