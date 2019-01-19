@@ -17,11 +17,12 @@
             <form action="{{url('system/config')}}" method="POST">
                 {{csrf_field()}}
                 <input type="hidden" name="config_type" value="personal">
-                <div class="form-group col-sm-1">
+                <div class="form-group col-sm-2">
                     <label for="conn">审计链接</label>
                     <select name="conn" id="conn" class="form-control">
                         <option value="dev" @if($conn == 'dev') selected @endif>Dev</option>
                         <option value="test" @if($conn == 'test') selected @endif>Test</option>
+                        <option value="dev_shorthand" @if($conn == 'dev_shorthand') selected @endif>Dev Shorthand</option>
                     </select>
                 </div>
                 <div class="form-group col-sm-1">
