@@ -19,7 +19,7 @@ class SingleController extends Controller
         $request->filled('school_ids') ? $params['school_ids'] = $request->get('school_ids', null) : null;
         isset($params) or die('没有参数');
         $pdo = $this->getPdo('online');
-        $rows = $pdo->query($this->buildSql($query, $params))->fetchColumn();
+        $rows = $pdo->query($this->$query($params))->fetchColumn();
         return $rows;
     }
 

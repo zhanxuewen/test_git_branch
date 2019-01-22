@@ -26,9 +26,9 @@
             'Device' => 'monitor/device',
             'Order' => 'monitor/order',
             'Circle Table' => 'monitor/circleTable',
-            'Zabbix' => 'monitor/zabbix'
+            'Zabbix' => 'monitor/zabbix',
+            'Throttle' => 'monitor/throttle'
         ], 'fa-bar-chart') !!}
-        {!! \App\Helper\BladeHelper::treeview('Redis', ['Throttle' => 'redis_throttle'], 'fa-file') !!}
         {!! \App\Helper\BladeHelper::treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}
         {!! \App\Helper\BladeHelper::treeview('Build', [
             'Rpc DB' => 'db/get/modelList',

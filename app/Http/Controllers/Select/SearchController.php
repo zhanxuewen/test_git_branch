@@ -13,13 +13,13 @@ class SearchController extends Controller
         $student_id = $request->get('student_id', null);
         if (is_null($student_id)) return view('select.student', compact('student_id'));
         $pdo = $this->getPdo('online');
-        $quit_ids = $this->getArray($pdo->query($this->buildSql('quit_vanclass', $student_id)));
-        $exist_ids = $this->getArray($pdo->query($this->buildSql('exist_vanclass', $student_id)));
+        $quit_ids = $this->getArray($pdo->query($this->quit_vanclass($student_id)));
+        $exist_ids = $this->getArray($pdo->query($this->exist_vanclass($student_id)));
         foreach ($quit_ids as $key => $id) {
             if (in_array($id, $exist_ids)) unset($quit_ids[$key]);
         }
-        $student = $this->getArray($pdo->query($this->buildSql('find_student', $student_id)));
-        $vanclass = $this->getRecord($pdo->query($this->buildSql('list_vanclass', $quit_ids)));
+        $student = $this->getArray($pdo->query($this->find_student($student_id)));
+        $vanclass = $this->getRecord($pdo->query($this->list_vanclass($quit_ids)));
         return view('select.student', compact('vanclass', 'student', 'student_id'));
     }
 
@@ -29,8 +29,8 @@ class SearchController extends Controller
         $field = $request->get('field', 'phone');
         $value = $request->get('value', '');
         $pdo = $this->getPdo('online');
-        $accounts = $this->getRecord($pdo->query($this->buildSql('search_yellow_account', $request)));
-        $channels = $this->getRecord($pdo->query($this->buildSql('list_channels', $request)));
+        $accounts = $this->getRecord($pdo->query($this->search_yellow_account($request)));
+        $channels = $this->getRecord($pdo->query($this->list_channels($request)));
         return view('select.yellow', compact('accounts', 'channels', 'channel_id', 'field', 'value'));
     }
 

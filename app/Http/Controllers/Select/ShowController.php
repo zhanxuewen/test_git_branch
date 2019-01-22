@@ -14,7 +14,7 @@ class ShowController extends Controller
     public function marketer()
     {
         $pdo = $this->getPdo('online');
-        $marketers = $this->getRecord($pdo->query($this->buildSql('list_marketer', 2)));
+        $marketers = $this->getRecord($pdo->query($this->list_marketer(2)));
         return view('select.marketer', compact('marketers'));
     }
 
@@ -28,7 +28,7 @@ class ShowController extends Controller
         $type_id = $request->get('type_id', 1);
         $pdo = $this->getPdo('online');
         $types = $this->getRecord($pdo->query("SELECT * FROM label_type"));
-        $_labels = $pdo->query($this->buildSql('list_labels', $type_id));
+        $_labels = $pdo->query($this->list_labels($type_id));
         $labels = [];
         foreach ($_labels as $label) {
             $labels[$label['parent_id']][] = $label;

@@ -30,9 +30,9 @@ class DiffController extends Controller
         $Dir = '/vanthink/rpc_server';
         $dir = realpath($Dir . '/database/migrations');
         $pdo = $this->getPdo($conn);
-        $sql = $this->buildSql('list_tables', $this->getDbName($conn));
+        $sql = $this->list_tables($this->getDbName($conn));
         $tables = $this->resultToArray($pdo->query($sql));
-        $mig_s = $this->resultToArray($pdo->query($this->buildSql('list_migrations', null)));
+        $mig_s = $this->resultToArray($pdo->query($this->list_migrations(null)));
         dd($tables);
 
         $mig_tables = [];

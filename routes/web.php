@@ -67,6 +67,7 @@ Route::get('monitor/device', ['uses' => 'MonitorController@device']);
 Route::get('monitor/order', ['uses' => 'MonitorController@order']);
 Route::get('monitor/circleTable', ['uses' => 'MonitorController@circleTable']);
 Route::get('monitor/zabbix', ['uses' => 'MonitorController@zabbix']);
+Route::get('monitor/throttle', ['uses' => 'MonitorController@throttle']);
 
 // Sql Analyze Routes
 Route::group(['middleware' => 'cache.rows'], function () {
@@ -80,9 +81,6 @@ Route::group(['middleware' => 'cache.rows'], function () {
 // Slow Routes
 Route::get('slow_rpc', ['uses' => 'SlowController@rpc']);
 Route::get('slow_mysql', ['uses' => 'SlowController@mysql']);
-
-// Redis Routes
-Route::get('redis_throttle', ['uses' => 'RedisController@throttle']);
 
 // Tool Routes
 Route::get('tool/download', ['uses' => 'ToolController@getDownload']);

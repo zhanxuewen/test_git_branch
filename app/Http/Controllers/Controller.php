@@ -57,11 +57,6 @@ abstract class Controller extends BaseController
         $this->builder->setModel('log')->create($data);
     }
 
-    protected function buildSql($query, $param)
-    {
-        return $this->$query($param);
-    }
-
     protected function getPerPage()
     {
         return $this->getRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;

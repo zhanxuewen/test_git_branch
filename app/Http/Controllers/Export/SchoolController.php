@@ -60,7 +60,7 @@ class SchoolController extends Controller
         $this->field_phone = $field[$request->get('field_phone')];
         isset($params) or die('没有参数');
         $pdo = $this->getPdo('online', $db_change);
-        $rows = $pdo->query($this->buildSql($query, $params));
+        $rows = $pdo->query($this->$query($params));
         $name = $query . '_' . $this->handleTableName($params, $pdo);
         return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare));
     }
