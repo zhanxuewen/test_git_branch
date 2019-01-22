@@ -1,6 +1,5 @@
 /vendor
 .env
 .env.array
-.env.secret
 /.idea
 _ide_helper.php

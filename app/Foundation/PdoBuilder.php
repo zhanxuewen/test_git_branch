@@ -24,7 +24,8 @@ trait PdoBuilder
 
     private function getSecretEnv()
     {
-        if (empty($this->_env)) $this->_env = include base_path() . '/.env.secret';
+        is_file(storage_path('app/.env.secret')) or die('No Such File.');
+        if (empty($this->_env)) $this->_env = include storage_path('app') . '/.env.secret';
         return $this->_env;
     }
 
@@ -112,14 +113,23 @@ trait PdoBuilder
     {
         $db = $this->getConf($conn);
         if (!is_null($change_db)) $db['database'] = $change_db;
-        return new \PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'] . ";charset=utf8", $db['username'], $db['password']);
+        return $this->newPdo($db['host'], $db['database'], $db['username'], $db['password']);
     }
 
     public function getSecretPdo($conn)
     {
-        if (!\Hash::check(env('ONLINE_ALLOW'), $this->hash)) return null;
+        if (!\Hash::check(env('ONLINE_ALLOW'), $this->hash)) die('Permission Denied!');
         $db = $this->getSecretEnv()[$conn];
-        return new \PDO("mysql:host=" . $db['host'] . ";dbname=" . $db['database'] . ";charset=utf8", $db['username'], $db['password']);
+        return $this->newPdo($db['host'], $db['database'], $db['username'], $db['password']);
+    }
+
+    private function newPdo($host, $database, $username, $password)
+    {
+        try {
+            return new \PDO("mysql:host={$host};dbname={$database};charset=utf8", $username, $password);
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     private function bubbleItem(&$array, $key, $value)

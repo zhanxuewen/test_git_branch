@@ -9,17 +9,18 @@ class DiffController extends Controller
 {
     public function diff(Request $request)
     {
-        $_type = $request->get('type', 'migration');
-        $sql_s = ['migration' => 'list_migrations', 'table' => 'list_tables', 'seeder' => 'list_seeders'];
+        $_type = $request->get('type', 'migrations');
         $conf = ['dev' => 'b_vanthink_core',
             'test' => 'b_vanthink_online',
             'online' => 'b_vanthink_online'];
         $data = [];
         foreach ($conf as $env => $db) {
-            $data[$env] = $this->resultToArray($this->getPdo($env)->query($this->buildSql($sql_s[$_type], $db)));
+            if (is_null($pdo = $this->getPdo($env))) continue;
+            $sql = "list_" . $_type;
+            $data[$env] = $this->resultToArray($pdo->query($this->$sql($db)));
         }
         $data['_type'] = $_type;
-        $data['types'] = array_keys($sql_s);
+        $data['types'] = ['migrations', 'tables', 'seeders'];
         return view('database.diff', $data);
     }
 

@@ -47,6 +47,8 @@
     </div>
     <div class="col-xs-12 col-sm-6">
         <h3>Trace</h3>
-        {!! var_dump($sql->trace) !!}
+        @php
+            dump($sql->trace);
+        @endphp
     </div>
 @endsection

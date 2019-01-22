@@ -4,7 +4,7 @@
 @section('section')
     <div class="col-sm-12">
         <div class="btn-group" role="group">
-            @foreach([0.05, 0.1, 0.3, 0.6, 1.2, 1, 3, 7] as $_day)
+            @foreach([0.05, 0.1, 0.3, 0.6, 1.2, 1, 3, 7, 14] as $_day)
                 <a class="btn btn-default @if($_day == $day) btn-primary active @endif"
                    href="{!! URL::current().'?group='.$group.'&day='.$_day !!}">
                     @if(!strstr($_day, '.')) {{$_day}} Day @else {{$_day * 10}} Hour @endif</a>
