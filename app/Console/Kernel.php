@@ -57,7 +57,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             \Log::info(date('H:i:s'));
             sleep(190);
-        })->everyMinute()->withoutOverlapping();
+        })->everyMinute()->name('test_schedule')->withoutOverlapping();
     }
 
     protected function logSchedule($log)
