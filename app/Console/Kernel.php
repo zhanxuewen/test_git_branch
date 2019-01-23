@@ -54,10 +54,6 @@ class Kernel extends ConsoleKernel
             $schedule->handle();
             $this->logSchedule('Export Offline List Done At ' . date('Y-m-d H:i:s'));
         })->weekly()->mondays()->at('08:20');
-        $schedule->call(function () {
-            \Log::info(date('H:i:s'));
-            sleep(190);
-        })->everyMinute()->name('test_schedule')->withoutOverlapping();
     }
 
     protected function logSchedule($log)

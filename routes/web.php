@@ -116,8 +116,9 @@ Route::group(['namespace' => 'Select', 'prefix' => 'select'], function () {
     Route::get('abnormal', ['uses' => 'ShowController@abnormal']);
 
     Route::get('wordbank', ['uses' => 'SearchController@wordbank']);
-    Route::get('quit_student', ['as' => 'select_quit_student', 'uses' => 'SearchController@quit_student']);
-    Route::get('yellow_account', ['uses' => 'SearchController@yellow_account']);
+    Route::get('quit_student', ['as' => 'select_quit_student', 'uses' => 'SearchController@quitStudent']);
+    Route::get('yellow_account', ['uses' => 'SearchController@yellowAccount']);
+    Route::get('partner_school', ['uses' => 'SearchController@partnerSchool']);
 });
 
 // Database Routes

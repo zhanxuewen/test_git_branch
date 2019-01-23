@@ -1,7 +1,5 @@
-<!-- sidebar: style can be found in sidebar.less -->
 <section class="sidebar">
     <ul class="sidebar-menu" data-widget="tree">
-        <li class="header">MAIN NAVIGATION</li>
         {!! \App\Helper\BladeHelper::single_bar('Dashboard', 'dashboard', 'fa-dashboard') !!}
         {!! \App\Helper\BladeHelper::treeview('Export', [
             'School' => 'export/school',
@@ -15,6 +13,7 @@
             'Abnormal' => 'select/abnormal',
             'Quit Student' => 'select/quit_student',
             'Yellow Account' => 'select/yellow_account',
+            'Partner School' => 'select/partner_school',
         ], 'fa-table') !!}
         {!! \App\Helper\BladeHelper::treeview('Database', [
             'Diff' => 'database/diff',
@@ -29,7 +28,10 @@
             'Zabbix' => 'monitor/zabbix',
             'Throttle' => 'monitor/throttle'
         ], 'fa-bar-chart') !!}
-        {!! \App\Helper\BladeHelper::treeview('Slow', ['Slow Mysql' => 'slow_mysql', 'Slow Rpc' => 'slow_rpc'], 'fa-spinner') !!}
+        {!! \App\Helper\BladeHelper::treeview('Slow', [
+            'Slow Mysql' => 'slow_mysql',
+            'Slow Rpc' => 'slow_rpc'
+        ], 'fa-spinner') !!}
         {!! \App\Helper\BladeHelper::treeview('Build', [
             'Rpc DB' => 'db/get/modelList',
             'Rpc Repo' => 'repo/get/repositoryList',
@@ -49,4 +51,3 @@
         {!! \App\Helper\BladeHelper::single_bar('Config', 'system/config', 'fa-cogs') !!}
     </ul>
 </section>
-<!-- /.sidebar -->

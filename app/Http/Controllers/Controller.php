@@ -72,7 +72,7 @@ abstract class Controller extends BaseController
         $redis = $this->getRedis('analyze');
         if (!$token = $redis->get('manage_token')) {
             $url = 'http://api.manage.wxzxzj.com/api/auth/login';
-            $data = 'phone=18202542402&password=fuminny&remberme=n';
+            $data = 'phone=18202542402&password=' . env('MANAGE_PASSWORD') . '&remberme=n';
             $data = $this->curlPost($url, $data);
             $token = $data->token;
             $redis->setex('manage_token', 60 * 60 * 24, $token);
