@@ -26,6 +26,7 @@
             'Order' => 'monitor/order',
             'Circle Table' => 'monitor/circleTable',
             'Zabbix' => 'monitor/zabbix',
+            'Schedule' => 'monitor/schedule',
             'Throttle' => 'monitor/throttle'
         ], 'fa-bar-chart') !!}
         {!! \App\Helper\BladeHelper::treeview('Slow', [

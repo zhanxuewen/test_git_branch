@@ -133,6 +133,28 @@ class MonitorController extends Controller
         return view('monitor.throttle', compact('count', 'accounts', 'list', 'date'));
     }
 
+    public function schedule(Request $request)
+    {
+        $day = $request->get('day', 1);
+        $now = (int)(time() . '000');
+        $ago = (int)((time() - 86400 * $day) . '000');
+        $url = 'https://kibana.wxzxzj.com/elasticsearch/_msearch';
+        $index = ['index' => ['logstash-managedown-schedule-*'], 'ignore_unavailable' => true, 'preference' => 1548307157438];
+        $index = json_encode($index);
+        $config = ['version' => true, 'size' => 5000, 'sort' => [['@timestamp' => ['order' => 'desc', 'unmapped_type' => 'boolean']]], '_source' => ['excludes' => []], 'aggs' => ['2' => ['date_histogram' => ['field' => '@timestamp', 'interval' => '30m', 'time_zone' => "Asia/Shanghai", 'min_doc_count' => 1]]], 'stored_fields' => ['*'], 'script_fields' => [], 'docvalue_fields' => ['@timestamp'], 'query' => ['bool' => ['must' => [['match_all' => []], ['range' => ['@timestamp' => ['gte' => $ago, 'lte' => $now, 'format' => 'epoch_millis']]]], 'filter' => [], 'should' => [], 'must_not' => []]], 'highlight' => ['pre_tags' => ['@kibana-highlighted-field@'], 'post_tags' => ['@/kibana-highlighted-field@'], 'fields' => ['*' => []], 'fragment_size' => 2147483647]];
+        $config = str_replace(['\/', 'script_fields":[]', 'match_all":[]', '*":[]'], ['/', 'script_fields":{}', 'match_all":{}', '*":{}'], json_encode($config));
+        $data = $this->scheduleCurlPost($url, "{$index}\n{$config}\n");
+        $hits = json_decode($data)->responses[0]->hits;
+        $total = $hits->total;
+        $list = [];
+        $hits = $total == 0 ? [] : array_reverse($hits->hits);
+        foreach ($hits as $hit) {
+            preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $message = $hit->_source->message, $match);
+            $list[] = ['time' => $match[0], 'message' => $message];
+        }
+        return view('monitor.schedule', compact('total', 'day', 'list'));
+    }
+
     protected function list_accounts($ids)
     {
         return "SELECT id, nickname, user_type_id, school_id FROM user_account WHERE id IN (" . implode(',', $ids) . ")";
@@ -165,5 +187,18 @@ class MonitorController extends Controller
     protected function earlyThan(Request $request, $days)
     {
         return Carbon::parse($request->get('start'))->lessThan(Carbon::today()->subDays($days));
+    }
+
+    protected function scheduleCurlPost($url, $data)
+    {
+        $token = 'Cookie: _ga=GA1.2.1293976730.1544144611; token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjE0MTAsImlzcyI6Imh0dHBzOi8vYXBpbmV3Lnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1NDc2MjA5NTIsImV4cCI6MTU0ODgzMDU1MiwibmJmIjoxNTQ3NjIwOTUyLCJqdGkiOiI3aVhCS0dpRTBDZ0NDUmxlIn0.75oseCRrKKXPBzEUWd2oo-95cWRF59ccnaZqkPq_JSY';
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['kbn-version: 6.2.4', 'content-type: application/x-ndjson', $token]);
+        $data = curl_exec($ch);
+        curl_close($ch);
+        return $data;
     }
 }

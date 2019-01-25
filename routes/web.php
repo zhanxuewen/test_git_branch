@@ -62,12 +62,15 @@ Route::group(['namespace' => 'Rpc'], function () {
 });
 
 // Monitor Routes
-Route::get('monitor/table', ['uses' => 'MonitorController@table']);
-Route::get('monitor/device', ['uses' => 'MonitorController@device']);
-Route::get('monitor/order', ['uses' => 'MonitorController@order']);
-Route::get('monitor/circleTable', ['uses' => 'MonitorController@circleTable']);
-Route::get('monitor/zabbix', ['uses' => 'MonitorController@zabbix']);
-Route::get('monitor/throttle', ['uses' => 'MonitorController@throttle']);
+Route::group(['prefix' => 'monitor'], function () {
+    Route::get('table', ['uses' => 'MonitorController@table']);
+    Route::get('device', ['uses' => 'MonitorController@device']);
+    Route::get('order', ['uses' => 'MonitorController@order']);
+    Route::get('circleTable', ['uses' => 'MonitorController@circleTable']);
+    Route::get('zabbix', ['uses' => 'MonitorController@zabbix']);
+    Route::get('schedule', ['uses' => 'MonitorController@schedule']);
+    Route::get('throttle', ['uses' => 'MonitorController@throttle']);
+});
 
 // Sql Analyze Routes
 Route::group(['middleware' => 'cache.rows'], function () {
