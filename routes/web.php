@@ -135,3 +135,8 @@ Route::group(['namespace' => 'Database', 'prefix' => 'database'], function () {
 
     Route::get('table_correct', ['uses' => 'DiffController@table_correct']);
 });
+
+// Notice
+Route::group(['prefix' => 'notice'], function () {
+    Route::get('ajax/check', ['uses' => 'NoticeController@ajaxCheck']);
+});

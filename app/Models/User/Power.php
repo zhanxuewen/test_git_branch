@@ -8,7 +8,7 @@ class Power extends BaseModel
 {
     protected $table = 'user_power';
 
-    protected $fillable = ['group_label_id', 'group', 'group_label', 'label', 'code', 'route'];
+    protected $fillable = ['group_label_id', 'label', 'code', 'route'];
 
     public function groupLabel()
     {

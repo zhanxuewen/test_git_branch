@@ -13,25 +13,18 @@
     </a>
     <div class="navbar-custom-menu">
         <ul class="nav navbar-nav">
-            @if(session('message'))
-                <li class="user user-menu bg-red">
-                    <a>{{session('message')}}</a>
-                </li>
-            @endif
-            @if(session('success'))
-                <li class="user user-menu bg-green">
-                    <a>{{session('success')}}</a>
-                </li>
-            @endif
+            @include('frame.notice')
             <li class="dropdown user user-menu">
+                @php $auth_user = Auth::user(); @endphp
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <img src="{{asset('asset/image/user-3.jpg')}}" class="user-image" alt="User Image">
-                    <span class="hidden-xs">[{{{ Auth::user()->role[0]->label }}}] <b>{{ Auth::user()->username }}</b></span>
+                    <img src="{!! empty($auth_user->avatar) ? asset('asset/image/user-default.png') : $auth_user->avatar !!}"
+                         class="user-image bg-gray" alt="User Image">
+                    <span class="hidden-xs">[{{ $auth_user->role[0]->label }}] <b>{{ $auth_user->username }}</b></span>
                 </a>
                 <ul class="dropdown-menu">
                     <li class="user-footer">
                         <div class="pull-left">
-                            <span><b>Greeting {{ Auth::user()->username }} !</b></span>
+                            <span><b>Greeting {{ $auth_user->username }} !</b></span>
                         </div>
                         <div class="pull-right">
                             <a href="{{route('logout')}}" class="btn btn-default btn-flat">Sign out</a>
@@ -41,7 +34,7 @@
             </li>
             <!-- Control Sidebar Toggle Button -->
             {{--<li>--}}
-                {{--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>--}}
+            {{--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>--}}
             {{--</li>--}}
         </ul>
     </div>

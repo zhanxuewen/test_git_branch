@@ -56,6 +56,7 @@
 
 @include('frame.script')
 
+@yield('header_script')
 @yield('script')
 
 </body>
