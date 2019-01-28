@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Core;
 
+use Artisan;
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 
@@ -62,16 +63,18 @@ class MakeModuleSeeder extends Command
     protected function createSeeder($path)
     {
         $seeder = $this->argument('seeder');
-        $file = $path . '/' . $seeder . '.php';
-        if ($this->files->exists($file)) {
-            $this->error("File $seeder.php Has Exist!");
+        $name = date('Y_m_d_His') . '_' . $seeder;
+        $file = $path . '/' . $name . '.php';
+        $class = $this->convertUnderline($seeder);
+        if (class_exists($class)) {
+            $this->error("Class $class Has Exist!");
             return;
         }
         $stub = $this->files->get(app_path('Console') . '/Stub/seeder.stub');
-        $class = $this->convertUnderline($seeder);
         $stub = str_replace('{$Class}', $class, $stub);
         $this->files->put($file, $stub);
-        $this->info("File $seeder.php Create Success!");
+        Artisan::call('op');
+        $this->info("File $name.php Create Success!");
     }
 
     protected function convertUnderline($str)

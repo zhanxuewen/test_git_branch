@@ -34,6 +34,7 @@ Route::group(['namespace' => 'User', 'prefix' => 'user'], function () {
     Route::get('initRoute', ['uses' => 'AuthorityController@initRoute']);
     Route::get('editPower/{power_id}', ['uses' => 'AuthorityController@editPower']);
     Route::post('updatePower/{power_id}', ['uses' => 'AuthorityController@updatePower']);
+    Route::post('dispatchRoute', ['uses' => 'AuthorityController@dispatchRoute']);
 });
 
 Route::get('dashboard', ['as' => 'dashboard', 'uses' => 'DashboardController@dashboard']);

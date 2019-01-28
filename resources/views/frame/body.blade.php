@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="html">
 
 @include('frame.head')
 
 <body class="hold-transition skin-blue sidebar-mini">
+
+@include('frame.layout.modal')
+
 <!-- Site wrapper -->
 <div class="wrapper">
 

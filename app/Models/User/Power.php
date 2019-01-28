@@ -7,7 +7,12 @@ use App\Models\BaseModel;
 class Power extends BaseModel
 {
     protected $table = 'user_power';
-    
-    protected $fillable = ['group', 'group_label', 'label', 'code', 'route'];
-    
+
+    protected $fillable = ['group_label_id', 'group', 'group_label', 'label', 'code', 'route'];
+
+    public function groupLabel()
+    {
+        return $this->belongsTo('App\Models\Label\Label', 'group_label_id', 'id');
+    }
+
 }
