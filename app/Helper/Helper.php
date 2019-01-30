@@ -132,4 +132,13 @@ class Helper
     {
         return json_decode(str_replace('\_', '_', $bindings));
     }
+
+    public static function countNotRead($notices, $user_id)
+    {
+        $count = 0;
+        foreach ($notices as $notice) {
+            if ($notice->receiver_id == $user_id && $notice->has_read == 0) $count++;
+        }
+        return $count;
+    }
 }

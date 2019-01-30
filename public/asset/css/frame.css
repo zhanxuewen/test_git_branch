@@ -30,3 +30,21 @@ body {
 .border-radius-5 {
     border-radius: 5px
 }
+
+#notice-list > li > a > p {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div.not-read > div {
+    position: absolute;
+    z-index: 99;
+    background-color: red;
+    width: 0.5em;
+    height: 0.5em;
+    left: 99%;
+    top: -4px;
+    -webkit-border-radius: 0.5em;
+    border-radius: 0.5em;
+}

@@ -16,42 +16,43 @@
         <li class="header">You have <b class="notice-count"></b> messages</li>
         <li class="notice-bar invisible">
             <div class="slimScrollDiv" style="position: relative; overflow: hidden; width: auto; height: 200px;">
-                <ul class="menu" style="overflow: hidden; width: 100%; height: 200px;">
-                    <li><!-- start message -->
-                        <a href="#">
-                            <div class="pull-left">
-                                <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
-                            </div>
-                            <h4>
-                                Support Team
-                                <small><i class="fa fa-clock-o"></i> 5 mins</small>
-                            </h4>
-                            <p>Why not buy a new awesome theme?</p>
-                        </a>
-                    </li>
-                    <!-- end message -->
-                </ul>
+                <ul class="menu" id="notice-list" style="overflow: hidden; width: 100%; height: 200px;"></ul>
             </div>
         </li>
-        <li class="footer"><a href="#">See All Messages</a></li>
+        <li class="footer"><a href="{{url('notice/lists')}}">See All Messages</a></li>
     </ul>
 </li>
 
 @section('header_script')
     <script>
-        $.ajax({
-            type: "GET",
-            url: "/notice/ajax/check",
-            async: false,
-            data: "user_id=" + 1,
-            success: function (data) {
-                let notices = JSON.parse(data);
-                let total = notices['total'];
-                if (total > 0) {
+        getNotice();
+        window.setInterval(function () {
+            getNotice();
+        }, 30 * 1000);
+
+        function getNotice() {
+            $.ajax({
+                type: "GET",
+                url: "/notice/ajax/check",
+                async: false,
+                success: function (data) {
+                    let notices = JSON.parse(data);
+                    let total = notices['total'];
                     $('.notice-count').html(total);
-                    $('.notice-bar').removeClass('invisible').removeClass('Abc').addClass('visible');
+                    if (total > 0) {
+                        $('.notice-bar').removeClass('invisible').addClass('visible');
+                        let notice = '';
+                        $.each(notices.data, function (index, item) {
+                            let url = item.is_system === 1 ? '/asset/image/system.png' :
+                                (item.sender.avatar === '' ? '/asset/image/default.png' : item.sender.avatar);
+                            let img = '<div class="pull-left"><img src="' + url + '" class="img-circle" alt="User Image"></div>';
+                            let sender = item.is_system === 1 ? 'The System' : item.sender.username;
+                            notice += '<li><a>' + img + '<h4>' + sender + '</h4><p>' + item.content + '</p></a></li>';
+                        });
+                        $('#notice-list').html(notice);
+                    }
                 }
-            }
-        });
+            });
+        }
     </script>
 @endsection

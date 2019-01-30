@@ -59,7 +59,7 @@ abstract class Controller extends BaseController
 
     protected function getPerPage()
     {
-        return $this->getRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;
+        return $this->getReadRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;
     }
 
     protected function getZabbixToken()

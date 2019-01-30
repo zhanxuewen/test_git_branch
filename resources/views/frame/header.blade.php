@@ -17,7 +17,7 @@
             <li class="dropdown user user-menu">
                 @php $auth_user = Auth::user(); @endphp
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <img src="{!! empty($auth_user->avatar) ? asset('asset/image/user-default.png') : $auth_user->avatar !!}"
+                    <img src="{!! empty($auth_user->avatar) ? asset('asset/image/default.png') : $auth_user->avatar !!}"
                          class="user-image bg-gray" alt="User Image">
                     <span class="hidden-xs">[{{ $auth_user->role[0]->label }}] <b>{{ $auth_user->username }}</b></span>
                 </a>

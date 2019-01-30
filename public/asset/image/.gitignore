@@ -1,3 +1,2 @@
-*
+user-*.*
 !.gitignore
-!user-default.png

@@ -139,4 +139,6 @@ Route::group(['namespace' => 'Database', 'prefix' => 'database'], function () {
 // Notice
 Route::group(['prefix' => 'notice'], function () {
     Route::get('ajax/check', ['uses' => 'NoticeController@ajaxCheck']);
+    Route::get('ajax/hasRead', ['uses' => 'NoticeController@hasRead']);
+    Route::get('lists', ['uses' => 'NoticeController@lists']);
 });

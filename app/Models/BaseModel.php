@@ -26,4 +26,11 @@ class BaseModel extends Model
             $query->where($field, $equal, $value);
         });
     }
+
+    public function whereOrWhere($field, $equal, $value, $orField, $orEqual, $orValue)
+    {
+        return $this->where(function ($query) use ($field, $equal, $value, $orField, $orEqual, $orValue) {
+            $query->where($field, $equal, $value)->orWhere($orField, $orEqual, $orValue);
+        });
+    }
 }
