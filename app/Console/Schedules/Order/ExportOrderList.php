@@ -16,18 +16,18 @@ class ExportOrderList extends BaseSchedule
     public function handle()
     {
         Helper::modifyDatabaseConfig('online');
-        $start      = Carbon::yesterday();
-        $end        = Carbon::yesterday()->endOfDay();
-        $marketers  = $this->getManagers();
+        $start = Carbon::yesterday();
+        $end = Carbon::yesterday()->endOfDay();
+        $marketers = $this->getManagers();
         $set_prices = $this->setPrices();
-        $cont_s     = $this->getContract();
-        $regions    = $this->getRegions();
-        $parts      = $this->getParts();
-        $platform   = [2 => '家长端', 5 => '学生端', 6 => '优惠页'];
-        $app        = [1 => '微信X', 2 => '支付宝', 3 => 'IOS'];
-        $report     = [];
-        $report[]   = ['订单日期', '订单时间', '支付通道', '支付方式', '订单号', '学校ID', '学校名称', '省', '市', '区县', '市场专员', '加盟校', '合同档', '协议价', '昵称', '备注名', '学生手机', '金额', '拼团', '卡类别', '计数', '退款时间'];
-        $orders     = \DB::table('order')
+        $cont_s = $this->getContract();
+        $regions = $this->getRegions();
+        $parts = $this->getParts();
+        $platform = [2 => '家长端', 5 => '学生端', 6 => '优惠页'];
+        $app = [1 => '微信X', 2 => '支付宝', 3 => 'IOS'];
+        $report = [];
+        $report[] = ['订单日期', '订单时间', '支付通道', '支付方式', '订单号', '学校ID', '学校名称', '省', '市', '区县', '市场专员', '加盟校', '合同档', '协议价', '昵称', '备注名', '学生手机', '金额', '拼团', '卡类别', '计数', '退款时间'];
+        $orders = \DB::table('order')
             ->selectRaw('out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, pay_fee, commodity_name, commodity_id, refunded_at, finished_at')
             ->join('user_account', 'user_account.id', '=', 'order.student_id')
             ->join('user', 'user.id', '=', 'user_account.user_id')
@@ -37,10 +37,10 @@ class ExportOrderList extends BaseSchedule
             ->whereBetween('order.created_at', [$start, $end])
             ->groupBy('order.id')->get();
         foreach ($orders as $order) {
-            $s_id   = $order->id;
-            $num    = $order->out_trade_no;
-            $time   = Carbon::parse(substr($num, 0, 14));
-            $type   = explode('_', substr($num, 15, 5));
+            $s_id = $order->id;
+            $num = $order->out_trade_no;
+            $time = Carbon::parse(substr($num, 0, 14));
+            $type = explode('_', substr($num, 15, 5));
             $region = is_null($s_id) ? null : explode('/', $regions[$s_id]);
             if ($type[2] != 1) {
                 $get_type = $app[$type[2]];
@@ -48,8 +48,8 @@ class ExportOrderList extends BaseSchedule
                 $get_type = $type[0] == 5 ? '微信6' : '微信1';
             }
             $set_price = isset($cont_s[$s_id]) ? $set_prices[$order->commodity_id][$cont_s[$s_id]] : $set_prices[$order->commodity_id]['F'];
-            
-            $data     = [
+
+            $data = [
                 'date' => $time->format('Y-m-d'),
                 'time' => $time->format('H:i:s'),
                 'channel' => $platform[$type[0]],
@@ -75,7 +75,7 @@ class ExportOrderList extends BaseSchedule
             ];
             $report[] = $data;
         }
-        
+
         $refunds = \DB::table('order_refund')
             ->selectRaw('order_refund.out_refund_no, order.out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, refund_fee, commodity_name,commodity_id, order_refund.created_at')
             ->join('order', 'order.out_trade_no', '=', 'order_refund.out_trade_no')
@@ -86,10 +86,10 @@ class ExportOrderList extends BaseSchedule
             ->whereBetween('order_refund.created_at', [$start, $end])
             ->groupBy('order.id')->get();
         foreach ($refunds as $order) {
-            $num    = $order->out_refund_no;
-            $s_id   = $order->id;
-            $time   = $num == '' ? Carbon::parse($order->created_at) : Carbon::parse(substr($num, 0, 14));
-            $type   = explode('_', substr($order->out_trade_no, 15, 5));
+            $num = $order->out_refund_no;
+            $s_id = $order->id;
+            $time = $num == '' ? Carbon::parse($order->created_at) : Carbon::parse(substr($num, 0, 14));
+            $type = explode('_', substr($order->out_trade_no, 15, 5));
             $region = is_null($s_id) ? null : explode('/', $regions[$s_id]);
             if ($type[2] != 1) {
                 $get_type = $app[$type[2]];
@@ -97,7 +97,7 @@ class ExportOrderList extends BaseSchedule
                 $get_type = $type[0] == 5 ? '微信6' : '微信1';
             }
             $set_price = isset($cont_s[$s_id]) ? $set_prices[$order->commodity_id][$cont_s[$s_id]] : $set_prices[$order->commodity_id]['F'];
-            $data      = [
+            $data = [
                 'date' => $time->format('Y-m-d'),
                 'time' => $time->format('H:i:s'),
                 'channel' => $platform[$type[0]],
@@ -121,12 +121,13 @@ class ExportOrderList extends BaseSchedule
                 'count' => -1,
                 'refund' => null
             ];
-            $report[]  = $data;
+            $report[] = $data;
         }
-        $filename = $start->format('YmdHis').'_'.$end->format('YmdHis').'_Order';
-        $file     = $this->store($filename, storage_path('exports').'/order', 'order', $report);
-        $subject  = Carbon::yesterday()->toDateString().' Order Export';
+        $filename = $start->format('YmdHis') . '_' . $end->format('YmdHis') . '_Order';
+        $path = 'order/' . $start->year . '/' . $start->month;
+        $file = $this->store($filename, storage_path('exports/') . $path, $path, $report);
+        $subject = Carbon::yesterday()->toDateString() . ' Order Export';
         $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每日线上'], $subject, realpath($file));
     }
-    
+
 }
