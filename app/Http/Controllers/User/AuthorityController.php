@@ -100,7 +100,17 @@ class AuthorityController extends Controller
     public function dispatchRoute(Request $request)
     {
         $power_id = $request->get('power_id');
-        dd($power_id);
+        $old = $this->builder->setModel('rolePower')->where('power_id', $power_id)->pluck('role_id');
+        $all = $this->builder->setModel('role')->where('is_active', 1)->select(['id', 'label'])->get();
+        $create = [];
+        $now = date('Y-m-d H:i:s');
+        foreach ($all->pluck('id')->diff($old) as $id) {
+            $create[] = ['role_id' => $id, 'power_id' => $power_id, 'created_at' => $now, 'updated_at' => $now];
+        }
+        $this->builder->setModel('rolePower')->insert($create);
+        $user_ids = $this->builder->setModel('account')->pluck('id')->toArray();
+        $this->delUserCache($user_ids);
+        return redirect('user/listPower');
     }
 
     public function initRoute()

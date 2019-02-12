@@ -120,40 +120,4 @@ class BladeHelper
         return $modifiers[$modifier];
     }
 
-    /**
-     * @param string $data
-     * @param bool $assoc
-     * @return bool|mixed
-     */
-    public static function isJson($data, $assoc = false)
-    {
-        $data = json_decode($data, $assoc);
-        if ($data && (is_object($data)) || (is_array($data) && !empty(current($data)))) {
-            return $data;
-        }
-        return false;
-    }
-
-    public static function buildIsJsonOption($data, $assoc = false)
-    {
-        $out = '';
-        $json = self::isJson($data, $assoc);
-        $out .= "<option value='1' " . ($json == false ? '' : 'selected') . ">是Json</option>";
-        $out .= "<option value='0' " . ($json == false ? 'selected' : '') . ">不是Json</option>";
-        return $out;
-    }
-
-    public static function buildJsonText($data, $assoc = false)
-    {
-        $out = '';
-        $json = self::isJson($data, $assoc);
-        if ($json == false) {
-            return $data;
-        }
-        foreach ($json as $key => $item) {
-            $out .= $key . ':' . $item . ',';
-        }
-        return trim($out, ',');
-    }
-
 }
