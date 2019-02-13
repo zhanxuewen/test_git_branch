@@ -11,13 +11,15 @@ class ExportOrderList extends BaseSchedule
     /**
      * Execute the console command.
      *
+     * @param $day = ''
+     * @param $send
      * @return void
      */
-    public function handle()
+    public function handle($day = '', $send = true)
     {
         Helper::modifyDatabaseConfig('online');
-        $start = Carbon::yesterday();
-        $end = Carbon::yesterday()->endOfDay();
+        $start = $day == '' ? Carbon::yesterday() : Carbon::parse($day);
+        $end = $day == '' ? Carbon::yesterday()->endOfDay() : Carbon::parse($day)->endOfDay();
         $marketers = $this->getManagers();
         $set_prices = $this->setPrices();
         $cont_s = $this->getContract();
@@ -126,8 +128,11 @@ class ExportOrderList extends BaseSchedule
         $filename = $start->format('YmdHis') . '_' . $end->format('YmdHis') . '_Order';
         $path = 'order/' . $start->year . '/' . $start->month;
         $file = $this->store($filename, storage_path('exports/') . $path, $path, $report);
-        $subject = Carbon::yesterday()->toDateString() . ' Order Export';
-        $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每日线上'], $subject, realpath($file));
+        if ($send) {
+            $date = $day == '' ? Carbon::yesterday() : Carbon::parse($day);
+            $subject = $date->toDateString() . ' Order Export';
+            $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每日线上'], $subject, realpath($file));
+        }
     }
 
 }

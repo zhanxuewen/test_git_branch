@@ -107,6 +107,8 @@ Route::group(['namespace' => 'Export', 'prefix' => 'export'], function () {
 
     Route::get('single', ['uses' => 'SingleController@single']);
     Route::post('ajax/single', ['uses' => 'SingleController@export']);
+
+    Route::get('order/listExcels', ['uses' => 'OrderController@listExcels']);
 });
 
 // Logs Routes

@@ -47,6 +47,13 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="hide_school_id">隐藏学校ID</label>
+                    <select class="form-control" name="hide_school_id" id="hide_school_id">
+                        <option value="1">隐藏</option>
+                        <option value="0">显示</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="query">导出项</label>
                     <select class="form-control" name="query" id="query">
                         <option value="school_order">学校下订单</option>

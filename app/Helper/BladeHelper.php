@@ -2,6 +2,7 @@
 
 namespace App\Helper;
 
+use Carbon\Carbon;
 use App\Foundation\PdoBuilder;
 
 class BladeHelper
@@ -76,7 +77,7 @@ class BladeHelper
         return $out;
     }
 
-    public static function treeview($label, $children, $icon)
+    public static function treeView($label, $children, $icon)
     {
         foreach ($children as $k => $child) {
             if (!self::checkRoute($child)) unset($children[$k]);
@@ -118,6 +119,21 @@ class BladeHelper
     {
         $modifiers = ['public' => 'fa-unlock fa-flip-horizontal text-green', 'protected' => 'fa-key text-gry', 'private' => 'fa-lock text-red'];
         return $modifiers[$modifier];
+    }
+
+    public static function monthOption($month, $start)
+    {
+        $start = Carbon::parse($start . '/1');
+        $now = Carbon::today()->startOfMonth();
+        $diff = $now->diffInMonths($start);
+        $out = '';
+        for ($i = 0; $i <= $diff; $i++) {
+            $value = $start->year . '/' . $start->month;
+            $check = $value == $month ? 'selected' : '';
+            $out .= '<option value="' . $value . '" ' . $check . '>' . $value . '</option>';
+            $start->addMonth();
+        }
+        return $out;
     }
 
 }

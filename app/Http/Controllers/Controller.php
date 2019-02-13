@@ -8,6 +8,7 @@ use Validator;
 use App\Helper\Helper;
 use App\Helper\Builder;
 use App\Library\AliOss;
+use App\Foundation\ArrayFunc;
 use App\Foundation\PdoBuilder;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -17,7 +18,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 abstract class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, PdoBuilder;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, PdoBuilder, ArrayFunc;
 
     protected $user;
 

@@ -50,6 +50,7 @@ class SchoolController extends Controller
         $query = $request->get('query');
         $expire = $request->get('expire', 0);
         $compare = $request->get('compare', 'no');
+        $hide_school_id = $request->get('hide_school_id', 1);
         $db_change = $request->get('database', 0) == 0 ? null : 'wordpk';
         $request->filled('school_id') ? $params['school_id'] = $request->get('school_id', null) : null;
         $request->filled('vanclass_id') ? $params['vanclass_id'] = $request->get('vanclass_id', null) : null;
@@ -62,7 +63,7 @@ class SchoolController extends Controller
         $pdo = $this->getPdo('online', $db_change);
         $rows = $pdo->query($this->$query($params));
         $name = $query . '_' . $this->handleTableName($params, $pdo);
-        return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare));
+        return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare, $hide_school_id));
     }
 
     protected function handleTableName($params, $pdo)
@@ -107,7 +108,7 @@ class SchoolController extends Controller
     protected function marketer_school($params)
     {
         !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
-        return "SELECT nickname, $this->field_phone, school.`name` FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school_member.account_type_id = 4 AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
+        return "SELECT nickname, $this->field_phone, school.id AS school_id, school.`name` FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school_member.account_type_id = 4 AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
     }
 
     protected function marketer_order_sum($params)
@@ -151,15 +152,16 @@ class SchoolController extends Controller
         return $time;
     }
 
-    protected function getRecord($rows, $expire = 0, $compare = 'no')
+    protected function getRecord($rows, $expire = 0, $compare = 'no', $hide_school_id = 1)
     {
         $record = [];
         $token = $this->getManageToken();
+        $hide = $hide_school_id == 1 ? ['student_id', 'school_id'] : ['student_id'];
         foreach ($rows as $i => $row) {
-            if ($i == 0) $record[] = $this->getTitle($row, $expire);
+            if ($i == 0) $record[] = $this->getTitle($row, $hide, $expire);
             $data = [];
             foreach ($row as $key => $item) {
-                if (!is_numeric($key) && !in_array($key, ['student_id', 'school_id'])) $data[] = $item;
+                if (!is_numeric($key) && !in_array($key, $hide)) $data[] = $item;
             }
             if ($expire == 1) {
                 $data[] = $exp = $this->appendExpire($row, $token);
@@ -176,11 +178,11 @@ class SchoolController extends Controller
         return $res->expired_time;
     }
 
-    protected function getTitle($row, $expire = 0)
+    protected function getTitle($row, $hide, $expire = 0)
     {
         $data = [];
         foreach ($row as $key => $value) {
-            if (!is_numeric($key) && !in_array($key, ['student_id', 'school_id'])) {
+            if (!is_numeric($key) && !in_array($key, $hide)) {
                 $data[] = isset($this->titles[$key]) ? $this->titles[$key] : $key;
             }
         }

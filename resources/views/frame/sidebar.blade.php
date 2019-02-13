@@ -1,12 +1,13 @@
 <section class="sidebar">
     <ul class="sidebar-menu" data-widget="tree">
         {!! \App\Helper\BladeHelper::single_bar('Dashboard', 'dashboard', 'fa-dashboard') !!}
-        {!! \App\Helper\BladeHelper::treeview('Export', [
+        {!! \App\Helper\BladeHelper::treeView('Export', [
             'School' => 'export/school',
             'Student' => 'export/student',
-            'Single' => 'export/single'
+            'Single' => 'export/single',
+            'Order Excels' => 'export/order/listExcels'
         ], 'fa-download') !!}
-        {!! \App\Helper\BladeHelper::treeview('Select', [
+        {!! \App\Helper\BladeHelper::treeView('Select', [
             'Marketer' => 'select/marketer',
             'Labels' => 'select/labels',
             'Feedback' => 'select/feedback',
@@ -15,12 +16,12 @@
             'Yellow Account' => 'select/yellow_account',
             'Partner School' => 'select/partner_school',
         ], 'fa-table') !!}
-        {!! \App\Helper\BladeHelper::treeview('Database', [
+        {!! \App\Helper\BladeHelper::treeView('Database', [
             'Diff' => 'database/diff',
             'Table' => 'database/get/tableList',
             'Table Correct' => 'database/table_correct'
         ], 'fa-database') !!}
-        {!! \App\Helper\BladeHelper::treeview('Monitor', [
+        {!! \App\Helper\BladeHelper::treeView('Monitor', [
             'Table' => 'monitor/table',
             'Device' => 'monitor/device',
             'Order' => 'monitor/order',
@@ -29,20 +30,20 @@
             'Schedule' => 'monitor/schedule',
             'Throttle' => 'monitor/throttle'
         ], 'fa-bar-chart') !!}
-        {!! \App\Helper\BladeHelper::treeview('Slow', [
+        {!! \App\Helper\BladeHelper::treeView('Slow', [
             'Slow Mysql' => 'slow_mysql',
             'Slow Rpc' => 'slow_rpc'
         ], 'fa-spinner') !!}
-        {!! \App\Helper\BladeHelper::treeview('Build', [
+        {!! \App\Helper\BladeHelper::treeView('Build', [
             'Rpc DB' => 'db/get/modelList',
             'Rpc Repo' => 'repo/get/repositoryList',
             'Rpc Service' => 'service/get/serviceList'
         ], 'fa-object-group') !!}
-        {!! \App\Helper\BladeHelper::treeview('Tool', [
+        {!! \App\Helper\BladeHelper::treeView('Tool', [
             'Download' => 'tool/download',
             'Upload' => 'tool/upload'
         ], 'fa-legal') !!}
-        {!! \App\Helper\BladeHelper::treeview('User', [
+        {!! \App\Helper\BladeHelper::treeView('User', [
             'Account' => 'user/listAccount',
             'Role' => 'user/listRole',
             'Power' => 'user/listPower',
