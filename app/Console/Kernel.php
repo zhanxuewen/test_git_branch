@@ -25,6 +25,8 @@ class Kernel extends ConsoleKernel
         Commands\Rpc\CaptureRpcDB::class,
         Commands\Rpc\CaptureRpcRepo::class,
         Commands\Rpc\CaptureRpcService::class,
+
+        Commands\Schedule\RecallOrderSchedule::class,
     ];
 
     /**

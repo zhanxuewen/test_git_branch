@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use App\Export;
 use Validator;
+use App\Export;
 use App\Helper\Helper;
 use App\Helper\Builder;
 use App\Library\AliOss;
+use Illuminate\Mail\Message;
 use App\Foundation\ArrayFunc;
 use App\Foundation\PdoBuilder;
 use Maatwebsite\Excel\Facades\Excel;
@@ -99,6 +100,14 @@ abstract class Controller extends BaseController
     {
         $this->logContent($name);
         return Excel::download(new Export($record), $name . '.xls');
+    }
+
+    protected function email($to, $blade, $data, $subject, $attach)
+    {
+        \Mail::send($blade, $data, function (Message $message) use ($to, $subject, $attach) {
+            $message->to($to)->subject($subject);
+            $message->attach($attach);
+        });
     }
 
     protected function curlPost($url, $data)

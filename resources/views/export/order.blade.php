@@ -25,7 +25,10 @@
                     <td>@if($excel == '')
                             [ <a href="{{URL::current().'?month='.$month.'&day='.$day}}">Rebuild</a> ]
                         @else{{$excel}} @endif</td>
-                    <td>1</td>
+                    <td>@if($excel != '')
+                            <a href="{{url('export/order/exportOrSend').'?file='.$day.'&action=export'}}">Export</a> |
+                            <a href="{{url('export/order/exportOrSend').'?file='.$day.'&action=send'}}">Email</a>
+                        @endif</td>
                 </tr>
             @endforeach
         </table>
