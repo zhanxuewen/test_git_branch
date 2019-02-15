@@ -42,7 +42,7 @@ class CaptureRpcService extends Command
      */
     public function handle()
     {
-        $Services_Dir = env('RPC_DIR').'\app\Services';
+        $Services_Dir = env('RPC_DIR').'/app/Services';
         $Services     = scandir($Services_Dir);
         $bar          = $this->output->createProgressBar(count($Services));
         foreach ($Services as $service) {
@@ -50,7 +50,7 @@ class CaptureRpcService extends Command
                 $bar->advance();
                 continue;
             }
-            $service_file = file_get_contents($Services_Dir.'\\'.$service, FILE_USE_INCLUDE_PATH);
+            $service_file = file_get_contents($Services_Dir.'/'.$service, FILE_USE_INCLUDE_PATH);
             preg_match('/(namespace [a-zA-Z\\\\ ]+;)[\s\S]*class( [a-zA-Z]+ )/i', $service_file, $matches);
             $service_file = str_replace(array_shift($matches), '', $service_file);
             $class_name   = str_replace(['namespace', ';', ' '], '', implode('\\', $matches));

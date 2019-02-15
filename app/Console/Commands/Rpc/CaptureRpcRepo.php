@@ -41,7 +41,7 @@ class CaptureRpcRepo extends Command
      */
     public function handle()
     {
-        $Repos_Dir = env('RPC_DIR').'\app\Repositories';
+        $Repos_Dir = env('RPC_DIR').'/app/Repositories';
         $Repos     = scandir($Repos_Dir);
         $bar       = $this->output->createProgressBar(count($Repos));
         foreach ($Repos as $repo) {
@@ -49,7 +49,7 @@ class CaptureRpcRepo extends Command
                 $bar->advance();
                 continue;
             }
-            $repo_file = file_get_contents($Repos_Dir.'\\'.$repo, FILE_USE_INCLUDE_PATH);
+            $repo_file = file_get_contents($Repos_Dir.'/'.$repo, FILE_USE_INCLUDE_PATH);
             preg_match('/(namespace [a-zA-Z\\\\ ]+;)[\s\S]*(class [a-zA-Z]+ )/i', $repo_file, $matches);
             $repo_file  = str_replace(array_shift($matches), '', $repo_file);
             $class_name = str_replace(['namespace', 'class ', ';', ' '], '', implode('\\', $matches));

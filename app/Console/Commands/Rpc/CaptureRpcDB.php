@@ -40,22 +40,22 @@ class CaptureRpcDB extends Command
      */
     public function handle()
     {
-        $Models_Dir = env('RPC_DIR').'\app\Models';
+        $Models_Dir = env('RPC_DIR').'/app/Models';
         $Modules    = scandir($Models_Dir);
         $bar        = $this->output->createProgressBar(count($Modules));
         foreach ($Modules as $module) {
-            if ($module == '.' or $module == '..' or !is_dir($Models_Dir.'\\'.$module)) {
+            if ($module == '.' or $module == '..' or !is_dir($Models_Dir.'/'.$module)) {
                 $bar->advance();
                 continue;
             }
             $Module  = Module::firstOrCreate(['code' => $module]);
-            $Models  = scandir($Models_Dir.'\\'.$module);
-            $_models = require $Models_Dir.'\\'.$module.'\\_models.php';
+            $Models  = scandir($Models_Dir.'/'.$module);
+            $_models = require $Models_Dir.'/'.$module.'/_models.php';
             foreach ($Models as $model) {
                 if ($model == '.' or $model == '..' or strstr($model, '_')) {
                     continue;
                 }
-                $model_file = file_get_contents($Models_Dir.'\\'.$module.'\\'.$model, FILE_USE_INCLUDE_PATH);
+                $model_file = file_get_contents($Models_Dir.'/'.$module.'/'.$model, FILE_USE_INCLUDE_PATH);
                 $preg       = [
                     'namespace' => '(namespace [a-zA-Z\\\\ ]+;)',
                     'class' => '([\s]class [a-zA-Z]+ )',
@@ -75,6 +75,7 @@ class CaptureRpcDB extends Command
                     if ($key == 0) continue;
                     $structure[$keys[$key - 1]] = trim(str_replace($replace[$keys[$key - 1]], '', $match));
                 }
+                if (!isset($matches[0])) dd($module.$model);
                 $model_file = str_replace($matches[0], '', $model_file);
                 preg_match('/public \$timestamps = (false|true);/i', $model_file, $matches);
                 $timestamps = empty($matches) ? 1 : ($matches[1] == 'false' ? 0 : 1);

@@ -5,7 +5,7 @@
     <div class="col-sm-12">
         <div class="col-sm-4">
             <table class="table table-bordered table-hover">
-                <caption>{{$table['table_name']}}</caption>
+                <caption><h3>{{$table['table_name']}}</h3></caption>
                 @foreach(['engine', 'table_rows', 'auto_increment'] as $key)
                     <tr>
                         <th>{{ucwords(str_replace('_',' ',$key))}}</th>
@@ -35,7 +35,6 @@
                 @endforeach
             </table>
         </div>
-        <hr>
         <div class="col-sm-9">
             <table class="table table-bordered table-hover">
                 <caption>Index</caption>
@@ -59,7 +58,6 @@
                 @endforeach
             </table>
         </div>
-        <hr>
         <div class="col-sm-12">
             <a class="btn btn-primary" href="#">Back to Top</a>
         </div>
