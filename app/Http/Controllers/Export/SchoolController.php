@@ -53,6 +53,7 @@ class SchoolController extends Controller
         $hide_school_id = $request->get('hide_school_id', 1);
         $db_change = $request->get('database', 0) == 0 ? null : 'wordpk';
         $request->filled('school_id') ? $params['school_id'] = $request->get('school_id', null) : null;
+        $request->filled('school_ids') ? $params['school_ids'] = $request->get('school_ids', null) : null;
         $request->filled('vanclass_id') ? $params['vanclass_id'] = $request->get('vanclass_id', null) : null;
         $request->filled('teacher_id') ? $params['teacher_id'] = $request->get('teacher_id', null) : null;
         $request->filled('marketer_id') ? $params['marketer_id'] = $request->get('marketer_id', null) : null;
@@ -109,6 +110,12 @@ class SchoolController extends Controller
     {
         !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
         return "SELECT nickname, $this->field_phone, school.id AS school_id, school.`name` FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school_member.account_type_id = 4 AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
+    }
+
+    protected function schools_teacher($params)
+    {
+        !isset($params['school_ids']) ? die('没有 学校IDs') : null;
+        return "SELECT nickname, $this->field_phone, school.id AS school_id, school.`name` FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school.id IN (" . $params['school_ids'] . ") AND school_member.account_type_id = 4 AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
     }
 
     protected function marketer_order_sum($params)

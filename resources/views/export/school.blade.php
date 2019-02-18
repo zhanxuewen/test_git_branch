@@ -10,6 +10,10 @@
                     <input class="form-control" type="number" name="school_id" placeholder="School ID"/>
                 </div>
                 <div class="form-group">
+                    <label>学校IDs</label>
+                    <input class="form-control" type="text" name="school_ids" placeholder="School IDs"/>
+                </div>
+                <div class="form-group">
                     <label>班级ID</label>
                     <input class="form-control" type="number" name="vanclass_id" placeholder="Vanclass ID"/>
                 </div>
@@ -61,6 +65,7 @@
                         <option value="no_pay_student">学校下未购买</option>
                         <option value="school_student">学校下学生</option>
                         <option value="teacher_student">教师下学生</option>
+                        <option value="schools_teacher">多学校下教师信息</option>
                         <option value="marketer_school">市场专员下学校教师</option>
                         <option value="marketer_order_sum">市场专员下订单汇总</option>
                         <option value="word_pk_activity">词霸天活跃统计</option>
