@@ -48,3 +48,7 @@ div.not-read > div {
     -webkit-border-radius: 0.5em;
     border-radius: 0.5em;
 }
+
+.table > tbody > tr > td {
+    word-break: break-all;
+}
