@@ -16,4 +16,6 @@
 <script src="{{asset('bower_components/admin-lte/plugins/iCheck/icheck.min.js')}}"></script>
 <!-- Chart -->
 <script src="{{asset('bower_components/chart.js/dist/Chart.min.js')}}"></script>
+<!-- TreeView -->
+<script src="{{asset('bower_components/bootstrap-treeview/dist/bootstrap-treeview.min.js')}}"></script>
 <!-- page script -->

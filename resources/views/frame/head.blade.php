@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="{{asset('bower_components/admin-lte/dist/css/skins/_all-skins.min.css')}}">
     <!-- Pace style -->
     <link rel="stylesheet" href="{{asset('bower_components/admin-lte/plugins/pace/pace.min.css')}}">
+    <!-- TreeView -->
+    <link rel="stylesheet" href="{{asset('bower_components/bootstrap-treeview/dist/bootstrap-treeview.min.css')}}">
 
     <link rel="icon" href="{{asset('favicon.ico')}}" type="image/x-icon">
 

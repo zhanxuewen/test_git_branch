@@ -19,6 +19,7 @@
         {!! \App\Helper\BladeHelper::treeView('Database', [
             'Diff' => 'database/diff',
             'Table' => 'database/get/tableList',
+            'Migration' => 'database/migration/history',
             'Table Correct' => 'database/table_correct'
         ], 'fa-database') !!}
         {!! \App\Helper\BladeHelper::treeView('Monitor', [

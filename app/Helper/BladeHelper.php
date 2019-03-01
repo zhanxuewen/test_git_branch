@@ -121,6 +121,16 @@ class BladeHelper
         return $modifiers[$modifier];
     }
 
+    public static function equalOrBold($item, $value)
+    {
+        return $item == $value ? $item : '<b>' . $item . '</b>';
+    }
+
+    public static function unsigned($column)
+    {
+        return isset($column->unsigned) && $column->unsigned == 1 ? '(unsigned)' : '';
+    }
+
     public static function monthOption($month, $start)
     {
         $start = Carbon::parse($start . '/1');
