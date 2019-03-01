@@ -18,8 +18,13 @@ class ExportOrderList extends BaseSchedule
     public function handle($day = '', $send = true)
     {
         Helper::modifyDatabaseConfig('online');
-        $start = $day == '' ? Carbon::yesterday() : Carbon::parse($day);
-        $end = $day == '' ? Carbon::yesterday()->endOfDay() : Carbon::parse($day)->endOfDay();
+        if (is_array($day)) {
+            $start = Carbon::parse($day['start']);
+            $end = Carbon::parse($day['end'])->endOfDay();
+        } else {
+            $start = $day == '' ? Carbon::yesterday() : Carbon::parse($day);
+            $end = $day == '' ? Carbon::yesterday()->endOfDay() : Carbon::parse($day)->endOfDay();
+        }
         $marketers = $this->getManagers();
         $set_prices = $this->setPrices();
         $cont_s = $this->getContract();

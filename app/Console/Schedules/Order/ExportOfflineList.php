@@ -11,20 +11,27 @@ class ExportOfflineList extends BaseSchedule
     /**
      * Execute the console command.
      *
+     * @param $day = ''
+     * @param $send
      * @return void
      */
-    public function handle()
+    public function handle($day = '', $send = true)
     {
         Helper::modifyDatabaseConfig('online');
-        $start     = Carbon::today()->subWeek();
-        $end       = Carbon::yesterday()->endOfDay();
+        if (is_array($day)) {
+            $start = Carbon::parse($day['start']);
+            $end = Carbon::parse($day['end'])->endOfDay();
+        } else {
+            $start = $day == '' ? Carbon::today()->subWeek() : Carbon::parse($day);
+            $end = $day == '' ? Carbon::yesterday()->endOfDay() : Carbon::parse($day)->endOfDay();
+        }
         $marketers = $this->getManagers();
-        $cont_s    = $this->getContract();
-        $regions   = $this->getRegions();
-        $parts     = $this->getParts();
-        $report    = [];
-        $report[]  = ['订单日期', '订单时间', '订单号', '学校ID', '学校名称', '省', '市', '区县', '市场专员', '加盟校', '合同档', '协议价', '昵称', '备注名', '学生手机', '金额', '状态', '补登', '天数', '计数'];
-        $orders    = \DB::table('order_offline')
+        $cont_s = $this->getContract();
+        $regions = $this->getRegions();
+        $parts = $this->getParts();
+        $report = [];
+        $report[] = ['订单日期', '订单时间', '订单号', '学校ID', '学校名称', '省', '市', '区县', '市场专员', '加盟校', '合同档', '协议价', '昵称', '备注名', '学生手机', '金额', '状态', '补登', '天数', '计数'];
+        $orders = \DB::table('order_offline')
             ->selectRaw('order_offline.created_at, order_offline.id as offline_id, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, pay_fee, days, pay_status, approval_code')
             ->join('user_account', 'user_account.id', '=', 'order_offline.student_id')
             ->join('user', 'user.id', '=', 'user_account.user_id')
@@ -33,11 +40,11 @@ class ExportOfflineList extends BaseSchedule
             ->whereBetween('order_offline.created_at', [$start, $end])
             ->groupBy('order_offline.id')->get();
         foreach ($orders as $order) {
-            $time     = Carbon::parse($order->created_at);
-            $s_id     = $order->id;
-            $region   = is_null($s_id) ? null : explode('/', $regions[$s_id]);
-            $fee      = $order->pay_fee;
-            $data     = [
+            $time = Carbon::parse($order->created_at);
+            $s_id = $order->id;
+            $region = is_null($s_id) ? null : explode('/', $regions[$s_id]);
+            $fee = $order->pay_fee;
+            $data = [
                 'date' => $time->format('Y-m-d'),
                 'time' => $time->format('H:i:s'),
                 'num' => $order->offline_id,
@@ -61,7 +68,7 @@ class ExportOfflineList extends BaseSchedule
             ];
             $report[] = $data;
         }
-        
+
         $refunds = \DB::table('order_offline_refund')
             ->selectRaw('order_offline_refund.created_at, order_offline.id as offline_id, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, pay_fee, refund_fee, refund_days')
             ->join('order_offline', 'order_offline.id', '=', 'order_offline_refund.offline_id')
@@ -72,11 +79,11 @@ class ExportOfflineList extends BaseSchedule
             ->whereBetween('order_offline_refund.created_at', [$start, $end])
             ->groupBy('order_offline_refund.id')->get();
         foreach ($refunds as $order) {
-            $time     = Carbon::parse($order->created_at);
-            $s_id     = $order->id;
-            $region   = is_null($s_id) ? null : explode('/', $regions[$s_id]);
-            $fee      = $order->pay_fee;
-            $data     = [
+            $time = Carbon::parse($order->created_at);
+            $s_id = $order->id;
+            $region = is_null($s_id) ? null : explode('/', $regions[$s_id]);
+            $fee = $order->pay_fee;
+            $data = [
                 'date' => $time->format('Y-m-d'),
                 'time' => $time->format('H:i:s'),
                 'num' => $order->offline_id,
@@ -100,11 +107,15 @@ class ExportOfflineList extends BaseSchedule
             ];
             $report[] = $data;
         }
-        
-        $filename = $start->format('YmdHis').'_'.$end->format('YmdHis').'_Offline';
-        $file     = $this->store($filename, storage_path('exports').'/offline', 'offline', $report);
-        $subject  = $start->format('Y-m-d').' - '.$end->format('Y-m-d').' Offline Export';
-        $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每周代交'], $subject, realpath($file));
+
+        $filename = $start->format('YmdHis') . '_' . $end->format('YmdHis') . '_Offline';
+        $path = 'offline/' . $start->year . '/' . $start->month;
+        $file = $this->store($filename, storage_path('exports/') . $path, $path, $report);
+        if ($send) {
+            $subject = $start->format('Y-m-d') . ' - ' . $end->format('Y-m-d') . ' Offline Export';
+            $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每周代交'], $subject, realpath($file));
+        }
+
     }
-    
+
 }

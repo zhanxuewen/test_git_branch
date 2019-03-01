@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -57,6 +58,14 @@ class Kernel extends ConsoleKernel
             $schedule->handle();
             $this->logSchedule('Export Offline List Done At ' . date('Y-m-d H:i:s'));
         })->weekly()->mondays()->at('08:20');
+        $schedule->call(function () {
+            $this->logSchedule('Export Order And Offline Monthly Start At ' . date('Y-m-d H:i:s'));
+            $day = Carbon::today()->subMonth()->toDateString() . ',' . Carbon::today()->subDay()->toDateString();
+            (new Schedules\Order\ExportOrderList())->handle($day);
+            $this->logSchedule('Export Order Monthly List Done At ' . date('Y-m-d H:i:s'));
+            (new Schedules\Order\ExportOfflineList())->handle($day);
+            $this->logSchedule('Export Offline Monthly List Done At ' . date('Y-m-d H:i:s'));
+        })->monthlyOn(1, '08:40');
     }
 
     protected function logSchedule($log)

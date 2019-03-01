@@ -4,6 +4,7 @@ namespace App\Console\Commands\Schedule;
 
 use Illuminate\Console\Command;
 use App\Console\Schedules\Order\ExportOrderList;
+use App\Console\Schedules\Order\ExportOfflineList;
 
 class RecallOrderSchedule extends Command
 {
@@ -12,7 +13,7 @@ class RecallOrderSchedule extends Command
      *
      * @var string
      */
-    protected $signature = 'recall:order:schedule {day} {--send}';
+    protected $signature = 'recall:order:schedule {day} {type=order} {--send}';
 
     /**
      * The console command description.
@@ -39,8 +40,19 @@ class RecallOrderSchedule extends Command
     public function handle()
     {
         $day = $this->argument('day');
+        if (strstr($day, ',')) {
+            $days = explode(',', $day);
+            $day = ['start' => $days[0], 'end' => $days[1]];
+        }
+        $type = $this->argument('type');
         $send = $this->option('send');
-        (new ExportOrderList())->handle($day, $send);
+        if ($type == 'order') {
+            (new ExportOrderList())->handle($day, $send);
+        } else if ($type == 'offline') {
+            (new ExportOfflineList())->handle($day, $send);
+        } else {
+            $this->error('Type Error!');
+        }
     }
 
 }
