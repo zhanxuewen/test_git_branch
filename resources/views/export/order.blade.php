@@ -33,7 +33,8 @@
             @endforeach
             <tr>
                 <td>Monthly</td>
-                <td>@if($monthly['file'] == '')
+                <td>@if(\App\Helper\BladeHelper::checkThisMonth($month)) Today is in month, wait...
+                    @elseif($monthly['file'] == '')
                         [ <a href="{{URL::current().'?month='.$month.'&day='.$monthly['day']}}">Rebuild</a> ]
                     @else{{$monthly['file']}} @endif</td>
                 <td>@if($monthly['file'] != '')

@@ -146,4 +146,10 @@ class BladeHelper
         return $out;
     }
 
+    public static function checkThisMonth($month)
+    {
+        $now = Carbon::now();
+        return $now->year . '/' . $now->month == $month;
+    }
+
 }
