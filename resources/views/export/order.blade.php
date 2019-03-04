@@ -19,6 +19,7 @@
                 <th>Excel</th>
                 <th>Info</th>
             </tr>
+            @php $url = url('export/order/exportOrSend') @endphp
             @foreach($list as $day => $excel)
                 <tr>
                     <td>{{$day}}</td>
@@ -26,8 +27,8 @@
                             [ <a href="{{URL::current().'?month='.$month.'&day='.$day}}">Rebuild</a> ]
                         @else{{$excel}} @endif</td>
                     <td>@if($excel != '')
-                            <a href="{{url('export/order/exportOrSend').'?file='.$day.'&action=export'}}">Export</a> |
-                            <a href="{{url('export/order/exportOrSend').'?file='.$day.'&action=send'}}">Email</a>
+                            <a href="{{$url . '?file=' . $day . '&action=export'}}">Export</a> |
+                            <a href="{{$url . '?file=' . $day . '&action=send'}}">Email</a>
                         @endif</td>
                 </tr>
             @endforeach
@@ -38,9 +39,8 @@
                         [ <a href="{{URL::current().'?month='.$month.'&day='.$monthly['day']}}">Rebuild</a> ]
                     @else{{$monthly['file']}} @endif</td>
                 <td>@if($monthly['file'] != '')
-                        <a href="{{url('export/order/exportOrSend') . '?file=' . $monthly['day'] . '&action=export'}}">Export</a>
-                        |
-                        <a href="{{url('export/order/exportOrSend') . '?file=' . $monthly['day'] . '&action=send'}}">Email</a>
+                        <a href="{{$url . '?file=' . $monthly['day'] . '&action=export'}}">Export</a> |
+                        <a href="{{$url . '?file=' . $monthly['day'] . '&action=send'}}">Email</a>
                     @endif</td>
             </tr>
         </table>
