@@ -12,14 +12,14 @@ class Capture extends Command
      * @var string
      */
     protected $signature = 'capture';
-    
+
     /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Capture The Project';
-    
+
     /**
      * Create a new command instance.
      *
@@ -29,7 +29,7 @@ class Capture extends Command
     {
         parent::__construct();
     }
-    
+
     /**
      * Execute the console command.
      *
@@ -64,10 +64,10 @@ class Capture extends Command
             ],
         ];
         foreach ($commands as $command) {
-            $this->info('Capturing '.$command['desc']);
+            $this->info('Capturing ' . $command['desc']);
             $this->call($command['comm'], $command['args']);
             $this->info('');
         }
     }
-    
+
 }

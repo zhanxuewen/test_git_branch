@@ -132,7 +132,7 @@ class ExportOrderList extends BaseSchedule
         }
         $filename = $start->format('YmdHis') . '_' . $end->format('YmdHis') . '_Order';
         $path = 'order/' . $start->year . '/' . $start->month;
-        $file = $this->store($filename, storage_path('exports/') . $path, $path, $report);
+        $file = $this->store($path . '/' . $filename, $report);
         if ($send) {
             $date = $day == '' ? Carbon::yesterday() : Carbon::parse($day);
             $subject = $date->toDateString() . ' Order Export';

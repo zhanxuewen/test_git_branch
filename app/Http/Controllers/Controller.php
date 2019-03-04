@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Validator;
-use App\Export;
 use App\Helper\Helper;
 use App\Helper\Builder;
 use App\Library\AliOss;
+use App\Foundation\Excel;
 use Illuminate\Mail\Message;
 use App\Foundation\ArrayFunc;
 use App\Foundation\PdoBuilder;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -19,7 +18,8 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 abstract class Controller extends BaseController
 {
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests, PdoBuilder, ArrayFunc;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests,
+        PdoBuilder, ArrayFunc, Excel;
 
     protected $user;
 
@@ -99,7 +99,7 @@ abstract class Controller extends BaseController
     protected function exportExcel($name, $record)
     {
         $this->logContent($name);
-        return Excel::download(new Export($record), $name . '.xls');
+        return $this->export($name, $record);
     }
 
     protected function email($to, $blade, $data, $subject, $attach)

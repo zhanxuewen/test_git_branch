@@ -65,6 +65,11 @@ return [
             'root' => storage_path('exports'),
         ],
 
+        'import' => [
+            'driver' => 'local',
+            'root' => storage_path('imports'),
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

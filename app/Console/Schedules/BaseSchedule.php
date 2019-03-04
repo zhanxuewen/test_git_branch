@@ -2,14 +2,13 @@
 
 namespace App\Console\Schedules;
 
-use App\Export;
+use App\Foundation\Excel;
 use Illuminate\Mail\Message;
 use App\Foundation\PdoBuilder;
-use Maatwebsite\Excel\Facades\Excel;
 
 class BaseSchedule
 {
-    use PdoBuilder;
+    use PdoBuilder, Excel;
 
     private function queryToArray($query, $key, $alias)
     {
@@ -57,12 +56,6 @@ class BaseSchedule
             $parts[$item->school_id] = $item->title;
         }
         return $parts;
-    }
-
-    protected function store($filename, $path, $folder, $data)
-    {
-        Excel::store(new Export($data), $folder . '/' . $filename . '.xls', 'export');
-        return $path . '/' . $filename . '.xls';
     }
 
     protected function email($to, $blade, $data, $subject, $attach)
