@@ -31,6 +31,17 @@
                         @endif</td>
                 </tr>
             @endforeach
+            <tr>
+                <td>Monthly</td>
+                <td>@if($monthly['file'] == '')
+                        [ <a href="{{URL::current().'?month='.$month.'&day='.$monthly['day']}}">Rebuild</a> ]
+                    @else{{$monthly['file']}} @endif</td>
+                <td>@if($monthly['file'] != '')
+                        <a href="{{url('export/order/exportOrSend') . '?file=' . $monthly['day'] . '&action=export'}}">Export</a>
+                        |
+                        <a href="{{url('export/order/exportOrSend') . '?file=' . $monthly['day'] . '&action=send'}}">Email</a>
+                    @endif</td>
+            </tr>
         </table>
     </div>
 @endsection

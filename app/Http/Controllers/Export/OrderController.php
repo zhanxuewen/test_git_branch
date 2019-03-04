@@ -26,19 +26,32 @@ class OrderController extends Controller
         $list = [];
         for ($i = 0; $i < 32; $i++) {
             if ($day->isToday() || $day->month != $m) break;
-            $list[$day->toDateString()] = ($item = $this->preg_in_array('/' . $day->format('Ymd') . '/', $files)) ? $item : '';
+            $f_name = $day->format('YmdHis') . '_' . $day->format('Ymd') . '235959_Order';
+            $list[$day->toDateString()] = ($item = $this->preg_in_array('/' . $f_name . '/', $files)) ? $item : '';
             $day->addDay();
         }
-        return view('export.order', compact('list', 'month'));
+        $month_s = Carbon::parse($month . '/1');
+        $month_e = Carbon::parse($month . '/1')->endOfMonth();
+        $f_name = $month_s->format('YmdHis') . '_' . $month_e->endOfDay()->format('YmdHis') . '_Order';
+        $monthly = ['file' => ($item = $this->preg_in_array('/' . $f_name . '/', $files)) ? $item : '',
+            'day' => $month_s->toDateString() . ',' . $month_e->toDateString()];
+        return view('export.order', compact('list', 'month', 'monthly'));
     }
 
     public function exportOrSend(Request $request)
     {
-        $day = Carbon::parse($request->get('file'));
+        if (strstr($file = $request->get('file'), ',')) {
+            list($s, $e) = explode(',', $file);
+            $day = Carbon::parse($s);
+            $f_name = $day->format('YmdHis') . '_' . Carbon::parse($e)->endOfDay()->format('YmdHis');
+        } else {
+            $day = Carbon::parse($request->get('file'));
+            $f_name = $day->format('YmdHis') . '_' . $day->format('Ymd') . '235959';
+        }
         $month = $day->year . '/' . $day->month;
         $dir = storage_path('exports/order/') . $month;
         $files = is_dir($dir) ? scandir($dir) : [];
-        $item = $this->preg_in_array('/' . $day->format('Ymd') . '/', $files);
+        $item = $this->preg_in_array('/' . $f_name . '/', $files);
         $file = storage_path('exports/order/') . $month . '/' . $item;
         if ($request->get('action') == 'export') {
             return response()->download($file, $item);

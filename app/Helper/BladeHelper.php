@@ -134,7 +134,7 @@ class BladeHelper
     public static function monthOption($month, $start)
     {
         $start = Carbon::parse($start . '/1');
-        $now = Carbon::today()->startOfMonth();
+        $now = Carbon::today()->endOfMonth();
         $diff = $now->diffInMonths($start);
         $out = '';
         for ($i = 0; $i <= $diff; $i++) {
