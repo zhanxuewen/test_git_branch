@@ -29,6 +29,9 @@ class Kernel extends ConsoleKernel
         Commands\Rpc\CaptureRpcService::class,
 
         Commands\Schedule\RecallOrderSchedule::class,
+
+        // Rewrite Laravel Commands
+        Commands\Rewrite\MigrateRollback::class,
     ];
 
     /**
