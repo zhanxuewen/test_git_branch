@@ -16,7 +16,7 @@ class OrderController extends Controller
             return (int)$item;
         }, $month));
         if ($request->has('day')) {
-            exec('php ' . base_path() . '/artisan recall:order:schedule ' . $request->get('day'));
+            exec('/usr/local/bin/php ' . base_path() . '/artisan recall:order:schedule ' . $request->get('day'));
             return redirect(\URL::current() . '?month=' . $month);
         }
         $dir = storage_path('exports/order/') . $month;
