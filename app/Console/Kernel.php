@@ -32,6 +32,13 @@ class Kernel extends ConsoleKernel
 
         // Rewrite Laravel Commands
         Commands\Rewrite\MigrateRollback::class,
+
+
+
+
+        // 在线助教
+        Commands\ZXZJ\Word\ImportWordSentence::class,
+        Commands\ZXZJ\Word\ExportWordSentence::class,
     ];
 
     /**
