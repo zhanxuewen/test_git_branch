@@ -14,11 +14,11 @@ class RecordOrderIncrement extends BaseSchedule
     /**
      * Execute the console command.
      *
+     * @param $day
      * @return void
      */
-    public function handle()
+    public function handle($day)
     {
-        $day = Carbon::yesterday();
         if (\DB::table('monitor_order_increment')->where('created_date', $day)->count() > 0) {
             echo 'M_O_I ' . $day . ' Already Done!';
             return;

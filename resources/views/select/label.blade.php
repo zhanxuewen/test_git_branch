@@ -11,7 +11,7 @@
         </div>
         <hr>
     </div>
-    <div class="col-sm-4">
+    <div class="col-sm-8">
         <ul class="sidebar-menu tree" data-widget="tree">
             {!! empty($labels) ? '' : \App\Helper\BladeHelper::getTree(0, $labels) !!}
         </ul>

@@ -43,12 +43,14 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->call(function () {
+            $today = date('Y-m-d');
+            $yesterday = Carbon::yesterday();
             $this->logSchedule('Monitor Record Start At ' . date('Y-m-d H:i:s'));
-            (new Schedules\Monitor\RecordTableIncrement())->handle();
+            (new Schedules\Monitor\RecordTableIncrement())->handle($today);
             $this->logSchedule('Record Table Increment Done At ' . date('Y-m-d H:i:s'));
-            (new Schedules\Monitor\RecordDeviceUsage())->handle();
+            (new Schedules\Monitor\RecordDeviceUsage())->handle($today);
             $this->logSchedule('Record Device Usage Done At ' . date('Y-m-d H:i:s'));
-            (new Schedules\Monitor\RecordOrderIncrement())->handle();
+            (new Schedules\Monitor\RecordOrderIncrement())->handle($yesterday);
             $this->logSchedule('Record Order Increment Done At ' . date('Y-m-d H:i:s'));
         })->dailyAt('01:00');
         $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
