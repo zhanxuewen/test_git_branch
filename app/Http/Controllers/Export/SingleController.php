@@ -13,7 +13,7 @@ class SingleController extends Controller
         return view('export.single');
     }
 
-    public function export(Request $request)
+    public function ajaxExport(Request $request)
     {
         $query = $request->get('query');
         $request->filled('school_ids') ? $params['school_ids'] = $request->get('school_ids', null) : null;

@@ -44,7 +44,7 @@ class SchoolController extends Controller
         return view('export.school');
     }
 
-    public function export(Request $request)
+    public function postExport(Request $request)
     {
         $field = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
         $query = $request->get('query');

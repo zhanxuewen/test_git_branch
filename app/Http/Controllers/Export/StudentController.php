@@ -29,7 +29,7 @@ class StudentController extends Controller
         return view('export.student');
     }
 
-    public function export(Request $request)
+    public function postExport(Request $request)
     {
         $query = $request->get('query');
         $request->filled('label_id') ? $params['label_id'] = $request->get('label_id', null) : null;
