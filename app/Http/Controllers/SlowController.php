@@ -128,7 +128,11 @@ class SlowController extends Controller
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [$this->getZabbixToken()]);
-        $result = curl_exec($ch);
+        if (($result = curl_exec($ch)) === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            die($error);
+        }
         curl_close($ch);
         return $result;
     }
