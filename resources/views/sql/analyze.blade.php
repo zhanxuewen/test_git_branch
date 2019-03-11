@@ -6,6 +6,13 @@
         @foreach([$type_s,$group_s,$auth_s] as $key=>$item)
             {!! \App\Helper\BladeHelper::renderOptions($item,$key,[$_type,$_group,$_auth]) !!}
         @endforeach
+        <br><br>
+        <div class="btn-group" role="group">
+            @foreach($days as $day=> $label)
+                <a class="btn btn-default @if($_day == $day) btn-primary active @endif"
+                   href="{{URL::current().'?day='.$day}}">{{$label}}</a>
+            @endforeach
+        </div>
         <div class="pull-right">
             <form class="form-inline" action="{{url('query/empty')}}" method="get">
                 <div class="form-group">

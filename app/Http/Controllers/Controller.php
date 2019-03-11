@@ -8,6 +8,7 @@ use App\Helper\Helper;
 use App\Helper\Builder;
 use App\Library\AliOss;
 use App\Foundation\Excel;
+use App\Foundation\Carbon;
 use Illuminate\Mail\Message;
 use App\Foundation\ArrayFunc;
 use App\Foundation\PdoBuilder;
@@ -19,7 +20,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 abstract class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests,
-        PdoBuilder, ArrayFunc, Excel;
+        PdoBuilder, ArrayFunc, Excel, Carbon;
 
     protected $user;
 

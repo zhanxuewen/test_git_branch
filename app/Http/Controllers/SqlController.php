@@ -2,14 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use DB;
 use App\Helper\Helper;
 use Illuminate\Http\Request;
 
 class SqlController extends Controller
 {
-    public function analyze($_type, $_group, $_auth = null)
+    public function analyze(Request $request, $_type, $_group, $_auth = null)
     {
+        $day = $request->get('day', '7_d');
+        $between = [];
+        if (strstr($day, '_d')) {
+            $days = explode('_', $day)[0];
+            $between = [Carbon::now()->subDay($days), Carbon::now()];
+        }
+        if (strstr($day, 'last')) {
+            in_array($day, ['lastWeek', 'lastMonth']) ? null : $day = 'lastWeek';
+            $between = $this->$day();
+        }
+        $_day = $day;
+        $days = ['7_d' => '7 days', '14_d' => '14 days', 'lastWeek' => 'last week', 'lastMonth' => 'last month'];
         $conn = $this->getAnalyzeConn();
         $db = DB::setPdo($this->getPdo($conn));
         $auth_s = $db->table('sql_log')->distinct()->pluck('auth');
@@ -20,8 +33,9 @@ class SqlController extends Controller
         $_group == 'in_group'
             ? $query->selectRaw('*, count(*) as count')->groupBy('query')->orderBy('count', 'desc')
             : $query->orderBy('time', 'desc');
+        if (!empty($between)) $query->whereBetween('created_at', $between);
         $sql_s = $query->paginate($this->getPerPage());
-        return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group', 'conn'));
+        return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group', '_day', 'days', 'conn'));
     }
 
     public function querySql(Request $request)
