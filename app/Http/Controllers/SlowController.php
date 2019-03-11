@@ -73,6 +73,7 @@ class SlowController extends Controller
     protected function handleMysqlLog($log)
     {
         preg_match('/<tbody>(.*)<\/tbody>/', $log, $match);
+        if (!isset($match[1])) dd($log);
         $preg_time = '\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d';
         $_log = preg_replace('/Time: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d{6}Z/', 'SplitTime', $match[1]);
         $_log = preg_replace('/<[\/]?pre>/', '', $_log);
