@@ -112,10 +112,21 @@ class MonitorController extends Controller
 
     public function throttle(Request $request)
     {
+        $_section = $request->get('section', 'record');
+        $_conn = $request->get('conn', 'online');
+        $common = compact('_section', '_conn');
+        if ($_section == 'record') return $this->getThrottleRecord($request, $common);
+        if ($_section == 'log') return $this->getThrottleLog($request, $common);
+        return abort('404');
+    }
+
+    protected function getThrottleRecord(Request $request, $common)
+    {
         $date = Carbon::parse($request->get('date', date('Y-m-d')));
         if (!is_null($op = $request->get('op', null))) $date = $date->$op();
         $_key = 'throttle_record_' . $date->format('Ymd');
-        $list = json_decode($this->getReadRedis('online')->get($_key));
+        $conn = $common['_conn'] == 'online' ? 'online' : 'analyze';
+        $list = json_decode($this->getReadRedis($conn)->get($_key));
         $keys = $_tokens = $ids = [];
         if (empty($list)) $list = [];
         foreach ($list as &$item) {
@@ -128,9 +139,42 @@ class MonitorController extends Controller
             $item = ['method' => $method, 'uri' => $uri, 'token' => $token, 'count' => $count];
         }
         $count = [count($keys), count($_tokens)];
-        $accounts = empty($ids) ? [] : $this->fetchRows($this->getPdo('online')->query($this->list_accounts($ids)));
+        $conn = $common['_conn'] == 'online' ? 'online' : 'dev';
+        $accounts = empty($ids) ? [] : $this->fetchRows($this->getPdo($conn)->query($this->list_accounts($ids)));
         $date = $date->toDateString();
-        return view('monitor.throttle', compact('count', 'accounts', 'list', 'date'));
+        $compact = compact('count', 'accounts', 'list', 'date');
+        return view('monitor.throttle.record', array_merge($compact, $common));
+    }
+
+    protected function getThrottleLog(Request $request, $common)
+    {
+        $date = Carbon::parse($request->get('date', date('Y-m-d')));
+        if (!is_null($op = $request->get('op', null))) $date = $date->$op();
+        $_key = 'throttle_log_' . $date->format('Ymd');
+        $conn = $common['_conn'] == 'online' ? 'online' : 'analyze';
+        $hash = $this->getReadRedis($conn)->hgetall($_key);
+        $_keys = $list = $tokens = $ids = [];
+        $_group = $request->get('group', 'token');
+        if (empty($hash)) $hash = [];
+        foreach ($hash as $hKey => $values) {
+            list($method, $uri, $token) = explode('|', $hKey);
+            $key = $method . '|' . $uri;
+            if (!in_array($key, $_keys)) $_keys[] = $key;
+            if (!in_array($token, $tokens)) $tokens[] = $token;
+            if (!strstr($token, '.')) $ids[] = $token;
+            $items = $this->getTime(unserialize($values));
+            $_group == 'token' ? $list[$token][$key] = $items : $list[$key][$token] = $items;
+        }
+        $count = [count($_keys), count($tokens)];
+        foreach ($list as $k => &$item) {
+            $item = json_encode($item);
+        }
+        $keys = json_encode(array_keys($list));
+        $conn = $common['_conn'] == 'online' ? 'online' : 'dev';
+        $accounts = empty($ids) ? [] : $this->fetchRows($this->getPdo($conn)->query($this->list_accounts($ids)));
+        $date = $date->toDateString();
+        $compact = compact('count', 'accounts', 'list', 'keys', 'date', '_group');
+        return view('monitor.throttle.log', array_merge($compact, $common));
     }
 
     public function schedule(Request $request)
@@ -153,6 +197,17 @@ class MonitorController extends Controller
             $list[] = ['time' => $match[0], 'message' => $message];
         }
         return view('monitor.schedule', compact('total', 'day', 'list'));
+    }
+
+    protected function getTime($values)
+    {
+        $array = [];
+        foreach ($values as $value) {
+            $item = json_decode($value, true);
+            $hour = (int)(explode(':', $item['now_at'])[0]);
+            $array[$hour][] = $item;
+        }
+        return ['items' => $array, 'times' => array_keys($array)];
     }
 
     protected function list_accounts($ids)
@@ -191,7 +246,7 @@ class MonitorController extends Controller
 
     protected function scheduleCurlPost($url, $data)
     {
-        $token = 'Cookie: _ga=GA1.2.1293976730.1544144611; token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjE0MTAsImlzcyI6Imh0dHBzOi8vYXBpbmV3Lnd4enh6ai5jb20vYXBpL2F1dGgvbG9naW4iLCJpYXQiOjE1NDc2MjA5NTIsImV4cCI6MTU0ODgzMDU1MiwibmJmIjoxNTQ3NjIwOTUyLCJqdGkiOiI3aVhCS0dpRTBDZ0NDUmxlIn0.75oseCRrKKXPBzEUWd2oo-95cWRF59ccnaZqkPq_JSY';
+        $token = 'Authorization: Basic dmFudGhpbms6NUUlcWQ4bXR3UUEkTTdSYg==';
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);

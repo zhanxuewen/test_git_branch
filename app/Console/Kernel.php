@@ -33,6 +33,8 @@ class Kernel extends ConsoleKernel
         // Rewrite Laravel Commands
         Commands\Rewrite\MigrateRollback::class,
 
+        Commands\Database\GenerateGrantSql::class,
+
 
 
 
