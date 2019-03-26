@@ -7,8 +7,10 @@ use App\Console\Schedules\BaseSchedule;
 class RecordTableIncrement extends BaseSchedule
 {
     protected $ignore = [
+        'seeders',
+        'migrations',
         'user_teacher_testbank',
-        'user_teacher_testbank_entity'
+        'user_teacher_testbank_entity',
     ];
 
     /**
@@ -31,7 +33,7 @@ class RecordTableIncrement extends BaseSchedule
         foreach ($tables as $table) {
             $name = $table->table_name;
             if (in_array($name, $this->ignore)) continue;
-            $rows = \DB::setPdo($this->getPdo('online'))->select("SELECT COUNT(*) as count FROM `$database`.`$name`");
+            $rows = \DB::setPdo($this->getPdo('online'))->select("SELECT COUNT(id) as count FROM `$database`.`$name`");
             $rows = $rows[0]->count;
             $create[] = [
                 'table' => $name,
