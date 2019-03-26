@@ -116,6 +116,11 @@ trait PdoBuilder
         return $this->newPdo($db['host'], $db['database'], $db['username'], $db['password']);
     }
 
+    public function getDeveloperConf()
+    {
+        return $this->getConf('online');
+    }
+
     public function getSecretPdo($conn)
     {
         if (!\Hash::check(env('ONLINE_ALLOW'), $this->hash)) die('Permission Denied!');

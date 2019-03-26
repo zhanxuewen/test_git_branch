@@ -10,6 +10,8 @@ class SchoolController extends Controller
 {
     protected $field_phone;
 
+    protected $expired = [];
+
     protected $titles
         = [
             'sum' => '总数',
@@ -64,6 +66,7 @@ class SchoolController extends Controller
         $pdo = $this->getPdo('online', $db_change);
         $rows = $pdo->query($this->$query($params));
         $name = $query . '_' . $this->handleTableName($params, $pdo);
+        if ($expire == 1 && isset($params['school_id'])) $this->expired = $this->getSchoolStudentsExpired($params['school_id']);
         return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare, $hide_school_id));
     }
 
@@ -162,7 +165,10 @@ class SchoolController extends Controller
     protected function getRecord($rows, $expire = 0, $compare = 'no', $hide_school_id = 1)
     {
         $record = [];
-        $token = $this->getManageToken();
+        $token = null;
+        if (empty($this->expired)) {
+            $token = $this->getManageToken();
+        }
         $hide = $hide_school_id == 1 ? ['student_id', 'school_id'] : ['student_id'];
         foreach ($rows as $i => $row) {
             if ($i == 0) $record[] = $this->getTitle($row, $hide, $expire);
@@ -171,7 +177,11 @@ class SchoolController extends Controller
                 if (!is_numeric($key) && !in_array($key, $hide)) $data[] = $item;
             }
             if ($expire == 1) {
-                $data[] = $exp = $this->appendExpire($row, $token);
+                if (is_null($token)) {
+                    $data[] = $exp = $this->getExpire($row['student_id']);
+                } else {
+                    $data[] = $exp = $this->appendExpire($row, $token);
+                }
                 if ($compare !== 'no' && !Carbon::now()->$compare($exp)) continue;
             }
             $record[] = $data;
@@ -185,6 +195,11 @@ class SchoolController extends Controller
         return $res->expired_time;
     }
 
+    protected function getExpire($student_id)
+    {
+        return isset($this->expired[$student_id]) ? $this->expired[$student_id] : null;
+    }
+
     protected function getTitle($row, $hide, $expire = 0)
     {
         $data = [];
@@ -195,6 +210,15 @@ class SchoolController extends Controller
         }
         if ($expire == 1) $data[] = '有效期';
         return $data;
+    }
+
+    protected function getSchoolStudentsExpired($school_id)
+    {
+        $conf = $this->getDeveloperConf();
+        $online = implode(',', $conf);
+        $dir = realpath(base_path() . '/../rpc_server');
+        $comm = "php $dir/artisan list:school:student_expired $school_id '$online'";
+        return json_decode(exec($comm), true);
     }
 
     protected function request_post($id, $token)
