@@ -58,7 +58,7 @@ class ToolController extends Controller
         $file = $request->file('file');
         $info = [];
         if ($type == 'image') $info = $this->aliOss->uploadImage($file);
-        return isset($info['src']) ? $info['src'] : false;
+        return isset($info['src']) ? $info['src'] : $info;
     }
 
     public function ajaxDownload(Request $request)

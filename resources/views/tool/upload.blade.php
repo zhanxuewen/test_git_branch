@@ -45,7 +45,11 @@
                     data: formData,
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     success: function (data) {
-                        $('.show-url').html('<b>Url: </b><u>' + data + '</u>');
+                        if (data.indexOf('http') >= 0) {
+                            $('.show-url').html('<b>Url: </b><u>' + data + '</u>');
+                        } else {
+                            $('.show-url').html('<span class="text-red"><b>Error</b>: ' + data + '</span>');
+                        }
                     }
                 });
             });

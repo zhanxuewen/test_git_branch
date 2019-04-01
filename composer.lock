@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d9247266bb3c8022e5432b9a449c977",
+    "content-hash": "c9e7b3dd211d04bf34e81970ea979692",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -688,6 +688,45 @@
                 "storage"
             ],
             "time": "2018-10-15T13:53:10+00:00"
+        },
+        {
+            "name": "luminee/prosthesis",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://gitlab.wxzxzj.com/upend/third_party_lib.git",
+                "reference": "dc680fd65374057be00ea0eebd3c76e0f322e85d"
+            },
+            "dist": {
+                "type": "tar",
+                "url": "http://dev.gitlab.packages.cn/dist/luminee/prosthesis/luminee-prosthesis-1.0.1-eb2ef4.tar",
+                "reference": "dc680fd65374057be00ea0eebd3c76e0f322e85d",
+                "shasum": "62442cf083007528711dd0ddfe54a3a8cda82711"
+            },
+            "require": {
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Luminee\\Prosthesis\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "LuminEe"
+                }
+            ],
+            "description": "Library for connect to msservice.",
+            "homepage": "https://gitlab.wxzxzj.com/upend/third_party_lib",
+            "keywords": [
+                "curl",
+                "msservice"
+            ],
+            "time": "2019-04-01T05:32:48+00:00"
         },
         {
             "name": "maatwebsite/excel",
@@ -3624,6 +3663,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2018-08-09T05:50:03+00:00"
         },
         {
