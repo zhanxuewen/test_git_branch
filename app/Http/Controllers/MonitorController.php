@@ -162,8 +162,8 @@ class MonitorController extends Controller
             if (!in_array($key, $_keys)) $_keys[] = $key;
             if (!in_array($token, $tokens)) $tokens[] = $token;
             if (!strstr($token, '.')) $ids[] = $token;
-            $items = $this->getTime(unserialize($values));
-            $_group == 'token' ? $list[$token][$key] = $items : $list[$key][$token] = $items;
+            $items = $this->getTime(json_decode($values, true));
+            $_group == 'token' ? $list[$token][] = ['label' => $key, 'rows' => $items] : $list[$key][] = ['label' => $token, 'rows' => $items];
         }
         $count = [count($_keys), count($tokens)];
         foreach ($list as $k => &$item) {
@@ -173,7 +173,8 @@ class MonitorController extends Controller
         $conn = $common['_conn'] == 'online' ? 'online' : 'dev';
         $accounts = empty($ids) ? [] : $this->fetchRows($this->getPdo($conn)->query($this->list_accounts($ids)));
         $date = $date->toDateString();
-        $compact = compact('count', 'accounts', 'list', 'keys', 'date', '_group');
+        $times = json_encode(array_keys($this->getTimes('day')));
+        $compact = compact('count', 'accounts', 'list', 'keys', 'date', 'times', '_group');
         return view('monitor.throttle.log', array_merge($compact, $common));
     }
 
@@ -201,13 +202,22 @@ class MonitorController extends Controller
 
     protected function getTime($values)
     {
-        $array = [];
+        $times = $this->getTimes('day');
         foreach ($values as $value) {
-            $item = json_decode($value, true);
-            $hour = (int)(explode(':', $item['now_at'])[0]);
-            $array[$hour][] = $item;
+            $hour = (int)(explode(':', $value)[0]);
+            $times[$hour] += 1;
         }
-        return ['items' => $array, 'times' => array_keys($array)];
+        return array_values($times);
+    }
+
+    protected function getTimes($type)
+    {
+        $types = ['day' => 24, 'hour' => 60];
+        $times = [];
+        for ($i = 1; $i <= $types[$type]; $i++) {
+            $times[$i] = 0;
+        }
+        return $times;
     }
 
     protected function list_accounts($ids)
