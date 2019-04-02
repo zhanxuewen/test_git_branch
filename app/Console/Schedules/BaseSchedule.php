@@ -3,6 +3,7 @@
 namespace App\Console\Schedules;
 
 use App\Foundation\Excel;
+use Carbon\Carbon;
 use Illuminate\Mail\Message;
 use App\Foundation\PdoBuilder;
 
@@ -56,6 +57,25 @@ class BaseSchedule
             $parts[$item->school_id] = $item->title;
         }
         return $parts;
+    }
+
+    protected function getSubject($day)
+    {
+        if (is_array($day)) {
+            $start = Carbon::parse($day['start']);
+            $end = Carbon::parse($day['end']);
+            $diff = $start->diffInDays($end);
+            if ($diff > 8) {
+                return ['每月', $start->format('Y-m')];
+            } elseif ($diff < 8 && $diff > 2) {
+                return ['每周', $start->format('Y-m-d') . '_' . $end->format('Y-m-d')];
+            } else {
+                return ['每日', $start->format('Y-m-d') . '_' . $end->format('Y-m-d')];
+            }
+        } else {
+            $date = $day == '' ? Carbon::yesterday() : Carbon::parse($day);
+            return ['每日', $date->format('Y-m-d')];
+        }
     }
 
     protected function email($to, $blade, $data, $subject, $attach)

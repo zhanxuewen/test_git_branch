@@ -112,8 +112,8 @@ class ExportOfflineList extends BaseSchedule
         $path = 'offline/' . $start->year . '/' . $start->month;
         $file = $this->store($path . '/' . $filename, $report);
         if ($send) {
-            $subject = $start->format('Y-m-d') . ' - ' . $end->format('Y-m-d') . ' Offline Export';
-            $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每周代交'], $subject, realpath($file));
+            list($object, $subject) = $this->getSubject($day);
+            $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => $object . '代交'], $subject . ' Offline Export', realpath($file));
         }
 
     }

@@ -36,8 +36,6 @@ class Kernel extends ConsoleKernel
         Commands\Database\GenerateGrantSql::class,
 
 
-
-
         // 在线助教
         Commands\ZXZJ\Word\ImportWordSentence::class,
         Commands\ZXZJ\Word\ExportWordSentence::class,
@@ -74,7 +72,7 @@ class Kernel extends ConsoleKernel
         })->weekly()->mondays()->at('08:20');
         $schedule->call(function () {
             $this->logSchedule('Export Order And Offline Monthly Start At ' . date('Y-m-d H:i:s'));
-            $day = Carbon::today()->subMonth()->toDateString() . ',' . Carbon::today()->subDay()->toDateString();
+            $day = ['start' => Carbon::today()->subMonth()->toDateString(), 'end' => Carbon::today()->subDay()->toDateString()];
             (new Schedules\Order\ExportOrderList())->handle($day);
             $this->logSchedule('Export Order Monthly List Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Order\ExportOfflineList())->handle($day);

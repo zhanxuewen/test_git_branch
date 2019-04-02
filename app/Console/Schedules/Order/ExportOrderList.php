@@ -134,9 +134,8 @@ class ExportOrderList extends BaseSchedule
         $path = 'order/' . $start->year . '/' . $start->month;
         $file = $this->store($path . '/' . $filename, $report);
         if ($send) {
-            $date = $day == '' ? Carbon::yesterday() : Carbon::parse($day);
-            $subject = $date->toDateString() . ' Order Export';
-            $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '每日线上'], $subject, realpath($file));
+            list($object, $subject) = $this->getSubject($day);
+            $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => $object . '线上'], $subject . ' Order Export', realpath($file));
         }
     }
 
