@@ -61,7 +61,7 @@
     "repositories": [
         {
             "type": "composer",
-            "url": "http://dev.gitlab.packages.cn/"
+            "url": "http://composerpackage.vanthink.cn/"
         }
     ]
 }
