@@ -15,7 +15,7 @@
                     </div>
                 </div>
                 <div class="box-body">
-                    @php  $k = ($_group=='toke') ? $key : array_search($key, json_decode($keys, true)) @endphp
+                    @php  $k = ($_group=='token') ? $key : array_search($key, json_decode($keys, true)) @endphp
                     <input type="hidden" value="{{$item}}" id="row{{$k}}">
                     <div class="chart">
                         <canvas id="myChart{{$k}}" width="1000" height="400"></canvas>
@@ -36,6 +36,7 @@
             let set = [];
             let k;
             k = group === 'token' ? this : _k;
+            console.log(k);
             $.each(JSON.parse($('#row' + k).val()), function (index) {
                 set.push({
                     label: this.label,
