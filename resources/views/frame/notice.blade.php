@@ -25,10 +25,10 @@
 
 @section('header_script')
     <script>
-        getNotice();
-        window.setInterval(function () {
-            getNotice();
-        }, 30 * 1000);
+        // getNotice();
+        // window.setInterval(function () {
+        //     getNotice();
+        // }, 30 * 1000);
 
         function getNotice() {
             $.ajax({

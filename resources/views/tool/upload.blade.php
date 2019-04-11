@@ -5,6 +5,13 @@
     <div class="col-sm-6">
         <form id="form" method="POST" class="form-inline" enctype="multipart/form-data">
             <div class="form-group">
+                <label for="env">Env</label>
+                <select name="env" id="env" class="form-control">
+                    <option value="dev">Dev</option>
+                    <option value="online">Online</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="type">File Type</label>
                 <select name="type" id="type" class="form-control">
                     <option value="image">Image</option>
@@ -32,9 +39,11 @@
     <script>
         $(document).ready(function () {
             $("#upload").click(function () {
+                let env = $('#env').val();
                 let type = $('#type').val();
                 let file = document.getElementById("file");
                 let formData = new FormData();
+                formData.append('env', env);
                 formData.append('type', type);
                 formData.append('file', file.files[0]);
                 $.ajax({

@@ -54,8 +54,14 @@ class ToolController extends Controller
 
     protected function ajaxUpload(Request $request)
     {
+        $third_url = [
+            'online' => 'https://msservice.wxzxzj.com',
+            'dev' => 'http://dev.msservice.vanthink.cn'
+        ];
+        $env = $request->get('env', 'dev');
         $type = $request->get('type', 'image');
         $file = $request->file('file');
+        putenv('THIRD_PARTY_HOST=' . $third_url[$env]);
         $info = [];
         if ($type == 'image') $info = $this->aliOss->uploadImage($file);
         return isset($info['src']) ? $info['src'] : $info;
