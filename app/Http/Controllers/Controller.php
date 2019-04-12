@@ -54,9 +54,9 @@ abstract class Controller extends BaseController
         return $this->getRedis('analyze')->del($ids);
     }
 
-    protected function logContent($content)
+    protected function logContent($section, $type, $content)
     {
-        $data = ['section' => '', 'log_type' => 'export', 'account_id' => $this->getUser('id'), 'content' => $content];
+        $data = ['section' => $section, 'log_type' => $type, 'account_id' => $this->getUser('id'), 'content' => $content];
         $this->builder->setModel('log')->create($data);
     }
 
@@ -99,7 +99,7 @@ abstract class Controller extends BaseController
 
     protected function exportExcel($name, $record)
     {
-        $this->logContent($name);
+        $this->logContent('', 'export', $name);
         return $this->export($name, $record);
     }
 

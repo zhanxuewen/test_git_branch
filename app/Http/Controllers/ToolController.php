@@ -64,7 +64,9 @@ class ToolController extends Controller
         putenv('THIRD_PARTY_HOST=' . $third_url[$env]);
         $info = [];
         if ($type == 'image') $info = $this->aliOss->uploadImage($file);
-        return isset($info['src']) ? $info['src'] : $info;
+        $result = isset($info['src']) ? $info['src'] : $info;
+        $this->logContent('', 'upload', $result);
+        return $result;
     }
 
     public function ajaxDownload(Request $request)
