@@ -121,6 +121,12 @@ class SchoolController extends Controller
         return "SELECT nickname, $this->field_phone, school.id AS school_id, school.`name` FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school.id IN (" . $params['school_ids'] . ") AND school_member.account_type_id = 4 AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
     }
 
+    protected function schools_principal($params)
+    {
+        !isset($params['school_ids']) ? die('没有 学校IDs') : null;
+        return "SELECT school.id AS school_id, school.`name`, nickname, $this->field_phone FROM school LEFT JOIN school_member ON school.id = school_member.school_id AND school_member.account_type_id = 6 LEFT JOIN user_account ON user_account.id = school_member.account_id LEFT JOIN `user` ON `user`.id = user_account.user_id WHERE school.id IN (" . $params['school_ids'] . ") AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
+    }
+
     protected function marketer_order_sum($params)
     {
         !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
