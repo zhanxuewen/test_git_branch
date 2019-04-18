@@ -70,76 +70,89 @@ class ExportWordSentence extends Command
         $pdo_type = $this->argument('pdo');
         $pdo = $this->getPdo($pdo_type);
 
+        $save_data = [];
         foreach ($this->filePath as  $file) {
             if (strpos($file, '.gitignore') || strpos($file, 'abc')) {
                 $this->output->progressAdvance();
                 continue;
             }
-            \Log::info($file);
             $contents = $this->import($file);
             $header = array_shift($contents);
             $header = array_filter($header);
-            \Log::info(json_encode($header));
-            if (count($header) != 4) \Log::info($file.'================================');
             $key_tran = array_flip($header);
 
-            $save_data = [];
-            $save_data[] = ['单词', '词性1', '解释1', '最小标签的ID', 'word', 'sentence', 'explain', 'wid'];
-
             foreach ($contents as $content) {
-                if(empty($content[$key_tran['单词']])&& empty($content[$key_tran['词性1']])
-                    && empty($content[$key_tran['解释1']]) && empty($content[$key_tran['最小标签的ID']])){
+                $vocabulary = $content[$key_tran['vocabulary']];
+                $part_of_speech = $content[$key_tran['part_of_speech']];
+                $translation = $content[$key_tran['translation']];
+                $sentence = $content[$key_tran['sentence']];
+                $explain = $content[$key_tran['explain']];
+                $word_id = $content[$key_tran['word_id']];
+                $label_ids = $content[$key_tran['label_ids']];
+
+                if(empty($vocabulary)&& empty($part_of_speech)
+                    && empty($translation) && empty($sentence)
+                    && empty($explain) && empty($word_id) && empty($label_ids)
+                ){
                     continue;
                 }
-                $word = $content[$key_tran['单词']];
-                $sql = 'select `id`, `vocabulary`from `wordbank` WHERE `vocabulary` = "' . $word . '" AND `deleted_at` IS NULL';
-                $vocabulary = $pdo->query($sql)->fetch(\PDO::FETCH_ASSOC);
-                if (!empty($vocabulary)) {
-                    $word_id = $vocabulary['id'];
-                    $sql = 'select `id`, `sentence`,`explain` from `wordbank_sentence` WHERE `wordbank_id` = ' . $word_id
-                        .' AND `deleted_at` IS NULL';
-//                    dd($sql);
-                    $sentence = $pdo->query($sql)->fetch(\PDO::FETCH_ASSOC);
-                    if (empty($sentence)) {
-                        $save_data[] = [
-                            $content[$key_tran['单词']],
-                            $content[$key_tran['词性1']],
-                            $content[$key_tran['解释1']],
-                            $content[$key_tran['最小标签的ID']],
-                            $vocabulary['vocabulary'],
-                            '**********************************************',
-                            '**********************************************',
-                            $word_id,
-                        ];
-                    } else {
-                        $save_data[] = [
-                            $content[$key_tran['单词']],
-                            $content[$key_tran['词性1']],
-                            $content[$key_tran['解释1']],
-                            $content[$key_tran['最小标签的ID']],
-                            $vocabulary['vocabulary'],
-                            $sentence['sentence'],
-                            $sentence['explain'],
-                            $word_id,
-                        ];
-                    }
-                } else {
-                    $save_data[] = [
-                        $content[$key_tran['单词']],
-                        $content[$key_tran['词性1']],
-                        $content[$key_tran['解释1']],
-                        $content[$key_tran['最小标签的ID']],
-                        '**********************************************',
-                        '**********************************************',
-                        '**********************************************',
-                        '**********************************************',
-                    ];
+
+                if(!isset($save_data[$vocabulary])){
+                    $save_data[$vocabulary] = [];
                 }
 
+                if(!isset($save_data[$vocabulary][$part_of_speech])){
+                    $save_data[$vocabulary][$part_of_speech] = [];
+                }
+
+                if(!isset($save_data[$vocabulary][$part_of_speech][$translation])){
+                    $save_data[$vocabulary][$part_of_speech][$translation] = [];
+                }
+
+                if(!isset($save_data[$vocabulary][$part_of_speech][$translation]['sentence'])){
+                    if (is_double($label_ids)) $label_ids = intval($label_ids);
+                    $save_data[$vocabulary][$part_of_speech][$translation] = [
+                        'sentence' => $sentence,
+                        'explain'  => $explain,
+                        'word_id'  => intval($word_id),
+                        'label_ids'=> $label_ids
+                    ];
+                }else{
+                    $old = $save_data[$vocabulary][$part_of_speech][$translation]['label_ids'];
+                    if (is_string($old)) $old_arr = explode(',', $old);
+                    if (is_integer($old)) $old_arr = [intval($old)];
+
+                    if (is_string($label_ids)) $new_arr = explode(',', $label_ids);
+                    if (is_double($label_ids)) $new_arr = [intval($label_ids)];
+
+                    $label_union = array_merge($old_arr, $new_arr);
+                    $label_str = implode(',', array_unique($label_union));
+                    $save_data[$vocabulary][$part_of_speech][$translation]['label_ids'] = $label_str;
+                }
             }
-            // 保存错误信息
-            $file_tmp = explode('.',$file)[0];
-            $this->store($file_tmp, $save_data, '.xlsx');
+
+            $store_data = [];
+            $store_data[0] = ['vocabulary', 'part_of_speech', 'translation', 'sentence', 'explain', 'word_id', 'label_ids'];
+
+            foreach ($save_data as $vocabulary=>$item1){
+                foreach ($item1 as $part_of_speech => $item2){
+                    foreach ($item2 as $translation=> $item3){
+                        $store_data[] = [
+                            $vocabulary,
+                            $part_of_speech,
+                            $translation,
+                            $item3['sentence'],
+                            $item3['explain'],
+                            $item3['word_id'],
+                            $item3['label_ids'],
+                        ];
+                    }
+                }
+            }
+//            dd($store_data);
+            // 保存信息
+            $file_tmp = '最终版本';
+            $this->store($file_tmp, $store_data, '.xlsx');
             $this->output->progressAdvance();
         }
         $this->output->progressFinish();
