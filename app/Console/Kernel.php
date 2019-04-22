@@ -2,14 +2,13 @@
 
 namespace App\Console;
 
-use Carbon\Carbon;
 use App\Foundation\Log;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    use Log;
     /**
      * The Artisan commands provided by your application.
      *
@@ -93,7 +92,8 @@ class Kernel extends ConsoleKernel
 
     protected function logSchedule($log)
     {
-        $this->info('schedule', $log);
+        $logger = new Log();
+        $logger->info('schedule', $log);
         $disk = \Storage::disk('logs');
         if (!$disk->exists('schedule1.log')) {
             $disk->put('schedule1.log', $log);

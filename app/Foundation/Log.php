@@ -5,7 +5,7 @@ namespace App\Foundation;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 
-trait Log
+class Log
 {
     protected $logger;
     protected $log_path;
