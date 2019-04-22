@@ -84,22 +84,11 @@ class Kernel extends ConsoleKernel
             (new Schedules\Order\ExportOfflineList())->handle($day);
             $this->logSchedule('Export Offline Monthly List Done At ' . date('Y-m-d H:i:s'));
         })->monthlyOn(1, '08:40');
-
-        $schedule->call(function (){
-            $this->logSchedule('Test Schedule At '.date('Y-m-d H:i:s'));
-        })->everyMinute();
     }
 
     protected function logSchedule($log)
     {
-        $logger = new Log();
-        $logger->info('schedule', $log);
-        $disk = \Storage::disk('logs');
-        if (!$disk->exists('schedule1.log')) {
-            $disk->put('schedule1.log', $log);
-        } else {
-            $disk->append('schedule1.log', $log);
-        }
+        (new Log())->info('schedule', $log);
     }
 
     /**
