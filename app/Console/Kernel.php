@@ -3,11 +3,13 @@
 namespace App\Console;
 
 use Carbon\Carbon;
+use App\Foundation\Log;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+    use Log;
     /**
      * The Artisan commands provided by your application.
      *
@@ -49,6 +51,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // Monitor Record
         $schedule->call(function () {
             $today = date('Y-m-d');
             $yesterday = Carbon::yesterday();
@@ -60,6 +63,8 @@ class Kernel extends ConsoleKernel
             (new Schedules\Monitor\RecordOrderIncrement())->handle($yesterday);
             $this->logSchedule('Record Order Increment Done At ' . date('Y-m-d H:i:s'));
         })->dailyAt('01:00');
+
+        // Export Order And Offline
         $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
             $this->logSchedule('Export Order Start At ' . date('Y-m-d H:i:s'));
             $schedule->handle();
@@ -70,6 +75,8 @@ class Kernel extends ConsoleKernel
             $schedule->handle();
             $this->logSchedule('Export Offline List Done At ' . date('Y-m-d H:i:s'));
         })->weekly()->mondays()->at('08:20');
+
+        // Export Order And Offline Monthly
         $schedule->call(function () {
             $this->logSchedule('Export Order And Offline Monthly Start At ' . date('Y-m-d H:i:s'));
             $day = ['start' => Carbon::today()->subMonth()->toDateString(), 'end' => Carbon::today()->subDay()->toDateString()];
@@ -78,16 +85,21 @@ class Kernel extends ConsoleKernel
             (new Schedules\Order\ExportOfflineList())->handle($day);
             $this->logSchedule('Export Offline Monthly List Done At ' . date('Y-m-d H:i:s'));
         })->monthlyOn(1, '08:40');
+
+        $schedule->call(function (){
+            $this->logSchedule('Test Schedule At '.date('Y-m-d H:i:s'));
+        })->everyMinute();
     }
 
     protected function logSchedule($log)
     {
-        $disk = \Storage::disk('logs');
-        if (!$disk->exists('schedule.log')) {
-            $disk->put('schedule.log', $log);
-        } else {
-            $disk->append('schedule.log', $log);
-        }
+        $this->info('schedule', $log);
+//        $disk = \Storage::disk('logs');
+//        if (!$disk->exists('schedule.log')) {
+//            $disk->put('schedule.log', $log);
+//        } else {
+//            $disk->append('schedule.log', $log);
+//        }
     }
 
     /**
