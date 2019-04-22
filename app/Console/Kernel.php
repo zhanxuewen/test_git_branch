@@ -94,12 +94,12 @@ class Kernel extends ConsoleKernel
     protected function logSchedule($log)
     {
         $this->info('schedule', $log);
-//        $disk = \Storage::disk('logs');
-//        if (!$disk->exists('schedule.log')) {
-//            $disk->put('schedule.log', $log);
-//        } else {
-//            $disk->append('schedule.log', $log);
-//        }
+        $disk = \Storage::disk('logs');
+        if (!$disk->exists('schedule1.log')) {
+            $disk->put('schedule1.log', $log);
+        } else {
+            $disk->append('schedule1.log', $log);
+        }
     }
 
     /**
