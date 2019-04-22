@@ -41,6 +41,7 @@ class ExportOrderList extends BaseSchedule
             ->join('school', 'school.id', '=', 'order.school_id', 'left')
             ->join('vanclass_student', 'order.student_id', '=', 'vanclass_student.student_id', 'left')
             ->whereNotNull('order.transaction_id')
+            ->where('user_account.id', '<>', 3253)
             ->whereBetween('order.created_at', [$start, $end])
             ->groupBy('order.id')->get();
         foreach ($orders as $order) {
@@ -91,6 +92,7 @@ class ExportOrderList extends BaseSchedule
             ->join('school', 'school.id', '=', 'order.school_id', 'left')
             ->join('vanclass_student', 'order.student_id', '=', 'vanclass_student.student_id', 'left')
             ->whereBetween('order_refund.created_at', [$start, $end])
+            ->where('user_account.id', '<>', 3253)
             ->groupBy('order.id')->get();
         foreach ($refunds as $order) {
             $num = $order->out_refund_no;
