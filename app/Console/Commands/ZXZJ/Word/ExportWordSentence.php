@@ -62,7 +62,7 @@ class ExportWordSentence extends Command
      */
     public function handle()
     {
-        $path = '/home/vagrant/code/sql_analyze/storage/imports';
+        $path = storage_path('imports');
         $this->traverse($path);
 
         $this->output->progressStart(count($this->filePath));
