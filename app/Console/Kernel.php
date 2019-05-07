@@ -35,6 +35,7 @@ class Kernel extends ConsoleKernel
         Commands\Rewrite\MigrateRollback::class,
 
         Commands\Database\GenerateGrantSql::class,
+        Commands\Database\GenerateUpdatePassword::class,
 
 
         // 在线助教
