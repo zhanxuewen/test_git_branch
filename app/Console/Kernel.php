@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\ZXZJ\Word\ExportWord;
+use App\Console\Commands\ZXZJ\Word\MergeWordLabel;
 use App\Foundation\Log;
 use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
@@ -41,6 +43,8 @@ class Kernel extends ConsoleKernel
         // 在线助教
         Commands\ZXZJ\Word\ImportWordSentence::class,
         Commands\ZXZJ\Word\ExportWordSentence::class,
+        Commands\ZXZJ\Word\MergeWordLabel::class,
+        Commands\ZXZJ\Word\ExportWord::class,
     ];
 
     /**
