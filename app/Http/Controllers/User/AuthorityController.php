@@ -42,7 +42,7 @@ class AuthorityController extends Controller
     {
         $role = $this->builder->setModel('role')->find($role_id);
         $ids = $this->builder->setModel('rolePower')->where('role_id', $role_id)->pluck('power_id')->toArray();
-        $keys = $this->builder->setModel('label')->whereHasR('labelSelf', 'code', 'route_group')->get();
+        $keys = $this->builder->setModel('label')->whereHasR('parent', 'code', 'route_group')->get();
         $groups = $this->builder->setModel('power')->get()->groupBy('group_label_id');
         return view('user.editRolePower', compact('role', 'ids', 'keys', 'groups'));
     }
@@ -78,7 +78,7 @@ class AuthorityController extends Controller
         $role_count = $this->builder->setModel('role')->count();
         $rolePowers = $this->builder->setModel('rolePower')->selectRaw('power_id, count(DISTINCT role_id) AS coo')->groupBy('power_id')->get();
         $rolePowers = collect($rolePowers)->keyBy('power_id');
-        $labels = $this->builder->setModel('label')->whereHasR('labelSelf', 'code', 'route_group')->get();
+        $labels = $this->builder->setModel('label')->whereHasR('parent', 'code', 'route_group')->get();
         $groups = $this->builder->setModel('power')->get()->groupBy('group_label_id');
         return view('user.listPower', compact('powers', 'rolePowers', 'role_count', 'labels', 'groups'));
     }
@@ -86,7 +86,7 @@ class AuthorityController extends Controller
     public function editPower($power_id)
     {
         $power = $this->builder->setModel('power')->find($power_id);
-        $groups = $this->builder->setModel('label')->whereHasR('labelSelf', 'code', 'route_group')->get();
+        $groups = $this->builder->setModel('label')->whereHasR('parent', 'code', 'route_group')->get();
         return view('user.editPower', compact('power', 'groups'));
     }
 

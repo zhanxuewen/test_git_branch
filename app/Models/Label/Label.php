@@ -12,14 +12,14 @@ class Label extends BaseModel
 
     protected $table = 'label';
 
-    protected $fillable = ['name', 'code', 'is_active', 'label_type_id', 'parent_id', 'level', 'power'];
+    protected $fillable = ['name', 'code', 'label_type_id', 'parent_id', 'level', 'power', 'is_available'];
 
     public function type()
     {
         return $this->belongsTo('App\Models\Label\Type', 'label_type_id', 'id');
     }
 
-    public function labelSelf()
+    public function parent()
     {
         return $this->belongsTo('App\Models\Label\Label', 'parent_id', 'id');
     }
