@@ -29,7 +29,7 @@ class Account extends BaseModel implements AuthenticateAbleContract,
     
     public function role()
     {
-        return $this->belongsToMany('App\Models\User\Role', 'user_account_role', 'account_id', 'role_id');
+        return $this->belongsToMany('Luminee\Watchdog\Model\Role', 'watchdog_account_role', 'account_id', 'role_id');
     }
     
     public function setUsernameAttribute($value)

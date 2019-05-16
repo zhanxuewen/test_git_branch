@@ -19,7 +19,8 @@
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                     <img src="{!! empty($auth_user->avatar) ? asset('asset/image/default.png') : $auth_user->avatar !!}"
                          class="user-image bg-gray" alt="User Image">
-                    <span class="hidden-xs">[{{ $auth_user->role[0]->label }}] <b>{{ $auth_user->username }}</b></span>
+                    <span class="hidden-xs">[{!! isset($auth_user->role[0]->label) ? $auth_user->role[0]->labe : '' !!}]
+                        <b>{{ $auth_user->username }}</b></span>
                 </a>
                 <ul class="dropdown-menu">
                     <li class="user-footer">
