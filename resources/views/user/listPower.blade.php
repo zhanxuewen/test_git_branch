@@ -24,7 +24,7 @@
         <div class="box-group">
             <ul class="list-unstyled">
                 @foreach($labels as $label)
-                    <li><b>{{$label->name}}</b>
+                    <li><b>{{$label->label}}</b>
                         <ul class="list-unstyled list-inline">
                             @foreach($groups[$label->id] as $item)
                                 <li class="bg-gray">{{$item->label}}</li>
@@ -49,7 +49,7 @@
             @foreach($powers as $power)
                 <tr>
 
-                    <td>{{isset($power->groupLabel) ? $power->groupLabel->name : ''}}</td>
+                    <td>{{isset($power->group) ? $power->group->label : ''}}</td>
                     <td>{{$power->label}}</td>
                     <td>{{$power->route}}</td>
                     @php $coo = isset($rolePowers[$power->id])? $rolePowers[$power->id]->coo : 0 @endphp

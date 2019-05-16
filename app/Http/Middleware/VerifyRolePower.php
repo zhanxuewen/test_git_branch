@@ -5,8 +5,9 @@ namespace App\Http\Middleware;
 use App\Foundation\PdoBuilder;
 use Auth;
 use Closure;
+use Luminee\Watchdog\Middleware\GateKeeper;
 
-class VerifyRolePower extends IgnoreRoute
+class VerifyRolePower extends GateKeeper
 {
     use PdoBuilder;
 
@@ -19,21 +20,23 @@ class VerifyRolePower extends IgnoreRoute
      */
     public function handle($request, Closure $next)
     {
-        if ($this->if_ignore($request)) {
-            return $next($request);
-        }
-        $router = \Route::getRoutes()->match($request);
-        $route = implode('|', $router->methods()) . '@' . $router->uri();
-        $powers = Auth::user()->role[0]->power;
         $id = Auth::user()->id;
-        $redis = $this->getRedis('analyze');
-        if (!$redis->get($id . '_routes')) {
-            $redis->setex($id . '_routes', 60 * 60 * 24, json_encode($powers->pluck('route')->toArray()));
-        }
-        if ($powers->contains('route', $route)) {
+        if ($this->check($request, $id)) {
+            $redis = $this->getRedis('analyze');
+            if (!$redis->get($id . '_routes')) {
+                $redis->setex($id . '_routes', 60 * 60 * 24, json_encode($this->getPowersByAccountId($id)));
+            }
             return $next($request);
         } else {
             return redirect()->back()->with('message', 'Permission Denied!');
         }
+    }
+
+    public function getPowersByAccountId($account_id)
+    {
+        return \DB::table('watchdog_role_power')
+            ->join('watchdog_power', 'watchdog_power.id', '=', 'watchdog_role_power.power_id')
+            ->join('watchdog_account_role', 'watchdog_account_role.role_id', '=', 'watchdog_role_power.role_id')
+            ->distinct()->where('watchdog_account_role.account_id', $account_id)->pluck('route')->toArray();
     }
 }

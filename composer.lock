@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c9e7b3dd211d04bf34e81970ea979692",
+    "content-hash": "83823920105933335528d89e0a46a5c4",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -699,9 +699,9 @@
             },
             "dist": {
                 "type": "tar",
-                "url": "http://dev.gitlab.packages.cn/dist/luminee/prosthesis/luminee-prosthesis-1.0.1-eb2ef4.tar",
+                "url": "http://composerpackage.vanthink.cn/dist/luminee/prosthesis/luminee-prosthesis-1.0.1-eb2ef4.tar",
                 "reference": "dc680fd65374057be00ea0eebd3c76e0f322e85d",
-                "shasum": "62442cf083007528711dd0ddfe54a3a8cda82711"
+                "shasum": "5b76ac757199151bb54c9e8b9fd4df6a41d09509"
             },
             "require": {
                 "php": ">=5.5"
@@ -727,6 +727,49 @@
                 "msservice"
             ],
             "time": "2019-04-01T05:32:48+00:00"
+        },
+        {
+            "name": "luminee/watchdog",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Luminee/watchdog.git",
+                "reference": "0fe0d19aad764e8c08cbe4d251f880be79d1598d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Luminee/watchdog/zipball/0fe0d19aad764e8c08cbe4d251f880be79d1598d",
+                "reference": "0fe0d19aad764e8c08cbe4d251f880be79d1598d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Luminee\\Watchdog\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "LuminEe",
+                    "email": "luminee@qq.com"
+                }
+            ],
+            "description": "Rewrite Laravel AuthServiceProvider",
+            "keywords": [
+                "auth",
+                "gate",
+                "laravel",
+                "luminee",
+                "watchdog"
+            ],
+            "time": "2019-04-22T07:42:20+00:00"
         },
         {
             "name": "maatwebsite/excel",

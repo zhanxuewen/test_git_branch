@@ -8,11 +8,13 @@ return [
 
     'notice' => App\Models\Notice\Notice::class,
 
-    'role' => App\Models\User\Role::class,
-    'power' => App\Models\User\Power::class,
     'account' => App\Models\User\Account::class,
-    'rolePower' => App\Models\User\RolePower::class,
-    'accountRole' => App\Models\User\AccountRole::class,
+
+    'role' => Luminee\Watchdog\Model\Role::class,
+    'power' => Luminee\Watchdog\Model\Power::class,
+    'group' => Luminee\Watchdog\Model\Group::class,
+    'rolePower' => Luminee\Watchdog\Model\RolePower::class,
+    'accountRole' => Luminee\Watchdog\Model\AccountRole::class,
 
     'config' => App\Models\System\Config::class,
 

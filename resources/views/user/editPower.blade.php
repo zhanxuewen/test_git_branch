@@ -7,10 +7,10 @@
             {!! csrf_field() !!}
             <div class="form-group">
                 <label for="group">Group</label>
-                <select name="group_label_id" id="group" class="form-control">
+                <select name="group_id" id="group" class="form-control">
                     @foreach($groups as $group)
                         <option value="{{$group->id}}"
-                                @if($group->id==$power->group_label_id) selected @endif>{{$group->name}}</option>
+                                @if($group->id==$power->group_id) selected @endif>{{$group->label}}</option>
                     @endforeach
                 </select>
             </div>
@@ -19,8 +19,8 @@
                 <input type="text" name="label" class="form-control" id="label" value="{{$power->label}}">
             </div>
             <div class="form-group">
-                <label for="code">Code</label>
-                <input type="text" name="code" class="form-control" id="code" value="{{$power->code}}">
+                <label for="code">Action</label>
+                <input type="text" name="action" class="form-control" id="code" value="{{$power->action}}">
             </div>
             <div class="form-group">
                 <label for="route">Route</label>

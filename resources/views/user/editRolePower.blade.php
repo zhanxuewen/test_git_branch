@@ -7,7 +7,7 @@
         {!! csrf_field() !!}
         <div class="col-sm-10">
             @foreach($keys as $label)
-                <h4>{{$label->name}}</h4>
+                <h4>{{$label->label}}</h4>
                 <ul class="list-unstyled list-inline">
                     @foreach($groups[$label->id] as $item)
                         <li class="margin-r-5">
@@ -15,7 +15,7 @@
                                 <input type="checkbox" name="power_id[]" id="power_{{$item->id}}"
                                        value="{{$item->id}}" @if(in_array($item->id,$ids)) checked @endif>
                                 <label @if(in_array($item->id,$ids)) class="bg-green" @endif for="power_{{$item->id}}"
-                                       title="{{$item->code}}">
+                                       title="{{$item->action}}">
                                     {{$item->label}}</label>
                             </div>
                         </li>
