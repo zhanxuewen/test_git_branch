@@ -20,7 +20,7 @@ class VerifyRolePower extends GateKeeper
      */
     public function handle($request, Closure $next)
     {
-        $id = Auth::user()->id;
+        $id = Auth::check() ? Auth::user()->id : 0;
         if ($this->check($request, $id)) {
             $redis = $this->getRedis('analyze');
             if (!$redis->get($id . '_routes')) {
