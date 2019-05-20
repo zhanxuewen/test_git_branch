@@ -39,6 +39,8 @@ class Kernel extends ConsoleKernel
         Commands\Database\GenerateGrantSql::class,
         Commands\Database\GenerateUpdatePassword::class,
 
+        Commands\Luminee\Testbank\SyncTestbankToLearning::class,
+
 
         // 在线助教
         Commands\ZXZJ\Word\ImportWordSentence::class,
