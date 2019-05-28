@@ -11,7 +11,7 @@ class MigrationController extends Controller
     {
         $table = $request->filled('table') ? $this->buildTable($request->get('table')) : [];
         $migrations = \DB::table('database_migrations')->selectRaw('module, table_name')
-            ->where('migrate_type', 'create')->orderBy('module')->orderBy('table_name')->get()->groupBy('module')->toJson();
+            ->where('migrate_type', 'create')->orderByRaw('module, table_name')->get()->groupBy('module')->toJson();
         return view('database.migration', compact('migrations', 'table'));
     }
 
@@ -53,12 +53,10 @@ class MigrationController extends Controller
             $sort['updated_at'] = $sort->max() + 1;
         }
         $index_s = [];
-        $keys = [];
         if ($first->index != 'null') {
             foreach (json_decode($first->index) as $type => $index) {
                 foreach ($index as $field) {
                     $index_s[$first->migration_name]['create'][] = ['field' => $field, 'type' => $type];
-                    $keys[] = $field;
                 }
             }
         }
@@ -81,7 +79,6 @@ class MigrationController extends Controller
                 foreach (json_decode($mig->index) as $type => $index) {
                     foreach ($index as $field) {
                         $index_s[$mig->migration_name]['update'][] = ['field' => $field, 'type' => $type];
-                        $keys[] = $field;
                     }
                 }
             }
@@ -90,7 +87,7 @@ class MigrationController extends Controller
         $data['sort'] = $sort;
         $data['columns'] = $columns;
         $data['index'] = $index_s;
-        $data['keys'] = $keys;
+        dd($data);
         return $data;
     }
 }

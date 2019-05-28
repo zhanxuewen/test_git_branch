@@ -33,7 +33,7 @@
                 @foreach($table['sort'] as $name => $k)
                     @if(!array_key_exists('update', $table['columns'][$name]))
                         @foreach($table['columns'][$name] as $column)
-                            @component('database.migration.table_create', ['column' => $column,'keys' => $table['keys']])
+                            @component('database.migration.table_create', ['column' => $column])
                             @endcomponent
                         @endforeach
                     @else
@@ -42,6 +42,7 @@
                     @endif
                 @endforeach
             </table>
+            <h3>Index</h3>
             <ul class="list-unstyled">
                 @foreach($table['index'] as $mig => $group)
                     <li>{{$mig}}</li>

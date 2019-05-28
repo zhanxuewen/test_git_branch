@@ -15,6 +15,7 @@ class CreateDatabaseMigrationsTable extends Migration
     {
         Schema::create('database_migrations', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('project');
             $table->string('module');
             $table->string('migration_name');
             $table->string('table_name');

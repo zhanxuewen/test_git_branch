@@ -21,9 +21,9 @@
         @endforeach
     </td>
     <td>
-        <i class="fa fa-lg @if($create->nullable == 1) fa-toggle-on @else fa-toggle-off @endif"></i>
+        @if($create->nullable == 1) <b>Null</b> @else - @endif
         @foreach($update as $item)
-            | <i class="fa fa-lg @if($create->nullable == 1) fa-toggle-on @else fa-toggle-off @endif"></i>
+            | @if($create->nullable == 1) <b>Null</b> @else - @endif
         @endforeach
     </td>
     <td>{!! \App\Helper\BladeHelper::equalOrBold($create->comment, '-') !!}
