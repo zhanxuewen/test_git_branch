@@ -87,7 +87,6 @@ class MigrationController extends Controller
         $data['sort'] = $sort;
         $data['columns'] = $columns;
         $data['index'] = $index_s;
-        dd($data);
         return $data;
     }
 }
