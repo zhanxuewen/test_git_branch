@@ -3,6 +3,13 @@
 
 @section('section')
     <div class="col-sm-4">
+        <div class="btn-group" role="group">
+            @foreach(['core','learning'] as $project)
+                <a class="btn btn-default @if($_project == $project) btn-primary active @endif"
+                   href="{{URL::current().'?project='.$project}}">{{$project}}</a>
+            @endforeach
+        </div>
+        <br><br>
         <div id="the-tree"></div>
 
         <hr>
@@ -97,7 +104,7 @@
                 }
             } else {
                 the_tree.treeview('expandNode', [data.parentId, {silent: true}]);
-                window.location.href = "{!! URL::current().'?table=' !!}" + data.text;
+                window.location.href = "{!! URL::current().'?project='.$_project.'&table=' !!}" + data.text;
             }
         }
     </script>

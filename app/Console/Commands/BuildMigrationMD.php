@@ -55,7 +55,7 @@ class BuildMigrationMD extends Command
         $project_dir = rtrim($this->dirs[$this->project], '/');
         $migration_dir = $project_dir . '/database/migrations';
         foreach (scandir($migration_dir) as $_dir) {
-            if (in_array($_dir, ['.', '..', '.DS_Store', 'marketing'])) continue;
+            if (in_array($_dir, ['.', '..', '.DS_Store'])) continue;
             $dir = $migration_dir . '/' . $_dir;
             if (!is_dir($dir)) {
                 $this->buildMigration($dir, '');
@@ -65,7 +65,6 @@ class BuildMigrationMD extends Command
                 if (in_array($migration, ['.', '..', '.DS_Store'])) continue;
                 $this->buildMigration($dir . '/' . $migration, $_dir);
             }
-//            if ($dir == '/Users/luminee/PhpstormProjects/rpc_server/database/migrations/user') dd($dir);
         }
     }
 
@@ -181,6 +180,7 @@ class BuildMigrationMD extends Command
         $default = $after = $comment = $extra = '-';
         foreach ($items as $item) {
             if ($item == '$table') continue;
+            if (strstr($item, 'defalut')) $item = str_replace('defalut', 'default', $item);
             if (strstr($item, 'default(')) {
                 $default = trim(explode('default', $item)[1], ' ()\';');
                 continue;
@@ -195,6 +195,10 @@ class BuildMigrationMD extends Command
             }
             if (strstr($item, 'nullable()')) {
                 $nullable = 1;
+                continue;
+            }
+            if (strstr($item, 'useCurrent()')) {
+                $default = 'CURRENT_TIMESTAMP';
                 continue;
             }
             if (strstr($item, 'unique()')) {
@@ -219,7 +223,7 @@ class BuildMigrationMD extends Command
             if (strstr($name, ',')) {
                 $item = explode(',', $name);
                 $name = array_shift($item);
-                $extra = trim(implode(',', $item), ' \')');
+                $extra = trim(implode(',', $item), ' ;\')');
             }
             $name = trim($name, ' \');');
         }

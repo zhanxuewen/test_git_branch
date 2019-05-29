@@ -9,15 +9,17 @@ class MigrationController extends Controller
 {
     public function history(Request $request)
     {
-        $table = $request->filled('table') ? $this->buildTable($request->get('table')) : [];
-        $migrations = \DB::table('database_migrations')->selectRaw('module, table_name')
+        $_project = $request->get('project', 'core');
+        $table = $request->filled('table') ? $this->buildTable($request->get('table'), $_project) : [];
+        $migrations = \DB::table('database_migrations')->selectRaw('module, table_name')->where('project', $_project)
             ->where('migrate_type', 'create')->orderByRaw('module, table_name')->get()->groupBy('module')->toJson();
-        return view('database.migration', compact('migrations', 'table'));
+        return view('database.migration', compact('migrations', 'table', '_project'));
     }
 
-    protected function buildTable($table)
+    protected function buildTable($table, $project)
     {
-        $first = \DB::table('database_migrations')->where('table_name', $table)->where('migrate_type', 'create')->first();
+        $first = \DB::table('database_migrations')->where('project', $project)->where('table_name', $table)
+            ->where('migrate_type', 'create')->first();
         if (empty($first)) return [];
         $data = [
             'module' => $first->module,
@@ -60,7 +62,8 @@ class MigrationController extends Controller
                 }
             }
         }
-        $mig_s = \DB::table('database_migrations')->where('table_name', $table)->where('migrate_type', '<>', 'create')->get();
+        $mig_s = \DB::table('database_migrations')->where('project', $project)->where('table_name', $table)
+            ->where('migrate_type', '<>', 'create')->get();
         foreach ($mig_s as $mig) {
             foreach (json_decode($mig->columns) as $column) {
                 $column->mig = $mig->migration_name;
