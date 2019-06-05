@@ -3,9 +3,16 @@
 
 @section('section')
     <div class="col-sm-12">
+        @foreach($projects as $project)
+            <a class="btn btn-default @if($project == $_project) btn-primary active @endif"
+               href="{!! url('database/diff').'?project='.$project.'&type='.$_type !!}">{{ucfirst($project)}}</a>
+        @endforeach
+    </div>
+    <br><br>
+    <div class="col-sm-12">
         @foreach($types as $type)
             <a class="btn btn-default @if($type == $_type) btn-primary active @endif"
-               href="{!! url('database/diff').'?type='.$type !!}">Diff {{ucfirst($type)}}</a>
+               href="{!! url('database/diff').'?project='.$_project.'&type='.$type !!}">Diff {{ucfirst($type)}}</a>
         @endforeach
     </div>
     <div class="col-sm-6">

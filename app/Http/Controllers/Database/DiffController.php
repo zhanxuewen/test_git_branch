@@ -9,18 +9,32 @@ class DiffController extends Controller
 {
     public function diff(Request $request)
     {
+        $_project = $request->get('project', 'core');
         $_type = $request->get('type', 'migrations');
-        $conf = ['dev' => 'b_vanthink_core',
-            'test' => 'b_vanthink_online',
-            'online' => 'b_vanthink_online'];
+        $projects = [
+            'core' => [
+                'dev' => 'b_vanthink_core',
+                'test' => 'b_vanthink_online',
+                'online' => 'b_vanthink_online'
+            ],
+            'learning' => [
+                'dev_learning' => 'learning',
+                'test_learning' => 'learning',
+                'online_learning' => 'learning',
+            ]
+        ];
+        $conf = $projects[$_project];
         $data = [];
         foreach ($conf as $env => $db) {
             if (is_null($pdo = $this->getPdo($env))) continue;
             $sql = "list_" . $_type;
+            $env = str_replace('_learning', '', $env);
             $data[$env] = $this->resultToArray($pdo->query($this->$sql($db)));
         }
         $data['_type'] = $_type;
+        $data['_project'] = $_project;
         $data['types'] = ['migrations', 'tables', 'seeders'];
+        $data['projects'] = ['core', 'learning'];
         return view('database.diff', $data);
     }
 
