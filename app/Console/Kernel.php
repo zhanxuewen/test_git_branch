@@ -18,7 +18,6 @@ class Kernel extends ConsoleKernel
      */
     protected $commands = [
         Commands\Capture::class,
-        Commands\CaptureTcpServer::class,
         Commands\BuildDbWiki::class,
         Commands\BuildMigrationMD::class,
 
