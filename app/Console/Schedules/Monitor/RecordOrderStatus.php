@@ -2,10 +2,10 @@
 
 namespace App\Console\Schedules\Monitor;
 
-use Carbon\Carbon;
 use App\Console\Schedules\BaseSchedule;
+use Carbon\Carbon;
 
-class RecordOrderIncrement extends BaseSchedule
+class RecordOrderStatus extends BaseSchedule
 {
     protected $start;
 
@@ -19,8 +19,8 @@ class RecordOrderIncrement extends BaseSchedule
      */
     public function handle(Carbon $day)
     {
-        if (\DB::table('monitor_order_increment')->where('created_date', $day)->count() > 0) {
-            echo 'M_O_I ' . $day . ' Already Done!';
+        if (\DB::table('monitor_order_status')->where('created_date', $day)->count() > 0) {
+            echo 'M_O_S ' . $day . ' Already Done!';
             return;
         }
         $date = $day->toDateString();

@@ -54,7 +54,7 @@ class SyncTestbankToLearning extends Command
         $this->learn_pdo = $this->getPdo($connections[$conn]['learning']);
         if ($account_id == 0) {
             $testbank_ids = [];
-            $bill_ids = [];
+            $bill_ids = [52825];
             DB::setPdo($this->core_pdo)->table('testbank')->whereIn('id', $testbank_ids)
                 ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($testbank_s) {
                     $this->handleTestbank($testbank_s);

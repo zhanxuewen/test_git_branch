@@ -60,7 +60,7 @@ class StudentController extends Controller
     protected function student_fluency($params)
     {
         !isset($params['student_id']) ? die('没有 学生ID') : null;
-        return "SELECT vocabulary, fluency_level, last_finish_at FROM word_student_fluency INNER JOIN wordbank ON wordbank.id = word_student_fluency.wordbank_id WHERE student_id = " . $params['student_id'] . " AND word_student_fluency.fluency_level > 0 ORDER BY	last_finish_at DESC";
+        return "SELECT vocabulary, fluency_level, last_finish_at FROM word_student_fluency INNER JOIN wordbank ON wordbank.id = word_student_fluency.wordbank_id WHERE student_id = " . $params['student_id'] . " AND word_student_fluency.fluency_level > 0 ORDER BY	 last_finish_at DESC";
     }
 
     protected function fluency_record($params)
