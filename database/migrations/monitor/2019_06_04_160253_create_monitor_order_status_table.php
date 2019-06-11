@@ -21,13 +21,14 @@ class CreateMonitorOrderStatusTable extends Migration
             $table->integer('school_id')->nullable();
             $table->boolean('is_group')->default(0);
             $table->integer('commodity_id')->nullable();
-            $table->integer('days')->nullable();
+            $table->string('commodity_type');
+            $table->integer('days');
             $table->decimal('pay_fee', 8, 2);
             $table->boolean('is_refunded');
-            $table->decimal('refund_fee', 8, 2);
+            $table->decimal('refund_fee', 8, 2)->nullable();
             $table->decimal('remained_fee', 8, 2)->nullable();
             $table->date('finished_date');
-            $table->date('refunded_date');
+            $table->date('refunded_date')->nullable();
             $table->softDeletes();
 
             $table->index('origin_id');

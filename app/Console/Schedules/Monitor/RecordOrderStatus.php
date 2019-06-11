@@ -7,9 +7,18 @@ use Carbon\Carbon;
 
 class RecordOrderStatus extends BaseSchedule
 {
-    protected $start;
+    protected $local;
+    protected $online;
 
-    protected $end;
+    protected $date;
+    protected $between = [];
+
+    protected $comm = [];
+    protected $_comm = [];
+
+    protected $create = [];
+    protected $update = [];
+    protected $ids = [];
 
     /**
      * Execute the console command.
@@ -19,46 +28,216 @@ class RecordOrderStatus extends BaseSchedule
      */
     public function handle(Carbon $day)
     {
-        if (\DB::table('monitor_order_status')->where('created_date', $day)->count() > 0) {
+        if (\DB::table('monitor_order_status')->where('finished_date', $day)->count() > 0) {
             echo 'M_O_S ' . $day . ' Already Done!';
             return;
         }
-        $date = $day->toDateString();
-        $this->start = $day->startOfDay()->toDateTimeString();
-        $this->end = $day->endOfDay()->toDateTimeString();
-        $local_pdo = \DB::getPdo();
-        $pdo = \DB::setPdo($this->getPdo('online'));
-        $types = ['Single Success' => "IN ('single_success', 'success')",
-            'Group Success' => "= 'group_success'",
-            'Order Refund' => "LIKE '%refund%' AND finished_at IS NOT NULL",
-            'Order Success' => "LIKE '%success'",
-            'Offline Success' => "= 'success'",
-            'Offline Refund' => "= 'refund'"];
-        $create = [];
-        foreach ($types as $type => $where) {
-            $table = strstr($type, 'Offline') ? '`order_offline`' : '`order`';
-            $sql = $this->buildSql($table, $where);
-            $sum = $pdo->select($sql)[0]->sum;
-            $create[$type] = [
-                'type' => $type,
-                'count' => is_null($sum) ? 0 : $sum,
-                'created_date' => $date
-            ];
+        $this->initDate($day);
+        $this->initPdo();
+        \DB::setPdo($this->online);
+        $this->getCommodity();
+        $this->handleInsert();
+        $this->handleRefund();
+        \DB::setPdo($this->local);
+        $this->insert();
+        $this->update();
+    }
+
+    public function refundOnly(Carbon $day)
+    {
+        $this->initDate($day);
+        $this->initPdo();
+        \DB::setPdo($this->online);
+        $this->getCommodity();
+        $this->handleRefund();
+        \DB::setPdo($this->local);
+        $this->update();
+    }
+
+    protected function initDate(Carbon $day)
+    {
+        $this->date = $day->toDateString();
+        $this->between[] = $day->startOfDay()->toDateTimeString();
+        $this->between[] = $day->endOfDay()->toDateTimeString();
+    }
+
+    protected function initPdo()
+    {
+        $this->local = \DB::getPdo();
+        $this->online = $this->getPdo('online');
+    }
+
+    protected function getCommodity()
+    {
+        $items = \DB::table('payment_commodity')->selectRaw('id, paid_type, days')
+            ->whereNull('deleted_at')->get();
+        foreach ($items as $item) {
+            $this->comm[$item->id] = [$item->days, $item->paid_type];
+            $this->_comm[$item->paid_type][$item->days] = $item->id;
         }
-        $all = $this->getAllSum($create);
-        $create['All'] = ['type' => 'All', 'count' => $all, 'created_date' => $date];
-        \DB::setPdo($local_pdo)->table('monitor_order_increment')->insert($create);
     }
 
-    protected function buildSql($table, $where)
+    protected function handleInsert()
     {
-        return "SELECT SUM(pay_fee) as sum FROM $table WHERE pay_status $where AND created_at BETWEEN '$this->start' AND '$this->end'";
+        $orders = $this->getOrder();
+        foreach ($orders as $order) {
+            $this->create[] = $this->buildOrderCreate($order);
+        }
+        $offline_s = $this->getOffline();
+        foreach ($offline_s as $offline) {
+            $this->create[] = $this->buildOfflineCreate($offline);
+        }
     }
 
-    protected function getAllSum($array)
+    protected function getOrder()
     {
-        $sum = isset($array['Order Success']) ? $array['Order Success']['count'] : 0;
-        $sum += isset($array['Offline Success']) ? $array['Offline Success']['count'] : 0;
-        return $sum;
+        $raw = 'id, student_id, school_id, is_group_order, commodity_id, pay_fee';
+        return \DB::table('order')->whereBetween('finished_at', $this->between)->selectRaw($raw)->get();
     }
+
+    protected function getOffline()
+    {
+        $raw = 'id, student_id, school_id, commodity_type, days, date_type, pay_fee';
+        return \DB::table('order_offline')->whereBetween('finished_at', $this->between)->selectRaw($raw)->get();
+    }
+
+    protected function buildOrderCreate($order)
+    {
+        return [
+            'type' => 'order',
+            'origin_id' => $order->id,
+            'student_id' => $order->student_id,
+            'school_id' => $order->school_id,
+            'is_group' => $order->is_group_order,
+            'commodity_id' => $order->commodity_id,
+            'commodity_type' => $this->comm[$order->commodity_id][1],
+            'days' => $this->comm[$order->commodity_id][0],
+            'pay_fee' => $order->pay_fee,
+            'is_refunded' => 0,
+            'finished_date' => $this->date
+        ];
+    }
+
+    protected function buildOfflineCreate($order)
+    {
+        $type = $order->commodity_type;
+        $id = $order->date_type == 'normal' ? $this->_comm[$type][$order->days] : null;
+        return [
+            'type' => 'offline',
+            'origin_id' => $order->id,
+            'student_id' => $order->student_id,
+            'school_id' => $order->school_id,
+            'is_group' => 0,
+            'commodity_id' => $id,
+            'commodity_type' => $type,
+            'days' => $order->days,
+            'pay_fee' => $order->pay_fee,
+            'is_refunded' => 0,
+            'finished_date' => $this->date
+        ];
+    }
+
+    protected function handleRefund()
+    {
+        $orders = $this->getOrderRefund();
+        foreach ($orders as $order) {
+            $this->ids['order'][] = $order->id;
+            $this->buildOrderUpdate($order);
+        }
+        $offline_s = $this->getOfflineRefund();
+        foreach ($offline_s as $offline) {
+            $this->ids['offline'][] = $offline->id;
+            $this->buildOfflineUpdate($offline);
+        }
+    }
+
+    protected function getOrderRefund()
+    {
+        $raw = 'order.id, pay_fee, refund_fee';
+        return \DB::table('order')->join('order_refund', 'order_refund.out_trade_no', '=', 'order.out_trade_no')
+            ->whereBetween('refunded_at', $this->between)->whereNotNull('finished_at')->selectRaw($raw)->get();
+    }
+
+    protected function getOfflineRefund()
+    {
+        $raw = 'order_offline.id, pay_fee, refund_fee';
+        return \DB::table('order_offline')->join('order_offline_refund', 'order_offline_refund.offline_id', '=', 'order_offline.id')
+            ->whereBetween('refunded_at', $this->between)->whereNotNull('finished_at')->selectRaw($raw)->get();
+    }
+
+    protected function buildOrderUpdate($order)
+    {
+        $fee = $order->pay_fee - $order->refund_fee;
+        if ($fee > 0) {
+            $this->update['part']['order'][] = [
+                'id' => $order->id,
+                'refund_fee' => $order->refund_fee,
+                'remained_fee' => $order->pay_fee - $order->refund_fee,
+            ];
+        } else {
+            $this->update['all']['order'][] = $order->id;
+        }
+    }
+
+    protected function buildOfflineUpdate($order)
+    {
+        $fee = $order->pay_fee - $order->refund_fee;
+        if ($fee > 0) {
+            $this->update['part']['offline'][] = [
+                'id' => $order->id,
+                'refund_fee' => $order->refund_fee,
+                'remained_fee' => $order->pay_fee - $order->refund_fee,
+            ];
+        } else {
+            $this->update['all']['offline'][] = $order->id;
+        }
+    }
+
+    protected function insert()
+    {
+        \DB::table('monitor_order_status')->insert($this->create);
+    }
+
+    protected function update()
+    {
+        $this->updateIds();
+        $this->updateAll();
+        $this->updatePart();
+    }
+
+    protected function updateIds()
+    {
+        $update = ['is_refunded' => 1, 'refunded_date' => $this->date];
+        foreach ($this->ids as $type => $ids) {
+            \DB::table('monitor_order_status')->where('type', $type)->whereIn('origin_id', $ids)->update($update);
+        }
+    }
+
+    protected function updateAll()
+    {
+        foreach ($this->update['all'] as $type => $ids) {
+            $where = "type = $type AND origin_id IN ($ids)";
+            \DB::select("UPDATE monitor_order_status SET refund_fee = pay_fee, remained_fee = 0 WHERE $where");
+        }
+    }
+
+    protected function updatePart()
+    {
+        foreach ($this->update['part'] as $type => $items) {
+            $refund = $remain = $ids = [];
+            foreach ($items as $item) {
+                $ids[] = $id = $item['id'];
+                $refund[] = "WHEN $id THEN " . $item['refund_fee'];
+                $remain[] = "WHEN $id THEN " . $item['remained_fee'];
+            }
+            $ids = implode(',', $ids);
+            $refund = implode(' ', $refund);
+            $remain = implode(' ', $remain);
+            $where = "type = $type AND origin_id IN ($ids)";
+            $set = "refund_fee = (CASE origin_id $refund END), remained_fee = (CASE origin_id $remain END)";
+            \DB::select("UPDATE monitor_order_status SET $set WHERE $where");
+        }
+    }
+
+
 }

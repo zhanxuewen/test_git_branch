@@ -62,6 +62,8 @@
                     <select class="form-control" name="query" id="query">
                         <option value="school_order">学校下订单</option>
                         <option value="school_offline">学校代交</option>
+                        <option value="multi_school_order">多所学校订单</option>
+                        <option value="multi_school_offline">多所学校代交</option>
                         <option value="no_pay_student">学校下未购买</option>
                         <option value="school_student">学校下学生</option>
                         <option value="teacher_student">教师下学生</option>
