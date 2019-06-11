@@ -16,9 +16,9 @@ class RecordOrderStatus extends BaseSchedule
     protected $comm = [];
     protected $_comm = [];
 
-    protected $create = [];
-    protected $update = [];
-    protected $ids = [];
+    protected $create;
+    protected $update;
+    protected $ids;
 
     /**
      * Execute the console command.
@@ -32,8 +32,7 @@ class RecordOrderStatus extends BaseSchedule
             echo 'M_O_S ' . $day . ' Already Done!';
             return;
         }
-        $this->initDate($day);
-        $this->initPdo();
+        $this->init($day);
         \DB::setPdo($this->online);
         $this->getCommodity();
         $this->handleInsert();
@@ -45,8 +44,7 @@ class RecordOrderStatus extends BaseSchedule
 
     public function refundOnly(Carbon $day)
     {
-        $this->initDate($day);
-        $this->initPdo();
+        $this->init($day);
         \DB::setPdo($this->online);
         $this->getCommodity();
         $this->handleRefund();
@@ -54,21 +52,27 @@ class RecordOrderStatus extends BaseSchedule
         $this->update();
     }
 
-    protected function initDate(Carbon $day)
+    protected function init(Carbon $day)
     {
         $this->date = $day->toDateString();
-        $this->between[] = $day->startOfDay()->toDateTimeString();
-        $this->between[] = $day->endOfDay()->toDateTimeString();
-    }
-
-    protected function initPdo()
-    {
-        $this->local = \DB::getPdo();
-        $this->online = $this->getPdo('online');
+        $this->between = [
+            $day->startOfDay()->toDateTimeString(),
+            $day->endOfDay()->toDateTimeString()
+        ];
+        if (empty($this->local)) {
+            $this->local = \DB::getPdo();
+            $this->online = $this->getPdo('test');
+        }
+        
+        $this->ids = [];
+        $this->create = [];
+        $this->update = ['all' => [], 'part' => []];
     }
 
     protected function getCommodity()
     {
+        if (!empty($this->comm)) return;
+
         $items = \DB::table('payment_commodity')->selectRaw('id, paid_type, days')
             ->whereNull('deleted_at')->get();
         foreach ($items as $item) {
@@ -195,7 +199,10 @@ class RecordOrderStatus extends BaseSchedule
 
     protected function insert()
     {
-        \DB::table('monitor_order_status')->insert($this->create);
+        $chunks = array_chunk($this->create, 100);
+        foreach ($chunks as $chunk) {
+            \DB::table('monitor_order_status')->insert($chunk);
+        }
     }
 
     protected function update()
@@ -216,7 +223,8 @@ class RecordOrderStatus extends BaseSchedule
     protected function updateAll()
     {
         foreach ($this->update['all'] as $type => $ids) {
-            $where = "type = $type AND origin_id IN ($ids)";
+            $ids = implode(',', $ids);
+            $where = "type = '$type' AND origin_id IN ($ids)";
             \DB::select("UPDATE monitor_order_status SET refund_fee = pay_fee, remained_fee = 0 WHERE $where");
         }
     }
@@ -233,7 +241,7 @@ class RecordOrderStatus extends BaseSchedule
             $ids = implode(',', $ids);
             $refund = implode(' ', $refund);
             $remain = implode(' ', $remain);
-            $where = "type = $type AND origin_id IN ($ids)";
+            $where = "type = '$type' AND origin_id IN ($ids)";
             $set = "refund_fee = (CASE origin_id $refund END), remained_fee = (CASE origin_id $remain END)";
             \DB::select("UPDATE monitor_order_status SET $set WHERE $where");
         }
