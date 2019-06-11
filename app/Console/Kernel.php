@@ -68,7 +68,7 @@ class Kernel extends ConsoleKernel
             $this->logSchedule('Record Device Usage Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Monitor\RecordOrderIncrement())->handle($this->getYesterday());
             $this->logSchedule('Record Order Increment Done At ' . date('Y-m-d H:i:s'));
-            (new Schedules\Monitor\RecordOrderStatus())->handle($this->getYesterday()->subMonth());
+            (new Schedules\Monitor\RecordOrderStatus())->handle($this->getYesterday());
             $this->logSchedule('Record Order Status Done At ' . date('Y-m-d H:i:s'));
         })->dailyAt('01:00');
 
