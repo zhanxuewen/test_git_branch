@@ -54,7 +54,7 @@ class SyncTestbankToLearning extends Command
         $this->learn_pdo = $this->getPdo($connections[$conn]['learning']);
         if ($account_id == 0) {
             $testbank_ids = [];
-            $bill_ids = [52825];
+            $bill_ids = [];
             DB::setPdo($this->core_pdo)->table('testbank')->whereIn('id', $testbank_ids)
                 ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($testbank_s) {
                     $this->handleTestbank($testbank_s);
@@ -84,6 +84,7 @@ class SyncTestbankToLearning extends Command
             $id = $create['id'];
             $items = DB::setPdo($this->core_pdo)->table('testbank_entity')->where('testbank_id', $id)->whereNull('deleted_at')->get();
             $create['core_related_id'] = $id;
+            $create['is_public'] = 1;
             unset($create['id'], $create['system_label_ids']);
             $t_bank = DB::setPdo($this->learn_pdo)->table('testbank')->where('core_related_id', $id)->whereNull('deleted_at')->first();
             if (!$t_bank) {
@@ -122,6 +123,7 @@ class SyncTestbankToLearning extends Command
             $create = json_decode(json_encode($bill), true);
             $id = $create['id'];
             $create['core_related_id'] = $id;
+            $create['is_public'] = 1;
             unset($create['id'], $create['system_label_ids']);
             $b_ill = DB::setPdo($this->learn_pdo)->table('testbank_collection')
                 ->where('core_related_id', $id)->whereNull('deleted_at')->first();
