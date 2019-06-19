@@ -162,7 +162,11 @@ class SyncTestbankToLearning extends Command
                 return false;
             }
         }
-        return $ids;
+        $_ids = [];
+        foreach (explode(',', $item_ids) as $id) {
+            $_ids[] = $ids[$id];
+        }
+        return $_ids;
     }
 
     protected function createBill($ids, $create)
