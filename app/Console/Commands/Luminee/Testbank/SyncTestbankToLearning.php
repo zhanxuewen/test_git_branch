@@ -82,14 +82,14 @@ class SyncTestbankToLearning extends Command
         foreach ($testbank_s as $testbank) {
             $create = json_decode(json_encode($testbank), true);
             $id = $create['id'];
-            $items = DB::setPdo($this->core_pdo)->table('testbank_entity')->where('testbank_id', $id)->whereNull('deleted_at')->get();
+            $items = DB::setPdo($this->core_pdo)->table('testbank_entity')->where('testbank_id', $id)->whereNull('deleted_at')->get()->keyBy('id');
             $create['core_related_id'] = $id;
             $create['is_public'] = 1;
             unset($create['id'], $create['system_label_ids']);
             $t_bank = DB::setPdo($this->learn_pdo)->table('testbank')->where('core_related_id', $id)->whereNull('deleted_at')->first();
             if (!$t_bank) {
                 $new_id = DB::table('testbank')->insertGetId($create);
-                $ids = $this->handleEntity($items, $new_id);
+                $ids = $this->handleEntity($items, $create['item_ids'], $new_id);
                 DB::table('testbank')->where('id', $new_id)->update(['item_ids' => $ids]);
                 echo '+ ';
             } else {
@@ -98,10 +98,12 @@ class SyncTestbankToLearning extends Command
         }
     }
 
-    protected function handleEntity($items, $new_id)
+    protected function handleEntity($items, $ids, $new_id)
     {
         $item_create = [];
-        foreach ($items as $item) {
+        $extra = array_diff(array_keys($items->toArray()), explode(',', $ids));
+        foreach (array_merge($extra, explode(',', $ids)) as $id) {
+            $item = $items[$id];
             $item_create[] = [
                 'testbank_id' => $new_id,
                 'testbank_extra_value' => $item->testbank_extra_value,
