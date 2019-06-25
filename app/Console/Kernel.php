@@ -42,6 +42,8 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Order\ExportAnalyzeOrder::class,
         Commands\Luminee\Testbank\SyncTestbankToLearning::class,
         Commands\Luminee\Testbank\DeleteLearningBill::class,
+        Commands\Luminee\Testbank\RebuildLearningEntityOrder::class,
+        Commands\Luminee\Testbank\RebuildLearningAssessmentEntityOrder::class,
 
 
         // 在线助教
