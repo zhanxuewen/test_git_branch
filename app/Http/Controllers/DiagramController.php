@@ -9,7 +9,7 @@ class DiagramController extends Controller
     public function uml(Request $request)
     {
         $_project = $request->get('project', 'core');
-        $projects = ['core', 'learning'];
+        $projects = ['core' => '在线助教', 'learning' => '百项过'];
         $uml_dir = public_path('asset/diagrams/uml/');
         $images = ['Modules.jpg'];
         foreach (scandir($uml_dir . $_project) as $file) {

@@ -3,9 +3,9 @@
 
 @section('section')
     <div class="col-sm-12">
-        @foreach($projects as $project)
+        @foreach($projects as $project => $label)
             <a class="btn btn-default @if($project == $_project) btn-primary active @endif"
-               href="{!! url('diagrams/uml').'?project='.$project !!}">{{ucfirst($project)}}</a>
+               href="{!! url('diagrams/uml').'?project='.$project !!}">{{ucfirst($label)}}</a>
         @endforeach
     </div>
     <div class="col-sm-10">
