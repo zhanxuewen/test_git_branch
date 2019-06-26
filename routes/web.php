@@ -62,6 +62,8 @@ Route::group(['namespace' => 'Rpc'], function () {
     });
 });
 
+Route::get('diagrams/uml', ['uses' => 'DiagramController@uml']);
+
 // Monitor Routes
 Route::group(['prefix' => 'monitor'], function () {
     Route::get('table', ['uses' => 'MonitorController@table']);

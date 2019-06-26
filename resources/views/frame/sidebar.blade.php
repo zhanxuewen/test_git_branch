@@ -36,6 +36,7 @@
             'Slow Rpc' => 'slow_rpc'
         ], 'fa-spinner') !!}
         {!! \App\Helper\BladeHelper::treeView('Build', [
+            'UML' => 'diagrams/uml',
             'Rpc DB' => 'db/get/modelList',
             'Rpc Repo' => 'repo/get/repositoryList',
             'Rpc Service' => 'service/get/serviceList'
