@@ -100,8 +100,8 @@ class Kernel extends ConsoleKernel
         })->monthlyOn(1, '08:40');
 
         $schedule->call(function () {
-            \Log::info('test schedule at '.date('Y-m-d H:i:s'));
-            $this->logSchedule('Test Schedule . At ' . date('Y-m-d H:i:s'));
+            \Log::info('Again call schedule at '.date('Y-m-d H:i:s'));
+            $this->logSchedule('Again Test Schedule . At ' . date('Y-m-d H:i:s'));
         })->everyMinute();
     }
 
