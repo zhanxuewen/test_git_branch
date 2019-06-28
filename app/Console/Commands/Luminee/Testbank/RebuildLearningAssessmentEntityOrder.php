@@ -55,7 +55,7 @@ class RebuildLearningAssessmentEntityOrder extends Command
         $conn = $this->argument('conn');
         $this->learn_pdo = $this->getPdo($connections[$conn]['learning']);
 
-        $ids = [431153,432378,434351,435608,435618,435623,435636,448526,448532,451396,716285,717804,717805,717811,718590,719095,719727,719734,720608,720618,721351,721382,721390,726577,754657,754684,755262,755632,755684,756078,756138,772595,772768,787085,787088,787089];
+        $ids = [772595];
 
 
         $chunk = array_chunk($ids, 100);

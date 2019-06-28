@@ -44,6 +44,8 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Testbank\DeleteLearningBill::class,
         Commands\Luminee\Testbank\RebuildLearningEntityOrder::class,
         Commands\Luminee\Testbank\RebuildLearningAssessmentEntityOrder::class,
+        Commands\Luminee\Testbank\UpdateLearningEntity::class,
+        Commands\Luminee\Testbank\FixLearningItems::class,
 
 
         // 在线助教
@@ -96,6 +98,11 @@ class Kernel extends ConsoleKernel
             (new Schedules\Order\ExportOfflineList())->handle($day);
             $this->logSchedule('Export Offline Monthly List Done At ' . date('Y-m-d H:i:s'));
         })->monthlyOn(1, '08:40');
+
+        $schedule->call(function () {
+            \Log::info('test schedule at '.date('Y-m-d H:i:s'));
+            $this->logSchedule('Test Schedule . At ' . date('Y-m-d H:i:s'));
+        })->everyMinute();
     }
 
     protected function logSchedule($log)
