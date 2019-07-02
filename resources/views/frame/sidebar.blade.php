@@ -31,6 +31,10 @@
             'Schedule' => 'monitor/schedule',
             'Throttle' => 'monitor/throttle'
         ], 'fa-bar-chart') !!}
+        {!! \App\Helper\BladeHelper::treeView('Bank', [
+            'Learning Testbank' => 'bank/learning/search/testbank',
+            'Learning Sync Entity' => 'bank/learning/sync/entity',
+        ], 'fa-bank') !!}
         {!! \App\Helper\BladeHelper::treeView('Slow', [
             'Slow Mysql' => 'slow_mysql',
             'Slow Rpc' => 'slow_rpc'
