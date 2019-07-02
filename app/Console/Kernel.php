@@ -98,11 +98,6 @@ class Kernel extends ConsoleKernel
             (new Schedules\Order\ExportOfflineList())->handle($day);
             $this->logSchedule('Export Offline Monthly List Done At ' . date('Y-m-d H:i:s'));
         })->monthlyOn(1, '08:40');
-
-        $schedule->call(function () {
-            \Log::info('Test Schedule at '.date('Y-m-d H:i:s'));
-            $this->logSchedule('Test Schedule log At ' . date('Y-m-d H:i:s'));
-        })->everyMinute();
     }
 
     protected function logSchedule($log)
