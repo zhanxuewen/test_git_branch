@@ -91,13 +91,24 @@ class Kernel extends ConsoleKernel
 
         // Export Order And Offline Monthly
         $schedule->call(function () {
-            $this->logSchedule('Export Order And Offline Monthly Start At ' . date('Y-m-d H:i:s'));
+            $this->logSchedule('Export Order, Offline And Balance Monthly Start At ' . date('Y-m-d H:i:s'));
             $day = ['start' => Carbon::today()->subMonth()->toDateString(), 'end' => Carbon::today()->subDay()->toDateString()];
             (new Schedules\Order\ExportOrderList())->handle($day);
             $this->logSchedule('Export Order Monthly List Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Order\ExportOfflineList())->handle($day);
             $this->logSchedule('Export Offline Monthly List Done At ' . date('Y-m-d H:i:s'));
+            (new Schedules\Order\ExportContractBalance())->handle();
+            $this->logSchedule('Export Contract Balance Monthly Done At ' . date('Y-m-d H:i:s'));
         })->monthlyOn(1, '08:40');
+
+        $schedule->call(function () {
+            $this->logSchedule('Export Balance And Accountant Statement Mid Monthly Start At ' . date('Y-m-d H:i:s'));
+            $day = ['start' => Carbon::today()->subDays(31)->toDateString(), 'end' => Carbon::yesterday()->toDateString()];
+            (new Schedules\Order\ExportAccountantStatement())->handle($day);
+            $this->logSchedule('Export Accountant Statement Mid Monthly Done At ' . date('Y-m-d H:i:s'));
+            (new Schedules\Order\ExportContractBalance())->handle();
+            $this->logSchedule('Export Contract Balance Mid Monthly Done At ' . date('Y-m-d H:i:s'));
+        })->monthlyOn(15, '08:40');
     }
 
     protected function logSchedule($log)
