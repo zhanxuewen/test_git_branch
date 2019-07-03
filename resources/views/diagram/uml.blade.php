@@ -11,6 +11,7 @@
     <div class="col-sm-10">
         @foreach($images as $image)
             <img src="{{asset($dir . $image)}}" alt="" class="img-responsive">
+            <hr>
         @endforeach
     </div>
 @endsection
