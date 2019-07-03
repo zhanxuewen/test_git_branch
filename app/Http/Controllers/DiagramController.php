@@ -13,7 +13,7 @@ class DiagramController extends Controller
         $uml_dir = public_path('asset/diagrams/uml/');
         $images = ['Modules.jpg'];
         foreach (scandir($uml_dir . $_project) as $file) {
-            if (strstr($file, '.png') && $file != 'Modules.jpg') {
+            if (!in_array($file, ['.', '..']) && !strstr($file, 'Modules')) {
                 $images[] = $file;
             }
         }
