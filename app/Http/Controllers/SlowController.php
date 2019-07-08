@@ -92,7 +92,7 @@ class SlowController extends Controller
     {
         $time = Carbon::now()->subDays($day)->format('YmdHis');
         $data = ['idx' => 'web.item.graph', 'idx2' => $id_x, 'period' => 86400 * $day, 'stime' => $time, 'isNow' => 1];
-        $url = 'http://zabbix.vanthink.cn:3780/zabbix.php?sid=4ff0c881f59d64c0&action=timeline.update&output=ajax';
+        $url = 'http://zabbix.vanthink.cn/zabbix.php?sid=4ff0c881f59d64c0&action=timeline.update&output=ajax';
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -107,7 +107,7 @@ class SlowController extends Controller
         $params = [
             'rpc' => 'itemids%5B33469%5D=33469&itemids%5B33470%5D=33470&itemids%5B33475%5D=33475',
         ];
-        $url = 'http://zabbix.vanthink.cn:3780/history.php?sid=4ff0c881f59d64c0&form_refresh=1&'
+        $url = 'http://zabbix.vanthink.cn/history.php?sid=4ff0c881f59d64c0&form_refresh=1&'
             . $params[$key] .
             '&filter_task=0&filter=&action=showvalues&plaintext=%E7%BA%AF%E6%96%87%E5%AD%97';
 
@@ -124,7 +124,7 @@ class SlowController extends Controller
         $items = 'itemids%5B152351%5D=152351&itemids%5B152040%5D=152040&itemids%5B252547%5D=252547';
         $time = Carbon::now()->subDays($day)->format('YmdHis');
         $timestamp = Carbon::now()->timestamp . '000';
-        $url = 'http://zabbix.vanthink.cn:3780/jsrpc.php?sid=63fd9a3fd67d7a39&type=9&method=screen.get&timestamp=' . $timestamp . '&mode=2&screenid=&groupid=&hostid=0&pageFile=history.php&profileIdx=web.item.graph&profileIdx2=152351&updateProfile=&screenitemid=&period=' . (86400 * $day) . '&stime=' . $time . '&isNow=1&resourcetype=17&' . $items . '&action=showvalues&filter=&filter_task=0&mark_color=1';
+        $url = 'http://zabbix.vanthink.cn/jsrpc.php?sid=63fd9a3fd67d7a39&type=9&method=screen.get&timestamp=' . $timestamp . '&mode=2&screenid=&groupid=&hostid=0&pageFile=history.php&profileIdx=web.item.graph&profileIdx2=152351&updateProfile=&screenitemid=&period=' . (86400 * $day) . '&stime=' . $time . '&isNow=1&resourcetype=17&' . $items . '&action=showvalues&filter=&filter_task=0&mark_color=1';
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [$this->getZabbixToken()]);

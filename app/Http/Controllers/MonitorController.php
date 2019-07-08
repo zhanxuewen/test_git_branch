@@ -105,7 +105,7 @@ class MonitorController extends Controller
             'web_nginx_conn' => [707, 716, 1171, 1717]
         ];
         foreach ($ids[$group] as $item) {
-            $data[] = 'http://zabbix.vanthink.cn:3780/chart2.php?graphid=' . $item . '&period=' . $period .
+            $data[] = 'http://zabbix.vanthink.cn/chart2.php?graphid=' . $item . '&period=' . $period .
                 '&stime=' . $time . '&isNow=1&profileIdx=web.graphs&profileIdx2=' . $item . '&width=847&sid=63fd9a3fd67d7a39';
         }
         return view('monitor.zabbix', compact('data', 'day', 'group'));
