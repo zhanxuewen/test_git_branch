@@ -56,8 +56,9 @@ abstract class Controller extends BaseController
 
     protected function logContent($section, $type, $content)
     {
-        $data = ['section' => $section, 'log_type' => $type, 'account_id' => $this->getUser('id'), 'content' => $content];
-        $this->builder->setModel('log')->create($data);
+        $now = date('Y-m-d H:i:s');
+        $data = ['section' => $section, 'log_type' => $type, 'account_id' => $this->getUser('id'), 'content' => $content, 'created_at' => $now, 'updated_at' => $now];
+        \DB::setPdo($this->getPdo('structure'))->table('logs')->insert($data);
     }
 
     protected function getPerPage()
