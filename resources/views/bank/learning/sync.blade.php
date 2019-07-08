@@ -24,7 +24,15 @@
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="btn btn-default">Check</button>
+            <div class="form-group">
+                <label for="search">Search</label>
+                <input type="text" class="form-control" name="search" id="search" value="{{$search}}">
+            </div>
+            <div class="form-group">
+                <label for="replace">Replace</label>
+                <input type="text" class="form-control" name="replace" id="replace" value="">
+            </div>
+            <button type="submit" class="btn btn-default">Check || Search And Replace</button>
         </form>
     </div>
     @if(!is_null($core_id))
