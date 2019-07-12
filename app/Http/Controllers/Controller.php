@@ -139,4 +139,9 @@ abstract class Controller extends BaseController
         return $data;
     }
 
+    protected function error($message)
+    {
+        return view('frame.error', compact('message'));
+    }
+
 }

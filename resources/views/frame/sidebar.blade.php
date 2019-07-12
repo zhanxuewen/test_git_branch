@@ -34,6 +34,7 @@
         {!! \App\Helper\BladeHelper::treeView('Bank', [
             'Learning Testbank' => 'bank/learning/search/testbank',
             'Learning Sync Entity' => 'bank/learning/sync/entity',
+            'Transmit Learning Testbank' => 'bank/transmit/learning/testbank',
         ], 'fa-bank') !!}
         {!! \App\Helper\BladeHelper::treeView('Slow', [
             'Slow Mysql' => 'slow_mysql',
