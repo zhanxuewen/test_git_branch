@@ -26,14 +26,15 @@ class ShowController extends Controller
     public function labels(Request $request)
     {
         $type_id = $request->get('type_id', 1);
-        $pdo = $this->getPdo('online');
+        $project = $request->get('project', 'core');
+        $pdo = $this->getConnPdo($project, 'online');
         $types = $this->getRecord($pdo->query("SELECT * FROM label_type"));
         $_labels = $pdo->query($this->list_labels($type_id));
         $labels = [];
         foreach ($_labels as $label) {
             $labels[$label['parent_id']][] = $label;
         }
-        return view('select.label', compact('labels', 'types', 'type_id'));
+        return view('select.label', compact('labels', 'types', 'type_id', 'project'));
     }
 
     /**

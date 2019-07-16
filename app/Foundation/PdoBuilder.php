@@ -10,6 +10,8 @@ trait PdoBuilder
 
     protected $_env = [];
 
+    protected $conn_env = [];
+
     protected $redis = [];
 
     protected $read_redis = [];
@@ -27,6 +29,12 @@ trait PdoBuilder
         is_file(storage_path('app/.env.secret')) or die('No Such File.');
         if (empty($this->_env)) $this->_env = include storage_path('app') . '/.env.secret';
         return $this->_env;
+    }
+
+    private function getConnEnv()
+    {
+        if (empty($this->conn_env)) $this->conn_env = include base_path() . '/.conn.conf.php';
+        return $this->conn_env;
     }
 
     private function modifyEnv($keys, $value)
@@ -126,6 +134,27 @@ trait PdoBuilder
         if (!\Hash::check(env('ONLINE_ALLOW'), $this->hash)) die('Permission Denied!');
         $db = $this->getSecretEnv()[$conn];
         return $this->newPdo($db['host'], $db['database'], $db['username'], $db['password']);
+    }
+
+    public function getConnProjects()
+    {
+        return array_keys($this->getConnEnv());
+    }
+
+    public function getConnections($project)
+    {
+        return array_keys($this->getConnEnv()[$project]);
+    }
+
+    public function getConnDB($project, $conn)
+    {
+        return $this->getConnEnv()[$project][$conn]['database'];
+    }
+
+    public function getConnPdo($project, $conn)
+    {
+        $conf = $this->getConnEnv()[$project][$conn];
+        return $this->newPdo($conf['host'], $conf['database'], $conf['username'], $conf['password']);
     }
 
     private function newPdo($host, $database, $username, $password)

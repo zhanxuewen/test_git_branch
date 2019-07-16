@@ -1,0 +1,51 @@
+<?php
+
+return [
+    'core' => [
+        'dev' => [
+            'host' => '',
+            'database' => '',
+            'username' => ''',
+            'password' => ''',
+        ],
+        'test' => [
+            ''
+        ],
+        'online' => [
+            ''
+        ]
+    ],
+
+    'learning' => [
+        'dev' => [
+            ''
+        ],
+        'test' => [
+            ''
+        ],
+        'teach' => [
+            ''
+        ],
+        'trail' => [
+            ''
+        ],
+        'online' => [
+            ''
+        ],
+    ],
+
+    'word_short' => [
+        'dev' => [
+            ''
+        ],
+        'test' => [
+            ''
+        ],
+        'trail' => [
+            ''
+        ],
+        'online' => [
+            ''
+        ],
+    ],
+];
