@@ -49,7 +49,7 @@
                         <ul>
                             @foreach(json_decode($entity->testbank_item_value,true) as $key => $item)
                                 <li>
-                                    <b>{{$key}}: </b> {{$item}}
+                                    <b>{{$key}}: </b> {!! is_array($item) ? json_encode($item) : $item !!}
                                 </li>
                             @endforeach
                         </ul>
@@ -60,87 +60,89 @@
         <div class="col-sm-12">
             <hr>
         </div>
-        <div class="col-sm-6">
-            <h3>百项过题库</h3>
-            <p>Testbank</p>
-            <ul>
-                @foreach($learn_testbank as $key => $value)
-                    <li>
-                        <b>{{$key}}: </b> {{$value}}
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-        <div class="col-sm-6">
-            @if(!is_null($learn_extra))
-                <p>Extra</p>
+        @if(isset($learn_testbank) && !empty($learn_testbank))
+            <div class="col-sm-6">
+                <h3>百项过题库</h3>
+                <p>Testbank</p>
                 <ul>
-                    @foreach($learn_extra as $key => $value)
+                    @foreach($learn_testbank as $key => $value)
                         <li>
                             <b>{{$key}}: </b> {{$value}}
                         </li>
                     @endforeach
                 </ul>
-            @endif
-            <ul>
-                @foreach($learn_entities as $entity)
-                    <li>
-                        {{$entity->id}}
+            </div>
+            <div class="col-sm-6">
+                @if(!is_null($learn_extra))
+                    <p>Extra</p>
+                    <ul>
+                        @foreach($learn_extra as $key => $value)
+                            <li>
+                                <b>{{$key}}: </b> {{$value}}
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+                <ul>
+                    @foreach($learn_entities as $entity)
+                        <li>
+                            {{$entity->id}}
+                            <ul>
+                                @foreach(json_decode($entity->testbank_item_value,true) as $key => $item)
+                                    <li>
+                                        <b>{{$key}}: </b> {{$item}}
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="col-sm-12">
+                <hr>
+            </div>
+            @if(!empty($ass_testbank_s))
+                <h3>百项过课程题</h3>
+                @foreach($ass_testbank_s as $testbank)
+                    <div class="col-sm-6">
+                        <p>Question</p>
                         <ul>
-                            @foreach(json_decode($entity->testbank_item_value,true) as $key => $item)
+                            @foreach($testbank as $key => $value)
                                 <li>
-                                    <b>{{$key}}: </b> {{$item}}
+                                    <b>{{$key}}: </b>
+                                    @if($key == 'content')
+                                        <ul>
+                                            @foreach(json_decode($value,true) as $k => $item)
+                                                <li>
+                                                    <b>{{$k}}: </b> {{json_encode($item)}}
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @else
+                                        {{$value}}
+                                    @endif
                                 </li>
                             @endforeach
                         </ul>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-        <div class="col-sm-12">
-            <hr>
-        </div>
-        @if(!empty($ass_testbank_s))
-            <h3>百项过课程题</h3>
-            @foreach($ass_testbank_s as $testbank)
-                <div class="col-sm-6">
-                    <p>Question</p>
-                    <ul>
-                        @foreach($testbank as $key => $value)
-                            <li>
-                                <b>{{$key}}: </b>
-                                @if($key == 'content')
+                    </div>
+                    <div class="col-sm-6">
+                        <ul>
+                            @foreach($ass_entities[$testbank->id] as $entity)
+                                <li>
+                                    {{$entity->id}}
                                     <ul>
-                                        @foreach(json_decode($value,true) as $k => $item)
+                                        @foreach(json_decode($entity->item_value,true) as $key => $item)
                                             <li>
-                                                <b>{{$k}}: </b> {{json_encode($item)}}
+                                                <b>{{$key}}: </b> {{$item}}
                                             </li>
                                         @endforeach
                                     </ul>
-                                @else
-                                    {{$value}}
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-                <div class="col-sm-6">
-                    <ul>
-                        @foreach($ass_entities[$testbank->id] as $entity)
-                            <li>
-                                {{$entity->id}}
-                                <ul>
-                                    @foreach(json_decode($entity->item_value,true) as $key => $item)
-                                        <li>
-                                            <b>{{$key}}: </b> {{$item}}
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endforeach
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endforeach
+            @endif
         @endif
     @endif
 

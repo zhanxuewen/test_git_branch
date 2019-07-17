@@ -18,17 +18,21 @@ class LearningController extends Controller
             $core_extra = DB::table('testbank_entity')->where('testbank_id', $id)->whereNull('deleted_at')->whereNull('testbank_item_value')->first();
             $core_entities = DB::table('testbank_entity')->where('testbank_id', $id)->whereNull('deleted_at')->whereNull('testbank_extra_value')->get()->keyBy('id');
             $learn_testbank = DB::setPdo($this->getPdo($conn))->table('testbank')->where('core_related_id', $id)->whereNull('deleted_at')->first();
-            $learn_t_id = $learn_testbank->id;
-            $learn_extra = DB::table('testbank_entity')->where('testbank_id', $learn_t_id)->whereNull('deleted_at')->whereNull('testbank_item_value')->first();
-            $learn_entities = DB::table('testbank_entity')->where('testbank_id', $learn_t_id)->whereNull('deleted_at')->whereNull('testbank_extra_value')->get()->keyBy('id');
-            $search = '{"id":' . $learn_t_id . ',%';
-            $ass_testbank_s = DB::table('assessment_question')->where('content', 'like', $search)->whereNull('deleted_at')->get();
-            $ass_entities = [];
-            foreach ($ass_testbank_s as $ass_testbank) {
-                $_id = $ass_testbank->id;
-                $ass_entities[$_id] = DB::table('assessment_question_entity')->where('question_id', $_id)->whereNull('deleted_at')->get()->keyBy('id');
+            if (!empty($learn_testbank)) {
+                $learn_t_id = $learn_testbank->id;
+                $learn_extra = DB::table('testbank_entity')->where('testbank_id', $learn_t_id)->whereNull('deleted_at')->whereNull('testbank_item_value')->first();
+                $learn_entities = DB::table('testbank_entity')->where('testbank_id', $learn_t_id)->whereNull('deleted_at')->whereNull('testbank_extra_value')->get()->keyBy('id');
+                $search = '{"id":' . $learn_t_id . ',%';
+                $ass_testbank_s = DB::table('assessment_question')->where('content', 'like', $search)->whereNull('deleted_at')->get();
+                $ass_entities = [];
+                foreach ($ass_testbank_s as $ass_testbank) {
+                    $_id = $ass_testbank->id;
+                    $ass_entities[$_id] = DB::table('assessment_question_entity')->where('question_id', $_id)->whereNull('deleted_at')->get()->keyBy('id');
+                }
+                $data = compact('core_testbank', 'core_extra', 'core_entities', 'learn_testbank', 'learn_extra', 'learn_entities', 'ass_testbank_s', 'ass_entities');
+            } else {
+                $data = compact('core_testbank', 'core_extra', 'core_entities');
             }
-            $data = compact('core_testbank', 'core_extra', 'core_entities', 'learn_testbank', 'learn_extra', 'learn_entities', 'ass_testbank_s', 'ass_entities');
         }
         return view('bank.learning.search', array_merge(compact('id', 'conn'), $data));
     }
