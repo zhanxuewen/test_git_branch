@@ -20,84 +20,18 @@
         </form>
     </div>
     @if(!is_null($id))
-        <div class="col-sm-6">
-            <h3>在线助教</h3>
-            <p>Testbank</p>
-            <ul>
-                @foreach($core_testbank as $key => $value)
-                    <li>
-                        <b>{{$key}}: </b> {{$value}}
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-        <div class="col-sm-6">
-            @if(!is_null($core_extra))
-                <p>Extra</p>
-                <ul>
-                    @foreach($core_extra as $key => $value)
-                        <li>
-                            <b>{{$key}}: </b> {{$value}}
-                        </li>
-                    @endforeach
-                </ul>
-            @endif
-            <ul>
-                @foreach($core_entities as $entity)
-                    <li>
-                        {{$entity->id}}
-                        <ul>
-                            @foreach(json_decode($entity->testbank_item_value,true) as $key => $item)
-                                <li>
-                                    <b>{{$key}}: </b> {!! is_array($item) ? json_encode($item) : $item !!}
-                                </li>
-                            @endforeach
-                        </ul>
-                    </li>
-                @endforeach
-            </ul>
-        </div>
-        <div class="col-sm-12">
-            <hr>
-        </div>
+        @component('bank.learning.search.display',
+            ['h3' => '在线助教','testbank'=>$core_testbank,'extra'=>$core_extra,
+            'entities'=>$core_entities,'item_value'=>'testbank_item_value'])
+        @endcomponent
         @if(isset($learn_testbank) && !empty($learn_testbank))
-            <div class="col-sm-6">
-                <h3>百项过题库</h3>
-                <p>Testbank</p>
-                <ul>
-                    @foreach($learn_testbank as $key => $value)
-                        <li>
-                            <b>{{$key}}: </b> {{$value}}
-                        </li>
-                    @endforeach
-                </ul>
+            <div class="col-sm-12">
+                <hr>
             </div>
-            <div class="col-sm-6">
-                @if(!is_null($learn_extra))
-                    <p>Extra</p>
-                    <ul>
-                        @foreach($learn_extra as $key => $value)
-                            <li>
-                                <b>{{$key}}: </b> {{$value}}
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
-                <ul>
-                    @foreach($learn_entities as $entity)
-                        <li>
-                            {{$entity->id}}
-                            <ul>
-                                @foreach(json_decode($entity->testbank_item_value,true) as $key => $item)
-                                    <li>
-                                        <b>{{$key}}: </b> {{$item}}
-                                    </li>
-                                @endforeach
-                            </ul>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
+            @component('bank.learning.search.display',
+            ['h3' => '百项过题库','testbank'=>$learn_testbank,'extra'=>$learn_extra,
+            'entities'=>$learn_entities,'item_value'=>'testbank_item_value'])
+            @endcomponent
             <div class="col-sm-12">
                 <hr>
             </div>
@@ -111,13 +45,8 @@
                                 <li>
                                     <b>{{$key}}: </b>
                                     @if($key == 'content')
-                                        <ul>
-                                            @foreach(json_decode($value,true) as $k => $item)
-                                                <li>
-                                                    <b>{{$k}}: </b> {{json_encode($item)}}
-                                                </li>
-                                            @endforeach
-                                        </ul>
+                                        @component('frame.layout.arrayToList', ['array' => json_decode($value,true)])
+                                        @endcomponent
                                     @else
                                         {{$value}}
                                     @endif
@@ -133,7 +62,7 @@
                                     <ul>
                                         @foreach(json_decode($entity->item_value,true) as $key => $item)
                                             <li>
-                                                <b>{{$key}}: </b> {{$item}}
+                                                <b>{{$key}}: </b> {!! is_array($item) ? json_encode($item) : $item !!}
                                             </li>
                                         @endforeach
                                     </ul>
