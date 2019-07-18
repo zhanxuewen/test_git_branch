@@ -14,16 +14,20 @@ class TransmitController extends Controller
 
     protected $type;
 
+    protected $conn;
+
     protected $output = [];
 
     public function learningTestbank(Request $request)
     {
         $type = $request->get('type', 'bill');
         $id = $request->get('id');
+        $conn = $request->get('conn');
         $this->type = $type;
+        $this->conn = $conn;
         if (empty($id)) return $this->success();
         $this->core_pdo = $this->getPdo('online');
-        $this->learn_pdo = $this->getPdo('online_learning');
+        $this->learn_pdo = $this->getPdo($conn);
         switch ($type) {
             case 'bill':
                 return $this->handleBill($id);
@@ -131,6 +135,6 @@ class TransmitController extends Controller
 
     protected function success($message = '')
     {
-        return view('bank.learning.transmit', array_merge(['type' => $this->type], ['message' => $message]));
+        return view('bank.learning.transmit', array_merge(['type' => $this->type, 'conn' => $this->conn], ['message' => $message]));
     }
 }

@@ -13,6 +13,14 @@
                 </select>
             </div>
             <div class="form-group">
+                <label for="conn">连接</label>
+                <select name="conn" id="conn" class="form-control">
+                    @foreach(['online_learning'=>'正式服','online_trail_learning'=>'体验服'] as $_conn => $label)
+                        <option value="{{$_conn}}" @if($conn == $_conn) selected @endif>{{$label}}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="id">ID</label>
                 <input type="number" class="form-control" name="id" id="id">
             </div>
