@@ -25,6 +25,14 @@
                 </select>
             </div>
             <div class="form-group">
+                <label for="type">Replace Type</label>
+                <select name="type" id="type" class="form-control">
+                    @foreach(['str'=>'字符串','key_value'=>'键值'] as $_type => $label)
+                        <option value="{{$_type}}" @if($type == $_type) selected @endif>{{$label}}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="form-group">
                 <label for="search">Search</label>
                 <input type="text" class="form-control" name="search" id="search" value="{{$search}}">
             </div>
