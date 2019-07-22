@@ -51,7 +51,7 @@
                 <ul>
                     @foreach($entity as $key => $value)
                         <li>
-                            <b>{{$key}}: </b> {{$value}}
+                            <b>{{$key}}: </b> {!! is_array($value) ? json_encode($value) : $value !!}
                         </li>
                     @endforeach
                 </ul>
@@ -60,7 +60,7 @@
                     <ul>
                         @foreach(json_decode($learn->testbank_item_value, true) as $key => $value)
                             <li>
-                                <b>{{$key}}: </b> {{$value}}
+                                <b>{{$key}}: </b> {!! is_array($value) ? json_encode($value) : $value !!}
                                 @if(isset($entity[$key]) && $value != $entity[$key]) <i
                                         class="fa fa-exclamation-triangle text-red"></i> @endif
                             </li>
@@ -71,7 +71,7 @@
                         <ul>
                             @foreach(json_decode($ass->item_value, true) as $key => $value)
                                 <li>
-                                    <b>{{$key}}: </b> {{$value}}
+                                    <b>{{$key}}: </b> {!! is_array($value) ? json_encode($value) : $value !!}
                                     @if(isset($entity[$key]) && $value != $entity[$key]) <i
                                             class="fa fa-exclamation-triangle text-red"></i> @endif
                                 </li>

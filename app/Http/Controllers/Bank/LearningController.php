@@ -68,6 +68,7 @@ class LearningController extends Controller
 
     protected function buildJson($str, $type)
     {
+        if (strstr($str,'\\')) $str = str_replace('\\','\\\\',$str);
         if ($type == 'str') return $str;
         $arr = strstr($str, ':') ? $this->buildArray($str) : [trim($str)];
         return trim(json_encode($arr), '{}');
