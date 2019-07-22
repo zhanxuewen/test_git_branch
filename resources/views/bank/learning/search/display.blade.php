@@ -23,7 +23,9 @@
     <ul>
         @foreach($entities as $entity)
             <li>
-                {{$entity->id}}
+                <div class="radio">
+                    <label><input type="radio" name="{{$field}}" value="{{$entity->id}}">{{$entity->id}}</label>
+                </div>
                 <ul>
                     @foreach(json_decode($entity->$item_value,true) as $key => $item)
                         <li>
