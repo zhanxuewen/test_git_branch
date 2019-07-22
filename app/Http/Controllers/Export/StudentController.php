@@ -36,8 +36,9 @@ class StudentController extends Controller
         $request->filled('label_ids') ? $params['label_ids'] = $this->handleIds($request->get('label_ids', null)) : null;
         $request->filled('student_id') ? $params['student_id'] = $request->get('student_id', null) : null;
         $request->filled('teacher_id') ? $params['teacher_id'] = $request->get('teacher_id', null) : null;
+        $project = $request->get('project', 'core');
         isset($params) or die('没有参数');
-        $pdo = $this->getPdo('online');
+        $pdo = $this->getConnPdo($project, 'online');
         $rows = $pdo->query($this->$query($params));
         $name = $query . '_' . $this->handleTableName($params);
         return $this->exportExcel($name, $this->getRecord($rows));
@@ -97,6 +98,12 @@ class StudentController extends Controller
     {
         !isset($params['label_id']) ? die('没有 父标签ID') : null;
         return "SELECT label.`name`, vocabulary FROM label INNER JOIN wordbank_translation_label ON wordbank_translation_label.label_id = label.id INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id WHERE parent_id = " . $params['label_id'] . " AND wordbank.deleted_at IS NULL GROUP BY label.id, vocabulary ORDER BY label.`name`";
+    }
+
+    protected function new_label_wordbank($params)
+    {
+        !isset($params['label_id']) ? die('没有 标签ID') : null;
+        return "SELECT vocabulary, translation, label.name FROM wordbank_translation_label INNER JOIN wordbank_translation ON wordbank_translation.id = wordbank_translation_label.translation_id INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id INNER JOIN label ON label.id = wordbank_translation_label.label_id WHERE label_id IN ( SELECT id FROM label WHERE parent_id = " . $params['label_id'] . " )";
     }
 
     protected function getRecord($rows)
