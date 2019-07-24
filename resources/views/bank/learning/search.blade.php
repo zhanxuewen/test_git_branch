@@ -37,7 +37,7 @@
                     <hr>
                 </div>
                 @if(!empty($ass_testbank_s))
-                    <h3>百项过课程题</h3>
+                    <div class="col-sm-12"><h3>百项过课程题</h3></div>
                     @foreach($ass_testbank_s as $testbank)
                         <div class="col-sm-6">
                             <p>Question</p>

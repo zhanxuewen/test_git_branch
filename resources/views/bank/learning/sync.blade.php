@@ -1,5 +1,5 @@
 @extends('frame.body')
-@section('title','Learning - Search')
+@section('title','Learning - Sync Entity')
 
 @section('section')
     <div class="col-sm-2">
