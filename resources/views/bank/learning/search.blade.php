@@ -78,7 +78,9 @@
                     @endforeach
                 @endif
             @endif
-            <button type="submit" class="btn btn-default">To Sync</button>
+            <div class="col-sm-12">
+                <button type="submit" class="btn btn-default">To Sync</button>
+            </div>
         @endif
     </form>
 
