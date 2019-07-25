@@ -9,11 +9,15 @@
                    href="{{URL::current().'?project='.$k.'&type_id='.$type_id}}">{{$label}}</a>
             @endforeach
         </div>
-        <div class="btn-group col-sm-9" role="group">
+        <div class="btn-group col-sm-8" role="group">
             @foreach($types as $type)
                 <a class="btn btn-default @if($type_id == $type['id']) btn-primary active @endif"
                    href="{{URL::current().'?project='.$project.'&type_id='.$type['id']}}">{{$type['name']}}</a>
             @endforeach
+        </div>
+        <div class="btn-group col-sm-1" role="group">
+            <a class="btn btn-default" href="{{URL::current().'?project='.$project.'&type_id='.$type_id.
+            '&sort='.($sort=='asc'?'desc':'asc')}}">{{$sort == 'asc'?'倒序↓':'正序↑'}}</a>
         </div>
         <hr>
     </div>
