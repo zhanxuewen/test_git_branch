@@ -1,3 +1,6 @@
+<li class="user user-menu bg-yellow">
+    <a><b>公告: </b>黄度用户查询 (<u>Select - Yellow Account</u>) 将被遗弃.</a>
+</li>
 @if(session('message'))
     <li class="user user-menu bg-red">
         <a>{{session('message')}}</a>
