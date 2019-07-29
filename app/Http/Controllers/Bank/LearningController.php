@@ -68,7 +68,7 @@ class LearningController extends Controller
 
     protected function buildJson($str, $type)
     {
-        if (strstr($str,'\\')) $str = str_replace('\\','\\\\',$str);
+        if (strstr($str, '\\')) $str = str_replace('\\', '\\\\', $str);
         if ($type == 'str') return $str;
         $arr = strstr($str, ':') ? $this->buildArray($str) : [trim($str)];
         return trim(json_encode($arr), '{}');
@@ -77,7 +77,7 @@ class LearningController extends Controller
     protected function buildArray($str)
     {
         list($key, $val) = explode(':', $str);
-        return [trim($key) => trim($val)];
+        return [trim($key) => is_numeric($val) ? (int)$val : trim($val)];
     }
 
     protected function buildUpdate($field, $search, $replace)
