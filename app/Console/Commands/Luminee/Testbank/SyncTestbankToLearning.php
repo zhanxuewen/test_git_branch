@@ -15,7 +15,7 @@ class SyncTestbankToLearning extends Command
      *
      * @var string
      */
-    protected $signature = 'sync:testbank_to:learning {account_id} {conn=dev}';
+    protected $signature = 'sync:testbank_to:learning {conn=dev}';
 
     /**
      * The console command description.
@@ -44,7 +44,6 @@ class SyncTestbankToLearning extends Command
      */
     public function handle()
     {
-        $account_id = $this->argument('account_id');
         $connections = [
             'online' => ['core' => 'online', 'learning' => 'online_learning'],
             'dev' => ['core' => 'dev', 'learning' => 'dev_learning']
@@ -52,28 +51,11 @@ class SyncTestbankToLearning extends Command
         $conn = $this->argument('conn');
         $this->core_pdo = $this->getPdo($connections[$conn]['core']);
         $this->learn_pdo = $this->getPdo($connections[$conn]['learning']);
-        if ($account_id == 0) {
-            $testbank_ids = [];
-            $bill_ids = [];
-            DB::setPdo($this->core_pdo)->table('testbank')->whereIn('id', $testbank_ids)
-                ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($testbank_s) {
-                    $this->handleTestbank($testbank_s);
-                });
-            DB::setPdo($this->core_pdo)->table('testbank_collection')->whereIn('id', $bill_ids)
-                ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($bills) {
-                    $this->handleBill($bills);
-                });
-        } else {
-            DB::setPdo($this->core_pdo)->table('testbank')->where('account_id', $account_id)
-                ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($testbank_s) {
-                    $this->handleTestbank($testbank_s);
-                });
-            DB::setPdo($this->core_pdo)->table('testbank_collection')->where('account_id', $account_id)
-                ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($bills) {
-                    $this->handleBill($bills);
-                });
-        }
-
+        $bill_ids = [];
+        DB::setPdo($this->core_pdo)->table('testbank_collection')->whereIn('id', $bill_ids)
+            ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($bills) {
+                $this->handleBill($bills);
+            });
     }
 
     protected function handleTestbank($testbank_s)

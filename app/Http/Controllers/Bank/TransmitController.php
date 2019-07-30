@@ -18,6 +18,10 @@ class TransmitController extends Controller
 
     protected $output = [];
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function learningTestbank(Request $request)
     {
         $type = $request->get('type', 'bill');
@@ -136,5 +140,33 @@ class TransmitController extends Controller
     protected function success($message = '')
     {
         return view('bank.learning.transmit', array_merge(['type' => $this->type, 'conn' => $this->conn], ['message' => $message]));
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function learningWordbank(Request $request)
+    {
+        $words = $request->get('words');
+        $conn = $request->get('conn');
+        $this->conn = $conn;
+        if (empty($words)) return $this->success();
+        $this->core_pdo = $this->getConnPdo('core', $this->conn);
+        $this->learn_pdo = $this->getConnPdo('learning', $this->conn);
+        foreach (explode(',', $words) as $word) {
+            $this->handleWord($word);
+        }
+        return $this->wordSuccess();
+    }
+
+    protected function handleWord($word)
+    {
+
+    }
+
+    protected function wordSuccess($message = '')
+    {
+        return view('bank.learning.transmit.wordbank', array_merge(['type' => $this->type, 'conn' => $this->conn], ['message' => $message]));
     }
 }

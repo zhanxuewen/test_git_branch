@@ -47,6 +47,8 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Testbank\UpdateLearningEntity::class,
         Commands\Luminee\Testbank\FixLearningItems::class,
 
+        Commands\Luminee\Wordbank\SyncWordbankToLearning::class,
+
 
         // 在线助教
         Commands\ZXZJ\Word\ImportWordSentence::class,
@@ -103,12 +105,13 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function () {
             $this->logSchedule('Export Balance And Accountant Statement Mid Monthly Start At ' . date('Y-m-d H:i:s'));
-            $day = ['start' => Carbon::today()->subDays(31)->toDateString(), 'end' => Carbon::yesterday()->toDateString()];
+            $day = ['start' => Carbon::today()->subMonth()->startOfMonth()->toDateString(),
+                'end' => Carbon::yesterday()->toDateString()];
             (new Schedules\Order\ExportAccountantStatement())->handle($day);
             $this->logSchedule('Export Accountant Statement Mid Monthly Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Order\ExportContractBalance())->handle();
             $this->logSchedule('Export Contract Balance Mid Monthly Done At ' . date('Y-m-d H:i:s'));
-        })->monthlyOn(15, '08:40');
+        })->monthlyOn(16, '08:40');
     }
 
     protected function logSchedule($log)
