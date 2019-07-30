@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use ES;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -40,31 +41,19 @@ class SlowController extends Controller
     {
         $_day = $request->get('day', 1);
         $_sec = $request->get('sec', 10);
-        $logs = $this->handleMysqlLog($this->getMysqlLog($_day));
+        list($logs, $start) = $this->getMysqlLog($_day);
         $sql_s = [];
         $times = [];
         $bad_s = [];
         foreach ($logs as $log) {
             if (empty($log)) continue;
-            $log = trim(str_replace('#', '', $log));
-            $date = substr($log, 0, 19);
-            if (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', $date)) $log = substr($log, 19);
-            if (preg_match('/\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d/', substr($log, -19))) $log = substr($log, 0, -19);
-            if (count($exp = explode('Query_time:', $log)) == 1) {
-                $bad_s[] = $log;
-                continue;
-            }
-            list($sql, $other) = $exp;
-            if (strstr($sql, '!40001 SQL_NO_CACHE')) continue;
-            if (count($exp = explode('User@Host:', $other)) == 1) {
-                $bad_s[] = $log;
-                continue;
-            }
-            list($time, $other) = $exp;
-            list($user, $host) = explode('@', $other);
-            if (strstr($host, '10.30.176.166')) continue;
-            $times[] = trim($time);
-            $sql_s[] = ['sql' => trim($sql), 'user' => trim($user), 'host' => trim($host), 'date' => $date];
+            if (!strstr($log->message, 'User@Host')) continue;
+            list($date, $user, $host, $time, $sql) = $this->handleMysqlLog($log->message);
+            if ($start->gt($date)) continue;
+//            if (strstr($sql, '!40001 SQL_NO_CACHE')) continue;
+//            if (strstr($host, '10.30.176.166')) continue;
+            $times[] = $time;
+            $sql_s[] = ['sql' => trim($sql), 'user' => $user, 'host' => $host, 'date' => $date];
         }
         arsort($times);
         return view('slow.mysql', compact('times', 'sql_s', 'bad_s', '_day', '_sec'));
@@ -72,20 +61,17 @@ class SlowController extends Controller
 
     protected function handleMysqlLog($log)
     {
-        preg_match('/<tbody>(.*)<\/tbody>/', $log, $match);
-        if (!isset($match[1])) dd($log);
-        $preg_time = '\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d';
-        $_log = preg_replace('/Time: \d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d{6}Z/', 'SplitTime', $match[1]);
-        $_log = preg_replace('/<[\/]?pre>/', '', $_log);
-        $_log = preg_replace('/<[\/]?t[rd]>/', '', $_log);
-        $_log = preg_replace('/<td class="nowrap">/', '', $_log);
-        $_log = preg_replace('/Id: \d{9}/', '', $_log);
-        $_log = preg_replace('/线上MySQL\d: MySQL-slow log/', '', $_log);
-        $_log = preg_replace('/Rows_examined: \d{7}' . $preg_time . '/', '', $_log);
-        $_log = preg_replace('/' . $preg_time . 'SET timestamp=\d{10};' . $preg_time . '/', '', $_log);
-        $_log = preg_replace('/Lock_time: \d.\d{6} Rows_sent: \d+/', '', $_log);
-        $_log = preg_replace('/Rows_examined: \d+' . $preg_time . '/', '', $_log);
-        return explode('# SplitTime', $_log);
+        $log = preg_replace('/SET timestamp=\d+;\n/', '', $log);
+        $items = explode("\n", $log);
+        list($date, $user, $time) = $items;
+        unset($items[0], $items[1], $items[2]);
+        $sql = implode("\n", $items);
+        preg_match('/\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/', $date, $match);
+        $date = str_replace('T', ' ', $match[0]);
+        $user = explode(':', str_replace('Id', '', $user))[1];
+        list($user, $host) = explode('@', $user);
+        $time = str_replace('Lock_time', '', explode(':', $time)[1]);
+        return [$date, trim($user), trim($host), trim($time), $sql];
     }
 
     protected function setDay($day, $id_x)
@@ -121,19 +107,17 @@ class SlowController extends Controller
 
     protected function getMysqlLog($day)
     {
-        $items = 'itemids%5B152351%5D=152351&itemids%5B152040%5D=152040&itemids%5B252547%5D=252547';
-        $time = Carbon::now()->subDays($day)->format('YmdHis');
-        $timestamp = Carbon::now()->timestamp . '000';
-        $url = 'http://zabbix.vanthink.cn/jsrpc.php?sid=63fd9a3fd67d7a39&type=9&method=screen.get&timestamp=' . $timestamp . '&mode=2&screenid=&groupid=&hostid=0&pageFile=history.php&profileIdx=web.item.graph&profileIdx2=152351&updateProfile=&screenitemid=&period=' . (86400 * $day) . '&stime=' . $time . '&isNow=1&resourcetype=17&' . $items . '&action=showvalues&filter=&filter_task=0&mark_color=1';
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [$this->getZabbixToken()]);
-        if (($result = curl_exec($ch)) === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
-            die($error);
+        $d = Carbon::now();
+        $dates = [$d->format('Ymd')];
+        for ($i = 1; $i <= $day; $i++) {
+            $dates[] = $d->subDay()->format('Ymd');
         }
-        curl_close($ch);
-        return $result;
+        $logs = [];
+        foreach ($dates as $date) {
+            $table = 'logstash-mysql-slow-' . $date;
+            $count = ES::table($table)->count();
+            $logs = array_merge($logs, ES::table($table)->take($count)->get()->toArray());
+        }
+        return [$logs, $d];
     }
 }

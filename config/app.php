@@ -179,6 +179,7 @@ return [
 
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Luminee\Watchdog\WatchdogServiceProvider::class,
+        Luminee\Esun\EsunServiceProvider::class,
 
     ],
 
@@ -230,6 +231,7 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
 
         'Excel'     => Maatwebsite\Excel\Facades\Excel::class,
+        'ES'        => Luminee\Esun\Facades\ES::class,
 
     ],
 
