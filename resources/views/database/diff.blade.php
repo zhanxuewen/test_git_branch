@@ -3,26 +3,24 @@
 
 @section('section')
     <div class="col-sm-12">
-        @foreach($projects as $project)
-            <a class="btn btn-default @if($project == $_project) btn-primary active @endif"
-               href="{!! url('database/diff').'?project='.$project.'&type='.$_type !!}">{{ucfirst($project)}}</a>
-        @endforeach
-    </div>
-    <br><br>
-    <div class="col-sm-12">
-        @foreach($types as $type)
-            <a class="btn btn-default @if($type == $_type) btn-primary active @endif"
-               href="{!! url('database/diff').'?project='.$_project.'&type='.$type !!}">Diff {{ucfirst($type)}}</a>
-        @endforeach
+        <div class="btn-group" role="group">
+            @foreach($projects as $_project)
+                <a class="btn btn-default @if($_project == $project) btn-primary active @endif"
+                   href="{!! url('database/diff').'?project='.$_project.'&type='.$type !!}">{{ucfirst($_project)}}</a>
+            @endforeach
+        </div>
+        <div class="btn-group" role="group">
+            @foreach($types as $_type)
+                <a class="btn btn-default @if($_type == $type) btn-primary active @endif"
+                   href="{!! url('database/diff').'?project='.$project.'&type='.$_type !!}">Diff {{ucfirst($_type)}}</a>
+            @endforeach
+        </div>
     </div>
     <div class="col-sm-6">
-        @if(isset($dev) && isset($test))
-            {!! \App\Helper\BladeHelper::oneColumnTable('Dev - Test', array_diff($dev, $test)) !!}
-            {!! \App\Helper\BladeHelper::oneColumnTable('Test - Dev', array_diff($test, $dev)) !!}
-        @endif
-        @if(isset($dev) && isset($online))
-            {!! \App\Helper\BladeHelper::oneColumnTable('Dev - Online', array_diff($dev, $online)) !!}
-            {!! \App\Helper\BladeHelper::oneColumnTable('Online - Dev', array_diff($online, $dev)) !!}
-        @endif
+        @foreach($rows as $conn => $row)
+            @if($conn == 'dev') @continue @endif
+            {!! \App\Helper\BladeHelper::oneColumnTable( array_diff($rows['dev'], $row),"Dev - " . ucfirst($conn)) !!}
+            {!! \App\Helper\BladeHelper::oneColumnTable( array_diff($row, $rows['dev']),ucfirst($conn) . " - Dev") !!}
+        @endforeach
     </div>
 @endsection

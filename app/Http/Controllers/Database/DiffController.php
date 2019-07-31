@@ -9,33 +9,17 @@ class DiffController extends Controller
 {
     public function diff(Request $request)
     {
-        $_project = $request->get('project', 'core');
-        $_type = $request->get('type', 'migrations');
-        $projects = [
-            'core' => [
-                'dev' => 'b_vanthink_core',
-                'test' => 'b_vanthink_online',
-                'online' => 'b_vanthink_online'
-            ],
-            'learning' => [
-                'dev_learning' => 'learning',
-                'test_learning' => 'learning',
-                'online_learning' => 'learning',
-            ]
-        ];
-        $conf = $projects[$_project];
-        $data = [];
-        foreach ($conf as $env => $db) {
-            if (is_null($pdo = $this->getPdo($env))) continue;
-            $sql = "list_" . $_type;
-            $env = str_replace('_learning', '', $env);
-            $data[$env] = $this->resultToArray($pdo->query($this->$sql($db)));
+        $project = $request->get('project', 'core');
+        $type = $request->get('type', 'migration');
+        $types = ['migration', 'seeder'];
+        $projects = $this->getConnProjects();
+        if (!in_array($project, $projects)) dd('error pro');
+        $rows = [];
+        foreach ($this->getConnections($project) as $conn) {
+            $pdo = $this->getConnPdo($project, $conn);
+            $rows[$conn] = \DB::setPdo($pdo)->table($type . 's')->pluck($type)->toArray();
         }
-        $data['_type'] = $_type;
-        $data['_project'] = $_project;
-        $data['types'] = ['migrations', 'tables', 'seeders'];
-        $data['projects'] = ['core', 'learning'];
-        return view('database.diff', $data);
+        return view('database.diff', compact('rows', 'projects', 'project', 'types', 'type'));
     }
 
     public function table_correct(Request $request)

@@ -11,6 +11,8 @@ class BladeHelper
 
     protected static $cache = null;
 
+    protected static $routes = null;
+
     public static function getCache($id)
     {
         if (is_null(self::$cache)) {
@@ -19,25 +21,26 @@ class BladeHelper
         return self::$cache;
     }
 
-    protected static $level
-        = [
-            1 => 'I',
-            2 => 'II',
-            3 => 'III',
-            4 => 'IV',
-            5 => 'V',
-            6 => 'VI',
-            7 => 'VII',
-            8 => 'VIII',
-            9 => 'IX',
-        ];
+    protected static function getRoutes()
+    {
+        if (is_null(self::$routes)) {
+            $id = \Auth::user()->id;
+            $routes = [];
+            foreach (json_decode(self::getCache($id), true) as $route) {
+                list($method, $uri) = explode('@', $route);
+                if (strstr($method, 'GET')) $routes[] = $uri;
+            }
+            self::$routes = $routes;
+        }
+        return self::$routes;
+    }
 
     public static function getTree($p_id, $labels)
     {
         $out = '';
         foreach ($labels[$p_id] as $label) {
             $id = $label['id'];
-            $badge = '<span class="badge">' . self::$level[$label['level']] . '</span>';
+            $badge = '<span class="badge">' . $label['level'] . '</span>';
             $multi = '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>';
             $has = isset($labels[$id]) ? $multi : '';
             $out .= '<li class="treeview"><a href="#">' . $badge . $label['name'] . ' <' . $id . '>' . $has . '</a>';
@@ -53,15 +56,14 @@ class BladeHelper
     {
         $out = '<div class="btn-group" role="group">';
         foreach ($item_s as $item) {
-            $class = $array[$key] == $item ? $class = ' btn-primary active' : '';
+            $class = $array[$key] == $item ? ' btn-primary active' : '';
             $url = url('/analyze');
             foreach ($array as $k => $v) {
                 $url .= '/' . ($key == $k ? $item : $v);
             }
             $out .= '<a class="btn btn-default' . $class . '" href = "' . trim($url, '/') . '">' . $item . '</a>';
         }
-        $out .= '</div>';
-        return $out;
+        return $out . '</div>';
     }
 
     public static function displayAccount($account)
@@ -69,16 +71,15 @@ class BladeHelper
         return "<td>{$account['nickname']}</td><td>{$account['user_type_id']}</td><td>{$account['school_id']}</td>";
     }
 
-    public static function oneColumnTable($title, $rows)
+    public static function oneColumnTable($rows, $title = null)
     {
         if (empty($rows)) return '';
         $out = '<table class="table table-bordered table-hover">';
-        $out .= '<caption>' . $title . '</caption>';
+        if (!empty($title)) $out .= '<caption>' . $title . '</caption>';
         foreach ($rows as $row) {
             $out .= '<tr><td>' . $row . '</td></tr>';
         }
-        $out .= '</table>';
-        return $out;
+        return $out . '</table>';
     }
 
     public static function treeView($label, $children, $icon)
@@ -98,8 +99,7 @@ class BladeHelper
             $fa = $url == $uri ? 'fa-check-circle-o' : 'fa-circle-o';
             $out .= '<li' . $act . '><a href="' . url($url) . '"><i class="fa ' . $fa . '"></i> ' . $name . '</a></li>';
         }
-        $out .= '</ul></li>';
-        return $out;
+        return $out . '</ul></li>';
     }
 
     public static function single_bar($name, $url, $icon)
@@ -110,11 +110,10 @@ class BladeHelper
 
     protected static function checkRoute($route)
     {
-        $json = self::getCache(\Auth::user()->id);
         $exist = false;
-        foreach (json_decode($json, true) as $item) {
-            if ($route == 'analyze/select/no_group' && $item == 'GET|HEAD@analyze/{type}/{group}/{auth?}') $exist = true;
-            if ($route == explode('@', $item)[1]) $exist = true;
+        foreach (self::getRoutes() as $item) {
+            if ($route == 'analyze/select/no_group' && $item == 'analyze/{type}/{group}/{auth?}') $exist = true;
+            if ($route == $item) $exist = true;
         }
         return $exist;
     }
@@ -138,8 +137,7 @@ class BladeHelper
     public static function monthOption($month, $start)
     {
         $start = Carbon::parse($start . '/1');
-        $now = Carbon::today()->endOfMonth();
-        $diff = $now->diffInMonths($start);
+        $diff = Carbon::today()->endOfMonth()->diffInMonths($start);
         $out = '';
         for ($i = 0; $i <= $diff; $i++) {
             $value = $start->year . '/' . $start->month;
@@ -154,16 +152,6 @@ class BladeHelper
     {
         $now = Carbon::now();
         return $now->year . '/' . $now->month == $month;
-    }
-
-    public static function displayArray($array)
-    {
-        $out = '<ul>';
-        foreach ($array as $key => $item) {
-            $out .= '<li>' . $key . ': ' . (is_array($item) ? self::displayArray($item) : $item) . '</li>';
-        }
-        $out .= '</ul>';
-        return $out;
     }
 
 }
