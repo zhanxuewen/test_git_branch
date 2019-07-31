@@ -9,7 +9,6 @@
         {!! \App\Helper\BladeHelper::treeView('Select', [
             'Marketer' => 'select/marketer',
             'Labels' => 'select/labels',
-            'Abnormal' => 'select/abnormal',
             'Quit Student' => 'select/quit_student',
             'Partner School' => 'select/partner_school',
         ], 'fa-table') !!}
