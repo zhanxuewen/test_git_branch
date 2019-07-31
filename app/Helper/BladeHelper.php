@@ -156,4 +156,14 @@ class BladeHelper
         return $now->year . '/' . $now->month == $month;
     }
 
+    public static function displayArray($array)
+    {
+        $out = '<ul>';
+        foreach ($array as $key => $item) {
+            $out .= '<li>' . $key . ': ' . (is_array($item) ? self::displayArray($item) : $item) . '</li>';
+        }
+        $out .= '</ul>';
+        return $out;
+    }
+
 }
