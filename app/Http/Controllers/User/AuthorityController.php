@@ -92,9 +92,17 @@ class AuthorityController extends Controller
 
     public function updatePower(Request $request, $power_id)
     {
-        $power = $this->builder->setModel('power')->find($power_id);
-        $power->fill($request->all())->save();
-        return back();
+        if ($request->get('delete') == 'need_delete') {
+            $this->builder->setModel('power')->where('id', $power_id)->delete();
+            $this->builder->setModel('rolePower')->where('power_id', $power_id)->delete();
+            $user_ids = $this->builder->setModel('account')->pluck('id')->toArray();
+            $this->delUserCache($user_ids);
+            return redirect('user/listPower');
+        } else {
+            $power = $this->builder->setModel('power')->find($power_id);
+            $power->fill($request->all())->save();
+            return back();
+        }
     }
 
     public function dispatchRoute(Request $request)

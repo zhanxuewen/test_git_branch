@@ -169,11 +169,6 @@ class SchoolController extends Controller
         return "SELECT school_member.school_id, school.`name`, nickname, $this->field_phone, REPLACE (REPLACE (account_type_id, 6, '校长'), 7, '学校校管') as user_type, last_login_time as time FROM school_member INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN school ON school.id = school_member.school_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE	school_member.account_type_id IN (6, 7) " . $this->getTime($params, 'last_login_time') . " ORDER BY school_member.school_id";
     }
 
-    protected function contract_balance_fee($params)
-    {
-        return "SELECT school.id as _school_id, school.`name`, attr.value as region, nickname, pop.`value` as contract, school_popularize_data.`value` as balance FROM school_popularize_data INNER JOIN school ON school.id = school_popularize_data.school_id INNER JOIN user_account ON school.marketer_id = user_account.id LEFT JOIN school_popularize_data AS pop ON pop.school_id = school.id AND pop.`key` = 'contract_class' LEFT JOIN school_attribute as attr ON attr.school_id = school.id AND attr.`key` = 'region' WHERE school_popularize_data.`key` = 'balance_fee'";
-    }
-
     protected function getTime($params, $column)
     {
         $time = isset($params['start']) ? "AND " . $column . " >= '" . $params['start'] . "' " : "";

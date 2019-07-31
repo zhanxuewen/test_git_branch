@@ -73,7 +73,6 @@
                         <option value="marketer_order_sum">市场专员下订单汇总</option>
                         <option value="word_pk_activity">词霸天活跃统计</option>
                         <option value="principal_last_login">学校管理者登录统计</option>
-                        <option value="contract_balance_fee">合作校余额</option>
                     </select>
                 </div>
                 <div class="form-group">

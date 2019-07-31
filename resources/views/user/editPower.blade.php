@@ -30,4 +30,21 @@
             <a href="{{url('user/listPower')}}" class="btn btn-success pull-right">Back To List</a>
         </form>
     </div>
+    <div class="col-sm-8 pull-right">
+        <form action="{{url('user/updatePower/'.$power->id)}}" method="POST" id="deleteForm">
+            {!! csrf_field() !!}
+            <input type="hidden" name="delete" value="need_delete">
+        </form>
+        <button type="button" onclick="confDelete()" class="btn btn-danger pull-right">Delete</button>
+    </div>
+@endsection
+
+@section('script')
+    <script>
+        function confDelete() {
+            if (confirm("是否删除?")) {
+                $("#deleteForm").submit();
+            }
+        }
+    </script>
 @endsection
