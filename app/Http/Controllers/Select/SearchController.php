@@ -31,22 +31,6 @@ class SearchController extends Controller
     }
 
     /**
-     * List And Search Yellow Account
-     * @param Request $request
-     * @return mixed
-     */
-    public function yellowAccount(Request $request)
-    {
-        $channel_id = $request->get('channel_id', 0);
-        $field = $request->get('field', 'phone');
-        $value = $request->get('value', '');
-        $pdo = $this->getPdo('online');
-        $accounts = $this->getRecord($pdo->query($this->search_yellow_account($request)));
-        $channels = $this->getRecord($pdo->query($this->list_channels()));
-        return view('select.yellow', compact('accounts', 'channels', 'channel_id', 'field', 'value'));
-    }
-
-    /**
      * List And Search Partner School
      * @param Request $request
      * @return mixed
@@ -62,13 +46,6 @@ class SearchController extends Controller
         $school = !is_null($school_id) ? $this->show_school($school_id) : [];
         $params = ['marketer_id' => $marketer_id, 'is_partner' => $is_partner, 'school_id' => $school_id];
         return view('select.partner', compact('schools', 'school', 'marketers', 'marketer_id', 'school_id', 'is_partner', 'params'));
-    }
-
-    public function wordbank(Request $request)
-    {
-        $word = $request->get('word');
-        $words = DB::setPdo($this->getPdo('online'))->table('wordbank')->orderBy('initial', 'acs')->paginate($this->getPerPage());
-        return view('select.wordbank', compact('words'));
     }
 
     protected function find_student($student_id)
@@ -146,14 +123,6 @@ class SearchController extends Controller
     protected function list_vanclass($ids)
     {
         return "SELECT vanclass.id, vanclass.`name`, vanclass.student_count, teacher_id, nickname, user_account.school_id FROM vanclass INNER JOIN vanclass_teacher ON vanclass_teacher.vanclass_id = vanclass.id INNER JOIN user_account ON user_account.id = vanclass_teacher.teacher_id WHERE vanclass.id IN (" . implode(',', $ids) . ")";
-    }
-
-    protected function search_yellow_account(Request $request)
-    {
-        $account = $request->filled('value') ? $request->get('field') . ' = ' . $request->get('value') : '';
-        $channel = $request->get('channel_id') == 0 ? '' : 'system_channel.id = ' . $request->get('channel_id');
-        $where = ($account == '' AND $channel == '') ? '' : ' WHERE ' . $this->implodeWhere([$account, $channel]);
-        return "SELECT INSERT (phone, 4, 4, '****') as phone, user_account.id, nickname, user_type_id, `name`, user_paid_channel.created_at FROM user_paid_channel INNER JOIN system_channel ON system_channel.id = user_paid_channel.channel_id INNER JOIN user_account ON user_account.id = user_paid_channel.account_id INNER JOIN `user` ON `user`.id = user_account.user_id $where LIMIT 50";
     }
 
     protected function list_channels()
