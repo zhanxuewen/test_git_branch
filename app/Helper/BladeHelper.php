@@ -9,14 +9,26 @@ class BladeHelper
 {
     use PdoBuilder;
 
+    protected static $user_id = null;
+
     protected static $cache = null;
 
     protected static $routes = null;
 
-    public static function getCache($id)
+    protected static $info = null;
+
+    public static function getUserId()
+    {
+        if (is_null(self::$user_id)) {
+            self::$user_id = \Auth::user()->id;
+        }
+        return self::$user_id;
+    }
+
+    public static function getCache()
     {
         if (is_null(self::$cache)) {
-            self::$cache = (new self())->getRedis('analyze')->get($id . '_routes');
+            self::$cache = (new self())->getRedis('analyze')->get(self::getUserId() . '_routes');
         }
         return self::$cache;
     }
@@ -24,15 +36,22 @@ class BladeHelper
     protected static function getRoutes()
     {
         if (is_null(self::$routes)) {
-            $id = \Auth::user()->id;
             $routes = [];
-            foreach (json_decode(self::getCache($id), true) as $route) {
+            foreach (json_decode(self::getCache(), true) as $route) {
                 list($method, $uri) = explode('@', $route);
                 if (strstr($method, 'GET')) $routes[] = $uri;
             }
             self::$routes = $routes;
         }
         return self::$routes;
+    }
+
+    public static function getUserInfo()
+    {
+        if (is_null(self::$info)) {
+            self::$info = (new self())->getRedis('analyze')->get(self::getUserId() . '_info');
+        }
+        return self::$info;
     }
 
     public static function getTree($p_id, $labels)
