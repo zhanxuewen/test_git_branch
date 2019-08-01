@@ -17,6 +17,7 @@ class DiffController extends Controller
         $rows = [];
         foreach ($this->getConnections($project) as $conn) {
             $pdo = $this->getConnPdo($project, $conn);
+            if (is_null($pdo)) continue;
             $rows[$conn] = \DB::setPdo($pdo)->table($type . 's')->pluck($type)->toArray();
         }
         return view('database.diff', compact('rows', 'projects', 'project', 'types', 'type'));
