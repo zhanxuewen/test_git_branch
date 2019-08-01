@@ -22,20 +22,11 @@
                     <span class="hidden-xs">[{!! isset($auth_user['role']) ? $auth_user['role'] : '' !!}]
                         <b>{{ $auth_user['username'] }}</b></span>
                 </a>
-                <ul class="dropdown-menu">
-                    <li class="user-footer">
-                        <div class="pull-left">
-                            <span><b>Greeting {{ $auth_user['username'] }} !</b></span>
-                        </div>
-                        <div class="pull-right">
-                            <a href="{{route('logout')}}" class="btn btn-default btn-flat">Sign out</a>
-                        </div>
-                    </li>
-                </ul>
             </li>
+            <li class="user user-menu"><a href="{{route('logout')}}"><i class="fa fa-sign-out"></i></a></li>
             <!-- Control Sidebar Toggle Button -->
             {{--<li>--}}
-            {{--<a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>--}}
+            {{--<a href="#" data-toggle="control-sidebar"><i class="fas fa-gears"></i></a>--}}
             {{--</li>--}}
         </ul>
     </div>
