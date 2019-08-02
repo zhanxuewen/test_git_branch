@@ -45,13 +45,19 @@ abstract class Controller extends BaseController
         return is_null($field) ? $this->user : $this->user->$field;
     }
 
-    protected function delUserCache($ids)
+    protected function delUsersRouteCache($ids)
     {
         if (empty($ids)) return 0;
         foreach ($ids as &$id) {
             $id = $id . '_routes';
         }
         return $this->getRedis('analyze')->del($ids);
+    }
+
+    protected function delUserCache($id)
+    {
+        if (empty($id)) return 0;
+        return $this->getRedis('analyze')->del([$id . '_routes', $id . '_info']);
     }
 
     protected function logContent($section, $type, $content)

@@ -63,7 +63,7 @@ class AuthorityController extends Controller
         }
         $this->builder->setModel('rolePower')->insert($create);
         $this->builder->setModel('rolePower')->where('role_id', $role_id)->whereIn('power_id', $delete)->delete();
-        $this->delUserCache($this->getUsersByRoleId($role_id));
+        $this->delUsersRouteCache($this->getUsersByRoleId($role_id));
         return back();
     }
 
@@ -96,7 +96,7 @@ class AuthorityController extends Controller
             $this->builder->setModel('power')->where('id', $power_id)->delete();
             $this->builder->setModel('rolePower')->where('power_id', $power_id)->delete();
             $user_ids = $this->builder->setModel('account')->pluck('id')->toArray();
-            $this->delUserCache($user_ids);
+            $this->delUsersRouteCache($user_ids);
             return redirect('user/listPower');
         } else {
             $power = $this->builder->setModel('power')->find($power_id);
@@ -117,7 +117,7 @@ class AuthorityController extends Controller
         }
         $this->builder->setModel('rolePower')->insert($create);
         $user_ids = $this->builder->setModel('account')->pluck('id')->toArray();
-        $this->delUserCache($user_ids);
+        $this->delUsersRouteCache($user_ids);
         return redirect('user/listPower');
     }
 

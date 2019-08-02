@@ -13,4 +13,5 @@ Route::group(['namespace' => 'Auth'], function () {
     });
 
     Route::get('/', ['as' => 'homepage', 'uses' => 'AuthController@index']);
+    Route::get('flushCache', ['uses' => 'AuthController@flushCache']);
 });
