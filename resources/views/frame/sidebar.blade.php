@@ -29,6 +29,7 @@
         ], 'fa-bar-chart') !!}
         {!! \App\Helper\BladeHelper::treeView('资源库', [
             '百项过题库' => 'bank/learning/search/testbank',
+            '在线助教资源' => 'bank/core/resource',
             '同步百项过小题' => 'bank/learning/sync/entity',
             '同步题库到百项过' => 'bank/transmit/learning/testbank',
         ], 'fa-bank') !!}
