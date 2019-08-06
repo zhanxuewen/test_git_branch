@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 use ES;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -76,6 +77,11 @@ class SlowController extends Controller
         $logs = [];
         foreach ($dates as $date) {
             $table = 'logstash-' . $name . '-' . $date;
+            try {
+                ES::table($table)->count();
+            } catch (Missing404Exception $e) {
+                continue;
+            }
             if ($name == 'mysql-slow') {
                 $count = ES::table($table)->count();
                 $logs = array_merge($logs, ES::table($table)->take($count)->get()->toArray());
