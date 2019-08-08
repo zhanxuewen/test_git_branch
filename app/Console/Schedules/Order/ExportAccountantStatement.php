@@ -63,7 +63,7 @@ class ExportAccountantStatement extends BaseSchedule
         $file = $this->store($path . '/' . $filename, $report);
         if ($send) {
             list($object, $subject) = $this->getSubject($day);
-            $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => $object . '对账单'], $subject . ' Accountant Statement Export', realpath($file));
+            $this->email(['xuyayue@vanthink.org', 'xiemin68@163.com'], 'emails.export', ['object' => $object . '对账单'], $subject . ' Accountant Statement Export', realpath($file));
         }
     }
 

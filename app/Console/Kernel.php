@@ -104,6 +104,13 @@ class Kernel extends ConsoleKernel
         })->monthlyOn(1, '08:40');
 
         $schedule->call(function () {
+            $this->logSchedule('Export Activity Summary Monthly Start At ' . date('Y-m-d H:i:s'));
+            $day = ['start' => Carbon::today()->subMonth()->toDateString(), 'end' => Carbon::today()->subDay()->toDateString()];
+            (new Schedules\Order\ExportActivitySummary())->handle($day);
+            $this->logSchedule('Export Activity Summary Monthly List Done At ' . date('Y-m-d H:i:s'));
+        })->monthlyOn(1, '09:00');
+
+        $schedule->call(function () {
             $this->logSchedule('Export Balance And Accountant Statement Mid Monthly Start At ' . date('Y-m-d H:i:s'));
             $day = ['start' => Carbon::today()->subMonth()->startOfMonth()->toDateString(),
                 'end' => Carbon::yesterday()->toDateString()];

@@ -40,7 +40,7 @@ class ExportContractBalance extends BaseSchedule
         $path = 'balance/' . $today->year . '/' . $today->month;
         $file = $this->store($path . '/' . $filename, $report);
         if ($send) {
-            $this->email('xuyayue@vanthink.org', 'emails.export', ['object' => '合作校余额'], $today->toDateString() . ' Balance Export', realpath($file));
+            $this->email(['xuyayue@vanthink.org', 'xiemin68@163.com'], 'emails.export', ['object' => '合作校余额'], $today->toDateString() . ' Balance Export', realpath($file));
         }
     }
 

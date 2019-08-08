@@ -17,9 +17,20 @@ trait Excel
         return _Excel::download(new Export($record), $name . $ext);
     }
 
+    public function sheetsExport($name, $record, $ext = '.xls')
+    {
+        return _Excel::download(new SheetsExport($record), $name . $ext);
+    }
+
     public function store($file, $data, $ext = '.xls')
     {
         _Excel::store(new Export($data), $file . $ext, $disk = 'export');
+        return $this->getDiskPath($disk) . '/' . $file . $ext;
+    }
+
+    public function sheetsStore($file, $data, $ext = '.xls')
+    {
+        _Excel::store(new SheetsExport($data), $file . $ext, $disk = 'export');
         return $this->getDiskPath($disk) . '/' . $file . $ext;
     }
 
@@ -61,14 +72,17 @@ class Import implements ToArray
 }
 
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\WithTitle;
 
-class Export implements FromCollection
+class Export implements FromCollection, WithTitle
 {
     protected $data;
+    protected $title;
 
-    public function __construct($data)
+    public function __construct($data, $title = '')
     {
         $this->data = collect($data);
+        $this->title = $title;
     }
 
     /**
@@ -77,5 +91,42 @@ class Export implements FromCollection
     public function collection()
     {
         return $this->data;
+    }
+
+    /**
+     * @return string
+     */
+    public function title(): string
+    {
+        return $this->title;
+    }
+}
+
+use Maatwebsite\Excel\Concerns\Exportable;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
+
+class SheetsExport implements WithMultipleSheets
+{
+    use Exportable;
+
+    protected $sheets;
+
+    public function __construct($sheets)
+    {
+        $this->sheets = $sheets;
+    }
+
+    /**
+     * @return array
+     */
+    public function sheets(): array
+    {
+        $sheets = [];
+
+        foreach ($this->sheets as $title => $data) {
+            $sheets[] = new Export($data, $title);
+        }
+
+        return $sheets;
     }
 }

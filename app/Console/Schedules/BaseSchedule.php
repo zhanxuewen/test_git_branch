@@ -36,10 +36,39 @@ class BaseSchedule
         ];
     }
 
+    protected function dPrices()
+    {
+        $d_prices = \DB::table('school_popularize_data')->selectRaw('school_id, `key`, `value`')->where('key', 'like', '%min_price_at_D')->get();
+        $data = [];
+        foreach ($d_prices as $price) {
+            switch ($price->key) {
+                case 'month_min_price_at_D' :
+                    $data[$price->school_id][1] = $price->value;
+                    break;
+                case 'quarter_min_price_at_D' :
+                    $data[$price->school_id][2] = $price->value;
+                    break;
+                case 'half_min_price_at_D' :
+                    $data[$price->school_id][3] = $price->value;
+                    break;
+                case 'year_min_price_at_D' :
+                    $data[$price->school_id][4] = $price->value;
+                    break;
+            }
+        }
+        return $data;
+    }
+
     public function getContract()
     {
         $list = \DB::table('school_popularize_data')->selectRaw('school_id, value')->where('key', 'contract_class')->get();
         return $this->queryToArray($list, 'school_id', 'value');
+    }
+
+    public function getContractDate()
+    {
+        $list = \DB::table('school_popularize_data')->selectRaw('school_id, updated_at')->where('key', 'is_partner_school')->where('value', 1)->get();
+        return $this->queryToArray($list, 'school_id', 'updated_at');
     }
 
     public function getRegions()
@@ -81,8 +110,84 @@ class BaseSchedule
     protected function email($to, $blade, $data, $subject, $attach)
     {
         \Mail::send($blade, $data, function (Message $message) use ($to, $subject, $attach) {
-            $message->to($to)->subject($subject);
+            if (is_array($to)) list($to, $cc) = $to;
+            $message->to($to);
+            if (isset($cc)) $message->cc($cc);
+            $message->subject($subject);
             $message->attach($attach);
         });
+    }
+
+    /**
+     * Summary Functions
+     */
+
+    public function getPopExpire()
+    {
+        $list = \DB::table('school_popularize_data')->selectRaw('school_id, value')->where('key', 'improve_card_expired_at')->get();
+        return $this->queryToArray($list, 'school_id', 'value');
+    }
+
+    public function getSchoolTeacher()
+    {
+        $list = \DB::table('school_member')->selectRaw('school_id, count(account_id) as count')->where('account_type_id', 4)->groupBy('school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolNewTeacher($between)
+    {
+        $list = \DB::table('school_member')->selectRaw('school_id, count(account_id) as count')->whereBetween('joined_time', $between)->where('account_type_id', 4)->groupBy('school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolActTeacher($between)
+    {
+        $list = \DB::table('statistic_teacher_activity')->join('school_member', 'school_member.account_id', '=', 'statistic_teacher_activity.teacher_id')->selectRaw('school_member.school_id, count(distinct statistic_teacher_activity.teacher_id) as count')->whereBetween('statistic_teacher_activity.created_date', $between)->where('statistic_teacher_activity.has_login', 1)->where('school_member.joined_time', '<=', $between['end'])->where('school_member.account_type_id', 4)->groupBy('school_member.school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolStudent()
+    {
+        $list = \DB::table('school_member')->selectRaw('school_id, count(account_id) as count')->where('account_type_id', 5)->groupBy('school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolNewStudent($between)
+    {
+        $list = \DB::table('school_member')->selectRaw('school_id, count(school_member.account_id) AS count')->join('user_account_attribute', 'user_account_attribute.account_id', '=', 'school_member.account_id')->where('user_account_attribute.key', 'default_school')->whereRaw('user_account_attribute.value = school_member.school_id')->whereBetween('school_member.joined_time', $between)->where('school_member.account_type_id', 5)->groupBy('school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolActStudent($between)
+    {
+        $list = \DB::table('statistic_student_activity')->join('school_member', 'school_member.account_id', '=', 'statistic_student_activity.student_id')->selectRaw('school_member.school_id, count(distinct statistic_student_activity.student_id) as count')->whereBetween('statistic_student_activity.created_date', $between)->where(function ($query) {
+            $query->where('statistic_student_activity.has_login', 1)
+                ->orWhere('statistic_student_activity.has_spread_record', 1);
+        })->where('school_member.joined_time', '<=', $between['end'])->where('school_member.account_type_id', 5)->groupBy('school_member.school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolTrail($end)
+    {
+        $list = \DB::table('school_member')->join('statistic_student_expire', 'school_member.account_id', '=', 'statistic_student_expire.student_id')->selectRaw('school_member.school_id, count(distinct statistic_student_expire.student_id) as count')->where('free_end_at', '>', $end)->where('school_member.account_type_id', 5)->groupBy('school_member.school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolEffect($end)
+    {
+        $list = \DB::table('school_member')->join('statistic_student_expire', 'school_member.account_id', '=', 'statistic_student_expire.student_id')->selectRaw('school_member.school_id, count(distinct statistic_student_expire.student_id) as count')->where('expired_at', '>', $end)->where('school_member.account_type_id', 5)->groupBy('school_member.school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolStar($between)
+    {
+        $list = \DB::table('statistic_student_data')->join('school_member', 'school_member.account_id', '=', 'statistic_student_data.student_id')->selectRaw('school_member.school_id, sum(statistic_student_data.star) as count')->whereBetween('statistic_student_data.created_date', $between)->where('school_member.joined_time', '<=', $between['end'])->where('school_member.account_type_id', 5)->groupBy('school_member.school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
+    }
+
+    public function getSchoolScore($between)
+    {
+        $list = \DB::table('statistic_student_data')->join('school_member', 'school_member.account_id', '=', 'statistic_student_data.student_id')->selectRaw('school_member.school_id, sum(statistic_student_data.score) as count')->whereBetween('statistic_student_data.created_date', $between)->where('school_member.joined_time', '<=', $between['end'])->where('school_member.account_type_id', 5)->groupBy('school_member.school_id')->get();
+        return $this->queryToArray($list, 'school_id', 'count');
     }
 }
