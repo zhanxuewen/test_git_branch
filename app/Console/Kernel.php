@@ -40,6 +40,9 @@ class Kernel extends ConsoleKernel
 
         Commands\Luminee\Order\AnalyzeOrder::class,
         Commands\Luminee\Order\ExportAnalyzeOrder::class,
+
+        Commands\Luminee\Resource\SyncResourceAudioToLearning::class,
+
         Commands\Luminee\Testbank\SyncTestbankToLearning::class,
         Commands\Luminee\Testbank\DeleteLearningBill::class,
         Commands\Luminee\Testbank\RebuildLearningEntityOrder::class,
@@ -48,6 +51,7 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Testbank\FixLearningItems::class,
 
         Commands\Luminee\Wordbank\SyncWordbankToLearning::class,
+        Commands\Luminee\Wordbank\SyncLabelToLearning::class,
 
 
         // 在线助教

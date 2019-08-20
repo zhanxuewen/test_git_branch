@@ -44,13 +44,14 @@ class SyncTestbankToLearning extends Command
      */
     public function handle()
     {
-        $connections = [
-            'online' => ['core' => 'online', 'learning' => 'online_learning'],
-            'dev' => ['core' => 'dev', 'learning' => 'dev_learning']
-        ];
         $conn = $this->argument('conn');
-        $this->core_pdo = $this->getPdo($connections[$conn]['core']);
-        $this->learn_pdo = $this->getPdo($connections[$conn]['learning']);
+        if (strstr($conn, '-')) {
+            list($from, $to) = explode('-', $conn);
+        } else {
+            $from = $to = $conn;
+        }
+        $this->core_pdo = $this->getConnPdo('core', $from);
+        $this->learn_pdo = $this->getConnPdo('learning', $to);
         $bill_ids = [];
         DB::setPdo($this->core_pdo)->table('testbank_collection')->whereIn('id', $bill_ids)
             ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($bills) {
