@@ -43,46 +43,30 @@ class LearningController extends Controller
         $core_id = $request->get('core_id');
         $learn_id = $request->get('learn_id');
         $ass_id = $request->get('ass_id');
-        $type = $request->get('type');
-        $search = $request->get('search');
-        $replace = $request->get('replace');
-        if (!empty($replace)) {
-            $_search = $this->buildJson($search, $type);
-            $_replace = $this->buildJson($replace, $type);
-            if (!empty($_replace)) {
-                DB::setPdo($this->getPdo($conn))->table('testbank_entity')->where('id', $learn_id)->update($this->buildUpdate('testbank_item_value', $_search, $_replace));
-                DB::table('assessment_question_entity')->where('id', $ass_id)->update($this->buildUpdate('item_value', $_search, $_replace));
-                $content = "Conn: $conn, Learning: $learn_id, Ass: $ass_id; Search: $search, Replace: $replace";
-                $this->logContent('Bank', 'replace', $content);
-            }
-        }
+        $pdo = $this->getPdo($conn);
         $data = [];
         if (!empty($core_id)) {
             $core = DB::setPdo($this->getPdo('online'))->table('testbank_entity')->find($core_id);
-            $learn = DB::setPdo($this->getPdo($conn))->table('testbank_entity')->find($learn_id);
+            DB::setPdo($pdo);
+            if ($request->get('type') == 'update') {
+                $ass = DB::table('assessment_question_entity')->find($ass_id);
+                DB::table('testbank_entity')->where('id', $learn_id)->update(['testbank_item_value' => $core->testbank_item_value]);
+                DB::table('assessment_question_entity')->where('id', $ass_id)->update($this->buildAssItem($ass, $core->testbank_item_value));
+                $content = "Conn: $conn, Learning: $learn_id, Ass: $ass_id; Update Entity";
+                $this->logContent('Bank', 'replace', $content);
+            }
+            $learn = DB::table('testbank_entity')->find($learn_id);
             $ass = DB::table('assessment_question_entity')->find($ass_id);
             $data = compact('core', 'learn', 'ass');
         }
-        return view('bank.learning.sync', array_merge(compact('core_id', 'learn_id', 'ass_id', 'search', 'replace', 'conn', 'type'), $data));
+        return view('bank.learning.sync', array_merge(compact('core_id', 'learn_id', 'ass_id', 'conn'), $data));
     }
 
-    protected function buildJson($str, $type)
+    protected function buildAssItem($ass, $value)
     {
-        if (strstr($str, '\\')) $str = str_replace('\\', '\\\\', $str);
-        if ($type == 'str') return $str;
-        $arr = strstr($str, ':') ? $this->buildArray($str) : [trim($str)];
-        return trim(json_encode($arr), '{}');
-    }
-
-    protected function buildArray($str)
-    {
-        list($key, $val) = explode(':', $str);
-        return [trim($key) => is_numeric($val) ? (int)$val : trim($val)];
-    }
-
-    protected function buildUpdate($field, $search, $replace)
-    {
-        return [$field => DB::raw("REPLACE(`$field`,'$search','$replace')")];
+        $item = json_decode($ass->item_value);
+        $data = json_encode(['id' => $item->id, 'testbank_id' => $item->testbank_id, 'created_at' => $item->created_at, 'updated_at' => $item->updated_at]);
+        return ['item_value' => str_replace('}__{', ',', $data . '__' . $value)];
     }
 
 }
