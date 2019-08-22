@@ -36,10 +36,14 @@
             @endcomponent
         @endif
         @if($type=='bill')
-            @component('bank.learning.search.bill', [
-                            'core_bill'=>$core_bill,'core_testbank_s'=>$core_testbank_s,'conn'=>$conn,
-                            'learn_bill'=>$learn_bill,'learn_testbank_s'=>$learn_testbank_s])
-            @endcomponent
+            @if(!isset($learn_bill))
+                <div class="col-sm-12"><span class="bg-red">百项过题库，对应题单不存在</span></div>
+            @else
+                @component('bank.learning.search.bill', [
+                                'core_bill'=>$core_bill,'core_testbank_s'=>$core_testbank_s,'conn'=>$conn,
+                                'learn_bill'=>$learn_bill,'learn_testbank_s'=>$learn_testbank_s])
+                @endcomponent
+            @endif
         @endif
     @endif
 @endsection
