@@ -40,7 +40,7 @@
                     @endif
                     <li>
                         @if(!isset($online_res[$name]))
-                            <a href="{{URL::current().'?search='.$search.'&id='.$v->id}}"><u><b>{{$name}}</b></u></a>
+                            <a href="{{URL::current().'?conn='.$conn.'&search='.$search.'&id='.$v->id}}"><u><b>{{$name}}</b></u></a>
                         @else
                             <span>{{$name}}</span>
                         @endif
