@@ -47,20 +47,50 @@ class SyncWordbankToLearning extends Command
      */
     public function handle()
     {
-        $connections = [
-            'online' => ['core' => 'online', 'learning' => 'online_learning'],
-            'dev' => ['core' => 'dev', 'learning' => 'dev_learning']
-        ];
         $conn = $this->argument('conn');
-        $this->core_pdo = $this->getPdo($connections[$conn]['core']);
-        $this->learn_pdo = $this->getPdo($connections[$conn]['learning']);
-        $words = DB::setPdo($this->core_pdo)->table('wordbank')->whereNull('deleted_at')->selectRaw('vocabulary')->get();
-//        $words = ['about', 'above'];
-        $this->coo = count($words);
-        foreach ($words as $word) {
-            $this->handleWord(trim($word->vocabulary));
+        if (strstr($conn, '-')) {
+            list($from, $to) = explode('-', $conn);
+        } else {
+            $from = $to = $conn;
         }
+        $this->core_pdo = $this->getConnPdo('core', $from);
+        $this->learn_pdo = $this->getConnPdo('learning', $to);
 
+        $this->handleInsert('wordbank', 'id, vocabulary, phonetic, initial, created_at, updated_at');
+        $this->handleInsert('wordbank_translation', 'id, wordbank_id, part_of_speech, translation, power, created_at, updated_at');
+        $this->handleInsert('wordbank_sentence', 'id, translation_id, teacher_id, sentence, `explain`, created_at, updated_at');
+
+
+//        $words = DB::setPdo($this->core_pdo)->table('wordbank')->whereNull('deleted_at')->pluck('vocabulary');
+//        $words = ['anybody', 'anyone', 'arm', 'around', 'one', 'pen', 'pencil', 'pencil-case', 'ruler', 'eraser', 'crayon', 'book', 'bag', 'sharpener', 'school', 'head', 'face', 'nose', 'mouth', 'eye'];
+//        $this->coo = count($words);
+//        foreach ($words as $word) {
+//            $this->handleWord(trim($word));
+//        }
+
+    }
+
+    protected function handleInsert($table, $raw)
+    {
+        $words = DB::setPdo($this->core_pdo)->table($table)->whereNull('deleted_at')->selectRaw($raw)->get();
+        $this->output->progressStart(count($words));
+        $chunk = array_chunk($words->toArray(), 1000);
+        DB::setPdo($this->learn_pdo);
+        $learn = DB::table($table)->whereNull('deleted_at')->pluck('id')->toArray();
+        foreach ($chunk as $_words) {
+            $data = [];
+            foreach ($_words as $word) {
+                if (in_array($word->id, $learn)) {
+                    $this->output->progressAdvance();
+                    continue;
+                }
+                $data[] = json_decode(json_encode($word), true);
+                $this->output->progressAdvance();
+            }
+            if (!empty($data)) $this->info(count($data));
+            DB::table($table)->insert($data);
+        }
+        $this->output->progressFinish();
     }
 
     protected function handleWord($word)
