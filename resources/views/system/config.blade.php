@@ -20,9 +20,9 @@
                 <div class="form-group col-sm-2">
                     <label for="conn">审计链接</label>
                     <select name="conn" id="conn" class="form-control">
-                        <option value="dev" @if($conn == 'dev') selected @endif>Dev</option>
-                        <option value="test" @if($conn == 'test') selected @endif>Test</option>
-                        <option value="dev_shorthand" @if($conn == 'dev_shorthand') selected @endif>Dev Shorthand</option>
+                        @foreach($conn_s as $_conn => $label)
+                            <option value="{{$_conn}}" @if($conn == $_conn) selected @endif>{{$label}}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="form-group col-sm-1">

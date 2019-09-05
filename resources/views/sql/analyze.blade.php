@@ -31,7 +31,7 @@
         <a class="btn btn-warning pull-right" id="toggle-hide">Bad Sql / All</a>
         <nav aria-label="Page navigation">{!! $sql_s->render() !!}</nav>
         <table class="table table-bordered table-hover">
-            <caption><b>[{{$conn}}]</b> total : {{count($sql_s)}}</caption>
+            <caption><b>[{{ucfirst($project)}} - {{ucfirst($conn)}}]</b> total : {{count($sql_s)}}</caption>
             @foreach($sql_s as $sql)
                 <tr>
                     <td @if(\App\Helper\Helper::needHide($sql->explain, $conn) == true && $sql->time < 1000) class="need-hide" @endif>

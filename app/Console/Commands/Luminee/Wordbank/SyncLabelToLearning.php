@@ -55,10 +55,11 @@ class SyncLabelToLearning extends Command
         }
         $this->core_pdo = $this->getConnPdo('core', $from);
         $this->learn_pdo = $this->getConnPdo('learning', $to);
-//        $this->handleLabel();
-//        $this->handleScope();
-//        $this->handleInsert('wordbank_translation_label', 'id, translation_id, wordbank_id, label_id, created_at, updated_at');
+        $this->handleLabel();
+        $this->handleScope();
+        $this->handleInsert('wordbank_translation_label', 'id, translation_id, wordbank_id, label_id, created_at, updated_at');
         $this->handleInsert('label_type', 'id, name, level', 'core_label_type');
+        $this->handleInsert('label_scope', 'id, code, name', 'core_label_scope');
     }
 
     protected function handleLabel()

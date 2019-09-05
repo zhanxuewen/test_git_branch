@@ -23,8 +23,8 @@ class SqlController extends Controller
         }
         $_day = $day;
         $days = ['7_d' => '7 days', '14_d' => '14 days', 'lastWeek' => 'last week', 'lastMonth' => 'last month'];
-        $conn = $this->getAnalyzeConn();
-        $db = DB::setPdo($this->getPdo($conn));
+        list($project, $conn) = $this->getAnalyzeConn();
+        $db = DB::setPdo($this->getConnPdo($project, $conn));
         $auth_s = $db->table('sql_log')->distinct()->pluck('auth');
         $type_s = $db->table('sql_log')->distinct()->pluck('type');
         $group_s = ['no_group', 'in_group'];
@@ -35,21 +35,21 @@ class SqlController extends Controller
             : $query->orderBy('time', 'desc');
         if (!empty($between)) $query->whereBetween('created_at', $between);
         $sql_s = $query->paginate($this->getPerPage());
-        return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group', '_day', 'days', 'conn'));
+        return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group', '_day', 'days', 'project', 'conn'));
     }
 
     public function querySql(Request $request)
     {
-        $conn = $this->getAnalyzeConn();
+        list($project, $conn) = $this->getAnalyzeConn();
         $query = $request->get('query');
-        $sql_s = DB::setPdo($this->getPdo($conn))->table('sql_log')->where('query', $query)->orderBy('time', 'desc')->paginate($this->getPerPage());
+        $sql_s = DB::setPdo($this->getConnPdo($project, $conn))->table('sql_log')->where('query', $query)->orderBy('time', 'desc')->paginate($this->getPerPage());
         return view('sql.query_sql', compact('sql_s'));
     }
 
     public function queryId($id)
     {
-        $conn = $this->getAnalyzeConn();
-        $db = DB::setPdo($this->getPdo($conn));
+        list($project, $conn) = $this->getAnalyzeConn();
+        $db = DB::setPdo($this->getConnPdo($project, $conn));
         $sql = $db->select("SELECT * FROM sql_log WHERE id = " . $id . " LIMIT 1")[0];
         if (is_null($sql->bindings)) {
             $sql->query = str_replace('&apos;', '\'', str_replace('&quot;', '"', $sql->query));
@@ -69,17 +69,17 @@ class SqlController extends Controller
 
     public function emptySql(Request $request)
     {
-        $conn = $this->getAnalyzeConn();
+        list($project, $conn) = $this->getAnalyzeConn();
         $auth = $request->get('auth');
-        DB::setPdo($this->getPdo($conn))->table('sql_log')->where('auth', $auth)->delete();
+        DB::setPdo($this->getConnPdo($project, $conn))->table('sql_log')->where('auth', $auth)->delete();
         return back();
     }
 
     public function ajaxQuerySql(Request $request)
     {
-        $conn = $this->getAnalyzeConn();
+        list($project, $conn) = $this->getAnalyzeConn();
         $start = microtime(true);
-        DB::setPdo($this->getPdo($conn))->select($request->get('sql'));
+        DB::setPdo($this->getConnPdo($project, $conn))->select($request->get('sql'));
         return round((microtime(true) - $start) * 1000, 2);
     }
 
@@ -89,9 +89,9 @@ class SqlController extends Controller
         $user_id = $this->getUser('id');
         $key = $user_id . '_sql_analyze_conn';
         if (!$conn = $redis->get($key)) {
-            $conn = 'dev';
+            $conn = 'core-dev';
             $redis->setex($key, 60 * 60 * 24, $conn);
         }
-        return $conn;
+        return explode('-', $conn);
     }
 }

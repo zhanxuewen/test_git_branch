@@ -2,7 +2,7 @@
 @section('title','Sql Analyze Query Id')
 
 @section('section')
-    <div class="col-xs-12 col-sm-4">
+    <div class="col-xs-12 col-sm-12">
         <table class="table table-bordered table-hover">
             <tr>
                 <th class="text-right">Query</th>
@@ -22,7 +22,7 @@
             </tr>
         </table>
     </div>
-    <div class="col-xs-12 col-sm-9">
+    <div class="col-xs-12 col-sm-12">
         <table class="table table-bordered table-hover">
             <caption>Explain</caption>
             <tr>
