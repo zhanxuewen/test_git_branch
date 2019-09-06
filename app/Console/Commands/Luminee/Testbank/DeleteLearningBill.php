@@ -45,12 +45,8 @@ class DeleteLearningBill extends Command
     {
         $bill_ids = $this->argument('bill_ids');
         $with = $this->option('with_testbank');
-        $connections = [
-            'online' => ['learning' => 'online_learning'],
-            'dev' => ['learning' => 'dev_learning']
-        ];
         $conn = $this->argument('conn');
-        $this->learn_pdo = $this->getPdo($connections[$conn]['learning']);
+        $this->learn_pdo = $this->getConnPdo('learning', $conn);
         DB::setPdo($this->learn_pdo);
         if ($with) {
             $bills = DB::table('testbank_collection')->selectRaw('item_ids')->whereRaw("core_related_id in ($bill_ids)")->get();
