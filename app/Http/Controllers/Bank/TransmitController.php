@@ -31,7 +31,7 @@ class TransmitController extends Controller
         $this->conn = $conn;
         if (empty($id)) return $this->success();
         $this->core_pdo = $this->getPdo('online');
-        $this->learn_pdo = $this->getPdo($conn);
+        $this->learn_pdo = $this->getConnPdo('learning', $conn);
         switch ($type) {
             case 'bill':
                 return $this->handleBill($id);
