@@ -57,7 +57,8 @@ class SyncLabelToLearning extends Command
         $this->learn_pdo = $this->getConnPdo('learning', $to);
         $this->handleLabel();
         $this->handleScope();
-        $this->handleInsert('wordbank_translation_label', 'id, translation_id, wordbank_id, label_id, created_at, updated_at');
+        $max_learn = DB::setPdo($this->learn_pdo)->table('wordbank_translation_label')->max('id');
+        $this->handleInsert('wordbank_translation_label', 'id, translation_id, wordbank_id, label_id, created_at, updated_at', null, $max_learn);
         $this->handleInsert('label_type', 'id, name, level', 'core_label_type');
         $this->handleInsert('label_scope', 'id, code, name', 'core_label_scope');
     }

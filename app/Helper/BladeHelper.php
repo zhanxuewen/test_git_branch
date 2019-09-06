@@ -173,4 +173,26 @@ class BladeHelper
         return $now->year . '/' . $now->month == $month;
     }
 
+
+    public static function buildGroupTree($p_id, $rows)
+    {
+        $out = '';
+        foreach ($rows[$p_id] as $row) {
+            $id = $row->id;
+            $out .= '<li><i class="fa fa-caret-right"></i> <span onclick="showColumns(this, ' . $id . ')">' . $row->name . ' - '. $row->code . '</span>';
+            if (isset($rows[$id]))
+                $out .= '<ul>' . self::buildGroupTree($id, $rows) . '</ul>';
+            $out .= '</li>';
+        }
+        return $out;
+    }
+
+    public static function getColumnInfo($column, $table, $module, $project)
+    {
+        if (isset($column[$table])) return $column[$table];
+        if (isset($column[$module])) return $column[$module];
+        if (isset($column[$project])) return $column[$project];
+        return $column['default'];
+    }
+
 }

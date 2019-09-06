@@ -9,37 +9,126 @@ class TableController extends Controller
 {
     public function getTableList(Request $request)
     {
-        $conn = $request->get('conn', 'dev');
-        $pdo = $this->getPdo($conn);
-        $sql = $this->list_tables($this->getDbName($conn));
-        $tables = $this->getRecord($pdo->query($sql));
-        return view('database.table_list', compact('tables'));
+        $project = $request->get('project', 'core');
+        $conn = 'dev';
+        $pdo = $this->getConnPdo($project, $conn);
+        $db = $this->getConnDB($project, $conn);
+        $tables = $this->getRecord($pdo->query($this->query_ListTables($db)));
+        $tables = $this->groupTables($tables);
+        $groups = $this->builder->setModel('dbGroup')->where('is_available', 1)->get();
+        $groups = $this->getGroups($groups);
+        return view('database.table_list', compact('tables', 'groups'));
     }
 
-    public function getTableInfo(Request $request, $table_name)
+    public function getTableInfo(Request $request, $module_name)
     {
-        $conn = $request->get('conn', 'dev');
-        $pdo = $this->getPdo($conn);
-        $params = ['database' => $this->getDbName($conn), 'table_name' => $table_name];
-        $table = $this->getRecord($pdo->query($this->table_info($params)))[0];
-        $columns = $this->getRecord($pdo->query($this->list_columns($params)));
-        $index_s = $this->getRecord($pdo->query($this->list_index($params)));
-        return view('database.table_info', compact('table', 'columns', 'index_s'));
+        $project = $request->get('project', 'core');
+        $conn = 'dev';
+        $pdo = $this->getConnPdo($project, $conn);
+        $db = $this->getConnDB($project, $conn);
+        $columns = $this->getRecord($pdo->query($this->query_TableColumns($db, $module_name)));
+        list($columns, $names) = $this->getColumns($columns);
+        $cols = $this->builder->setModel('column')->with('group')->whereHas('group', function ($query) {
+            $query->where('is_available', 1);
+        })->whereIn('column', $names)->where('is_available', 1)->get();
+        $cols = $this->getColumnsInfo($cols);
+        return view('database.table_info', compact('project', 'module_name', 'columns', 'cols'));
     }
 
-    protected function list_tables($database)
+    public function getColumnInfo(Request $request)
     {
-        return "SELECT GROUP_CONCAT(column_name) as columns, table_name FROM information_schema.columns WHERE table_schema='$database' GROUP BY table_name ORDER BY table_name";
+        if ($request->get('method') == 'put_column') {
+            return $this->createNewColumn($request);
+        }
+        if ($request->get('method') == 'put_group') {
+            return $this->createNewGroup($request);
+        }
+        $_groups = $this->builder->setModel('dbGroup')->get();
+        $groups = [];
+        foreach ($_groups as $group) {
+            $groups[$group->parent_id][] = $group;
+        }
+        $_columns = $this->builder->setModel('column')->get();
+        $columns = [];
+        foreach ($_columns as $column) {
+            $columns[$column->group_id][] = $column;
+        }
+        return view('database.column_info', compact('groups', 'columns'));
     }
 
-    protected function table_info($params)
+    protected function query_ListTables($database)
     {
-        return "SELECT table_name, engine, table_rows, auto_increment FROM information_schema.tables WHERE table_schema = '" . $params['database'] . "' AND table_name = '" . $params['table_name'] . "'";
+        return "SELECT table_name FROM information_schema.columns WHERE table_schema='$database' GROUP BY table_name ORDER BY table_name";
     }
 
-    protected function list_columns($params)
+    protected function groupTables($tables)
     {
-        return "SELECT column_name, column_default, is_nullable, data_type, column_type FROM information_schema.columns WHERE table_schema = '" . $params['database'] . "' AND table_name = '" . $params['table_name'] . "' ORDER BY ordinal_position";
+        $modules = [];
+        foreach ($tables as $table) {
+            $tab = $table['table_name'];
+            list($module) = explode('_', $tab);
+            $modules[$module][] = $tab;
+        }
+        return $modules;
+    }
+
+    protected function getGroups($groups)
+    {
+        $rows = [];
+        foreach ($groups as $group) {
+            $rows[$group->code] = ['name' => $group->name, 'parent_id' => $group->parent_id];
+        }
+        return $rows;
+    }
+
+    protected function query_TableColumns($database, $tab_prefix)
+    {
+        $raw = 'table_name, column_name, column_default, is_nullable, column_type';
+        return "SELECT {$raw} FROM information_schema.columns WHERE table_schema = '{$database}' AND table_name LIKE '{$tab_prefix}%' ORDER BY ordinal_position";
+    }
+
+    protected function getColumns($columns)
+    {
+        $tables = [];
+        $names = [];
+        foreach ($columns as $column) {
+            $tables[$column['table_name']][] = $column;
+            $names[] = $column['column_name'];
+        }
+        return [$tables, array_unique($names)];
+    }
+
+    protected function getColumnsInfo($rows)
+    {
+        $columns = [];
+        foreach ($rows as $row) {
+            $columns[$row->column][$row->group->code] = [
+                'info' => $row->info,
+                'code' => $row->group->code,
+                'group' => $row->group->name,
+            ];
+        }
+        return $columns;
+    }
+
+    protected function createNewColumn(Request $request)
+    {
+        if (empty($_column = $request->get('column'))) dd('Please Set Column');
+        if (empty($info = $request->get('info'))) dd('Please Set Info');
+        if (empty($_group_id = $request->get('group_id'))) dd('Please Set Group Id');
+        $data = ['group_id' => $_group_id, 'column' => $_column, 'info' => $info, 'is_available' => $request->get('is_available')];
+        $this->builder->setModel('column')->create($data);
+        return redirect('database/get/columnInfo');
+    }
+
+    protected function createNewGroup(Request $request)
+    {
+        if (empty($code = $request->get('code'))) dd('Please Set Code');
+        if (empty($name = $request->get('name'))) dd('Please Set Name');
+        if (empty($parent_id = $request->get('parent_id'))) dd('Please Set Parent Id');
+        $data = ['code' => $code, 'name' => $name, 'parent_id' => $parent_id, 'is_available' => $request->get('is_available')];
+        $this->builder->setModel('dbGroup')->create($data);
+        return redirect('database/get/columnInfo');
     }
 
     protected function list_index($params)

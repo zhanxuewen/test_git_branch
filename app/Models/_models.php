@@ -18,7 +18,9 @@ return [
 
     'config' => App\Models\System\Config::class,
 
-    'migration' => \App\Models\Database\Migration::class,
+    'column' => App\Models\Database\Column::class,
+    'dbGroup' => App\Models\Database\Group::class,
+    'migration' => App\Models\Database\Migration::class,
 
     'model' => App\Models\Rpc\DB\Model::class,
     'module' => App\Models\Rpc\DB\Module::class,
