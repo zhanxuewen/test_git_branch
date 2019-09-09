@@ -17,7 +17,7 @@ class TableController extends Controller
         $tables = $this->groupTables($tables);
         $groups = $this->builder->setModel('dbGroup')->where('is_available', 1)->get();
         $groups = $this->getGroups($groups);
-        return view('database.table_list', compact('tables', 'groups'));
+        return view('database.table_list', compact('tables', 'groups', 'project'));
     }
 
     public function getTableInfo(Request $request, $module_name)
