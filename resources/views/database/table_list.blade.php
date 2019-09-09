@@ -21,7 +21,7 @@
         @foreach($tables as $module => $tabs)
             <div class="col-sm-3">
                 <a class="label label-primary"
-                   href="{{url('database/get/tableInfo/'.$module)}}">{{ucfirst($module)}}
+                   href="{{url('database/get/tableInfo/' . $module . '?project=' . $project)}}">{{ucfirst($module)}}
                 </a>
                 @if(isset($groups[$module])) <span
                         class="list-module-info bg-green">{{$groups[$module]['name']}}</span>@endif
