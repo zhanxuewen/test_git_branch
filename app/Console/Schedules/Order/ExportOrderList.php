@@ -33,7 +33,7 @@ class ExportOrderList extends BaseSchedule
         $platform = [2 => '家长端', 5 => '学生端', 6 => '优惠页'];
         $app = [1 => '微信X', 2 => '支付宝', 3 => 'IOS'];
         $report = [];
-        $report[] = ['订单日期', '订单时间', '支付通道', '支付方式', '订单号', '学校ID', '学校名称', '省', '市', '区县', '市场专员', '加盟校', '合同档', '协议价', '昵称', '备注名', '学生手机', '金额', '拼团', '卡类别', '计数', '退款时间'];
+        $report[] = ['订单日期', '订单时间', '支付通道', '支付方式', '订单号', '学校ID', '学校名称', '省', '市', '区县', '市场专员', '加盟校', '合同档', '协议价', '昵称', '备注名', '学生手机', '金额', '拼团', '卡类别', '计数', '退款时间', '退款单对应原订单金额'];
         $orders = \DB::table('order')
             ->selectRaw('out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, pay_fee, commodity_name, commodity_id, refunded_at, finished_at')
             ->join('user_account', 'user_account.id', '=', 'order.student_id')
@@ -79,13 +79,14 @@ class ExportOrderList extends BaseSchedule
                 'group' => $order->is_group_order,
                 'comm' => $order->commodity_name,
                 'count' => 1,
-                'refund' => $order->refunded_at
+                'refund' => $order->refunded_at,
+                'order_fee' => null
             ];
             $report[] = $data;
         }
 
         $refunds = \DB::table('order_refund')
-            ->selectRaw('order_refund.out_refund_no, order.out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, refund_fee, commodity_name,commodity_id, order_refund.created_at')
+            ->selectRaw('order_refund.out_refund_no, order.out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, refund_fee, order.pay_fee, commodity_name,commodity_id, order_refund.created_at')
             ->join('order', 'order.out_trade_no', '=', 'order_refund.out_trade_no')
             ->join('user_account', 'user_account.id', '=', 'order.student_id')
             ->join('user', 'user.id', '=', 'user_account.user_id')
@@ -128,7 +129,8 @@ class ExportOrderList extends BaseSchedule
                 'group' => $order->is_group_order,
                 'comm' => $order->commodity_name,
                 'count' => -1,
-                'refund' => null
+                'refund' => null,
+                'order_fee' => $order->pay_fee
             ];
             $report[] = $data;
         }
