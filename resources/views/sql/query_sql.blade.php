@@ -10,6 +10,7 @@
                 <tr>
                     <td>
                         <span class="label @if($sql->time >= 1000) bg-red @else bg-gray @endif">{{$sql->time}}ms</span>
+                        <span class="label bg-teal">{{$sql->auth}}</span>
                         <a href="{!! url('/query/id/'.$sql->id) !!}" target="_blank">
                             {!! \App\Helper\Helper::vsprintf($sql->query,$sql->bindings) !!}</a>
                     </td>

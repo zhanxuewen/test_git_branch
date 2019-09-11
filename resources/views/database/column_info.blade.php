@@ -29,11 +29,17 @@
                     <tr>
                         <th>Code</th>
                         <th>Name</th>
+                        <th>Type</th>
                         <th>Action</th>
                     </tr>
                     <tr>
                         <td><input class="form-control" type="text" name="code"></td>
                         <td><input class="form-control" type="text" name="name"></td>
+                        <td><select class="form-control" name="type">
+                                @foreach($types as $type => $label)
+                                    <option value="{{$type}}">{{$label}}</option>
+                                @endforeach
+                            </select></td>
                         <td><input class="form-control btn-success" type="submit" value="Create"></td>
                     </tr>
                 </table>

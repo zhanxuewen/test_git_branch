@@ -17,6 +17,7 @@ class CreateDatabaseGroupsTable extends Migration
             $table->increments('id');
             $table->string('code');
             $table->string('name')->nullable();
+            $table->string('type');
             $table->integer('parent_id');
             $table->boolean('is_available');
         });

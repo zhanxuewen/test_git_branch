@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class TableController extends Controller
 {
+    protected $groupTypes = [
+        'default' => '默认',
+        'project' => '项目',
+        'module' => '模块',
+        'table' => '表'
+    ];
+
     public function getTableList(Request $request)
     {
         $project = $request->get('project', 'core');
@@ -53,7 +60,8 @@ class TableController extends Controller
         foreach ($_columns as $column) {
             $columns[$column->group_id][] = $column;
         }
-        return view('database.column_info', compact('groups', 'columns'));
+        $types = $this->groupTypes;
+        return view('database.column_info', compact('groups', 'columns', 'types'));
     }
 
     protected function query_ListTables($database)
@@ -76,7 +84,7 @@ class TableController extends Controller
     {
         $rows = [];
         foreach ($groups as $group) {
-            $rows[$group->code] = ['name' => $group->name, 'parent_id' => $group->parent_id];
+            $rows[$group->type][$group->code] = ['name' => $group->name, 'parent_id' => $group->parent_id];
         }
         return $rows;
     }

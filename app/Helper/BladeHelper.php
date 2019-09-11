@@ -179,12 +179,28 @@ class BladeHelper
         $out = '';
         foreach ($rows[$p_id] as $row) {
             $id = $row->id;
-            $out .= '<li><i class="fa fa-caret-right"></i> <span onclick="showColumns(this, ' . $id . ')">' . $row->name . ' - '. $row->code . '</span>';
+            $out .= '<li><i class="fa fa-caret-down"></i> <span onclick="showColumns(this, ' . $id . ')">' . $row->name . ' - ' . $row->code . ' 
+            <i class="' . self::getTypeBg($row->type) . '"></i></span>';
             if (isset($rows[$id]))
                 $out .= '<ul>' . self::buildGroupTree($id, $rows) . '</ul>';
             $out .= '</li>';
         }
         return $out;
+    }
+
+    protected static function getTypeBg($type)
+    {
+        switch ($type) {
+            case 'default':
+                return 'fa fa-battery-0';
+            case 'project':
+                return 'fa fa-battery-1';
+            case 'module':
+                return 'fa fa-battery-3';
+            case 'table':
+                return 'fa fa-battery-4';
+        }
+        return '';
     }
 
     public static function getColumnInfo($column, $table, $module, $project)
