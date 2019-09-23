@@ -1,5 +1,5 @@
 @extends('frame.body')
-@section('title','Learning - Transmit')
+@section('title','百项过 - 传输')
 
 @section('section')
     <div class="col-sm-6">
