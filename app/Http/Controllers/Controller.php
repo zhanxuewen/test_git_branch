@@ -30,6 +30,14 @@ abstract class Controller extends BaseController
             'password' => 'required|confirmed|different:username',
         ];
 
+    protected $connections = [
+        'dev' => 'dev',
+        'test' => 'test',
+        'teach' => 'online',
+        'trail' => 'online',
+        'online' => 'online',
+    ];
+
     protected $builder;
     protected $aliOss;
 

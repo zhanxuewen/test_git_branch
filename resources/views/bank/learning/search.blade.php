@@ -19,7 +19,7 @@
             <div class="form-group">
                 <label for="conn">数据库连接</label>
                 <select name="conn" id="conn" class="form-control">
-                    @foreach(['online'=>'正式服','trail'=>'体验服','teach'=>'教研服'] as $_conn => $label)
+                    @foreach(['online'=>'正式服','trail'=>'体验服','teach'=>'教研服','test'=>'测试用test','dev'=>'测试用dev'] as $_conn => $label)
                         <option value="{{$_conn}}" @if($conn == $_conn) selected @endif>{{$label}}</option>
                     @endforeach
                 </select>

@@ -15,18 +15,18 @@ class LearningController extends Controller
         $id = $request->get('id');
         $data = [];
         if (!is_null($id)) {
-            if ($type == 'testbank') $data = $this->getTestbank($id, $this->getConnPdo('learning', $conn));
-            if ($type == 'bill') $data = $this->getBill($id, $this->getConnPdo('learning', $conn));
+            if ($type == 'testbank') $data = $this->getTestbank($id, $conn);
+            if ($type == 'bill') $data = $this->getBill($id, $conn);
         }
         return view('bank.learning.search', array_merge(compact('id', 'conn', 'type'), $data));
     }
 
-    protected function getTestbank($id, $pdo)
+    protected function getTestbank($id, $conn)
     {
-        $core_testbank = DB::setPdo($this->getConnPdo('core', 'online'))->table('testbank')->whereNull('deleted_at')->find($id);
+        $core_testbank = DB::setPdo($this->getConnPdo('core', $this->connections[$conn]))->table('testbank')->whereNull('deleted_at')->find($id);
         $core_extra = DB::table('testbank_entity')->where('testbank_id', $id)->whereNull('deleted_at')->whereNull('testbank_item_value')->first();
         $core_entities = DB::table('testbank_entity')->where('testbank_id', $id)->whereNull('deleted_at')->whereNull('testbank_extra_value')->get()->keyBy('id');
-        $learn_testbank = DB::setPdo($pdo)->table('testbank')->where('core_related_id', $id)->whereNull('deleted_at')->first();
+        $learn_testbank = DB::setPdo($this->getConnPdo('learning', $conn))->table('testbank')->where('core_related_id', $id)->whereNull('deleted_at')->first();
         if (!empty($learn_testbank)) {
             $learn_t_id = $learn_testbank->id;
             $learn_extra = DB::table('testbank_entity')->where('testbank_id', $learn_t_id)->whereNull('deleted_at')->whereNull('testbank_item_value')->first();
@@ -44,11 +44,11 @@ class LearningController extends Controller
         }
     }
 
-    protected function getBill($id, $pdo)
+    protected function getBill($id, $conn)
     {
-        $core_bill = DB::setPdo($this->getConnPdo('core', 'online'))->table('testbank_collection')->whereNull('deleted_at')->find($id);
+        $core_bill = DB::setPdo($this->getConnPdo('core', $this->connections[$conn]))->table('testbank_collection')->whereNull('deleted_at')->find($id);
         $core_testbank_s = DB::table('testbank')->whereRaw('id in (' . $core_bill->item_ids . ')')->whereNull('deleted_at')->orderByRaw("FIND_IN_SET(id, '" . $core_bill->item_ids . "')")->get();
-        $learn_bill = DB::setPdo($pdo)->table('testbank_collection')->where('core_related_id', $id)->whereNull('deleted_at')->first();
+        $learn_bill = DB::setPdo($this->getConnPdo('learning', $conn))->table('testbank_collection')->where('core_related_id', $id)->whereNull('deleted_at')->first();
         if (!empty($learn_bill)) {
             $learn_testbank_s = DB::table('testbank')->whereRaw('id in (' . $learn_bill->item_ids . ')')->whereNull('deleted_at')->orderByRaw("FIND_IN_SET(id, '" . $learn_bill->item_ids . "')")->get();
             return compact('core_bill', 'core_testbank_s', 'learn_bill', 'learn_testbank_s');
@@ -66,7 +66,7 @@ class LearningController extends Controller
         $pdo = $this->getConnPdo('learning', $conn);
         $data = [];
         if (!empty($core_id)) {
-            $core = DB::setPdo($this->getConnPdo('core', 'online'))->table('testbank_entity')->find($core_id);
+            $core = DB::setPdo($this->getConnPdo('core', $this->connections[$conn]))->table('testbank_entity')->find($core_id);
             DB::setPdo($pdo);
             if ($request->get('type') == 'update') {
                 $ass = DB::table('assessment_question_entity')->find($ass_id);
