@@ -52,13 +52,6 @@ class CollectOperationalRecord extends Command
         $end_week = $last_week->endOfWeek()->toDateString();
         $end_week_str = $last_week->endOfWeek()->toDateTimeString();
 
-        // 这周天 统计本周数据
-        $last_week = Carbon::now();
-        $last_2_month_start = Carbon::parse('2019-07-01')->toDateString();
-        $last_2_month_start_str = Carbon::parse('2019-07-01 00:00:00')->toDateTimeString();
-        $last_2_month_end = Carbon::parse('2019-07-31')->toDateString();
-        $last_2_month_end_str =  Carbon::parse('2019-07-31 23:59:59')->toDateTimeString();;
-
         $last_month = Carbon::now()->startOfMonth()->subDay();
         $last_month_start = $last_month->startOfMonth()->toDateString();
         $last_month_start_str = $last_month->startOfMonth()->toDateTimeString();
@@ -74,7 +67,7 @@ SELECT
 	school.id school_id, school.name school_name, attribute.value region, user.name marketer_name
 FROM
 	school
-	left join school_attribute attribute on attribute.school_id = school.id and attribute.key = 'region_copy'
+	left join school_attribute attribute on attribute.school_id = school.id and attribute.key = 'region'
 	left join school_attribute m_attribute on m_attribute.school_id = school.id and m_attribute.key = 'marketer_id'
 	LEFT join user on `user`.id = m_attribute.value
 EOF;
@@ -109,6 +102,207 @@ EOF;
             'last_month_count' => '上月激活量',
             'last_week_count' => '上周激活量',
         ];
+
+        ###################################################英语卡####################################
+        $export_yinbiao_data = [];
+        // 截止到上周
+        $yinbiao_total = $this->getNewEnglishCard('2019-01-01 00:00:00', $end_week_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_end_last = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('subject_name')->map(function ($subject){
+                return $subject->count();
+            });
+        })->toArray();
+
+
+        $yinbiao_total = $this->getNewEnglishCard($last_month_start_str, $last_month_end_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_last_month = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('subject_name')->map(function ($subject){
+                return $subject->count();
+            });
+        })->toArray();
+
+        $yinbiao_total = $this->getNewEnglishCard($start_week_str, $end_week_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_last_week = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('subject_name')->map(function ($subject){
+                return $subject->count();
+            });
+        })->toArray();
+
+
+        foreach ($yinbiao_end_last as $school_id=>$items){
+            foreach ($items as $subject=>$count){
+                $export_yinbiao_data[] = [
+                    'school_id'         =>  $school_id,
+                    'school_name'       =>  $school_database_info[$school_id]['school_name'],
+                    "region_sheng"      =>  $school_database_info[$school_id]['region_sheng'],
+                    "region_shi"        =>  $school_database_info[$school_id]['region_shi'],
+                    "region_qu"         =>  $school_database_info[$school_id]['region_qu'],
+                    "region_jiedao"     =>  $school_database_info[$school_id]['region_jiedao'],
+                    'marketer'          =>  $school_database_info[$school_id]['marketer'],
+                    'card_type'         =>  $subject,
+                    'subject'           =>  '英语',
+                    'total_count'       =>  $count,
+                    'last_month_count'  =>  isset($yinbiao_last_month[$school_id]) && isset($yinbiao_last_month[$school_id][$subject]) ? $yinbiao_last_month[$school_id][$subject] : '0',
+                    'last_week_count'   =>  isset($yinbiao_last_week[$school_id]) && isset($yinbiao_last_week[$school_id][$subject]) ? $yinbiao_last_week[$school_id][$subject] : '0',
+                ];
+            }
+        }
+
+        $export_card_data = array_merge($export_card_data, array_values($export_yinbiao_data));
+
+        ###################################################同步卡（2019秋季）####################################
+        $export_yinbiao_data = [];
+        // 截止到上周
+        $yinbiao_total = $this->getNewAutumnCard('2019-01-01 00:00:00', $end_week_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_end_last = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('card_name')->map(function ($card){
+                return $card->groupBy('subject_name')->map(function ($subject){
+                    return $subject->count();
+                });
+            });
+        })->toArray();
+
+
+
+        $yinbiao_total = $this->getNewAutumnCard($last_month_start_str, $last_month_end_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_last_month = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('card_name')->map(function ($card){
+                return $card->groupBy('subject_name')->map(function ($subject){
+                    return $subject->count();
+                });
+            });
+        })->toArray();
+
+        $yinbiao_total = $this->getNewAutumnCard($start_week_str, $end_week_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_last_week = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('card_name')->map(function ($card){
+                return $card->groupBy('subject_name')->map(function ($subject){
+                    return $subject->count();
+                });
+            });
+        })->toArray();
+
+
+
+        foreach ($yinbiao_end_last as $school_id=>$items){
+            foreach ($items as $card=>$subjects){
+                foreach ($subjects as $subject=>$count){
+                    $export_yinbiao_data[] = [
+                        'school_id'         =>  $school_id,
+                        'school_name'       =>  $school_database_info[$school_id]['school_name'],
+                        "region_sheng"      =>  $school_database_info[$school_id]['region_sheng'],
+                        "region_shi"        =>  $school_database_info[$school_id]['region_shi'],
+                        "region_qu"         =>  $school_database_info[$school_id]['region_qu'],
+                        "region_jiedao"     =>  $school_database_info[$school_id]['region_jiedao'],
+                        'marketer'          =>  $school_database_info[$school_id]['marketer'],
+                        'card_type'         =>  $card,
+                        'subject'           =>  $subject,
+                        'total_count'       =>  $count,
+                        'last_month_count'  =>  isset($yinbiao_last_month[$school_id])
+                        && isset($yinbiao_last_month[$school_id][$card])
+                        && isset($yinbiao_last_month[$school_id][$card][$subject]) ?
+                            $yinbiao_last_month[$school_id][$card][$subject]: '0',
+                        'last_week_count'   =>  isset($yinbiao_last_week[$school_id])
+                        && isset($yinbiao_last_week[$school_id][$card])
+                        && isset($yinbiao_last_week[$school_id][$card][$subject]) ?
+                            $yinbiao_last_week[$school_id][$card][$subject]: '0',
+                    ];
+                }
+            }
+
+        }
+
+        $export_card_data = array_merge($export_card_data, array_values($export_yinbiao_data));
+
+
+        ###################################################会考卡####################################
+        $export_yinbiao_data = [];
+        // 截止到上周
+        $yinbiao_total = $this->getNewUnitTestCard('2019-01-01 00:00:00', $end_week_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_end_last = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('card_name')->map(function ($card){
+                return $card->groupBy('subject_name')->map(function ($subject){
+                    return $subject->count();
+                });
+            });
+        })->toArray();
+
+
+        $yinbiao_total = $this->getNewUnitTestCard($last_month_start_str, $last_month_end_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_last_month = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('card_name')->map(function ($card){
+                return $card->groupBy('subject_name')->map(function ($subject){
+                    return $subject->count();
+                });
+            });
+        })->toArray();
+
+        $yinbiao_total = $this->getNewUnitTestCard($start_week_str, $end_week_str);
+
+        $yinbiao_total = json_decode(json_encode($yinbiao_total), true);
+
+        $yinbiao_last_week = collect($yinbiao_total)->groupBy('school_id')->map(function ($school){
+            return $school->groupBy('card_name')->map(function ($card){
+                return $card->groupBy('subject_name')->map(function ($subject){
+                    return $subject->count();
+                });
+            });
+        })->toArray();
+
+        foreach ($yinbiao_end_last as $school_id=>$items){
+            foreach ($items as $card=>$subjects){
+                foreach ($subjects as $subject=>$count){
+                    $export_yinbiao_data[] = [
+                        'school_id'         =>  $school_id,
+                        'school_name'       =>  $school_database_info[$school_id]['school_name'],
+                        "region_sheng"      =>  $school_database_info[$school_id]['region_sheng'],
+                        "region_shi"        =>  $school_database_info[$school_id]['region_shi'],
+                        "region_qu"         =>  $school_database_info[$school_id]['region_qu'],
+                        "region_jiedao"     =>  $school_database_info[$school_id]['region_jiedao'],
+                        'marketer'          =>  $school_database_info[$school_id]['marketer'],
+                        'card_type'         =>  $card,
+                        'subject'           =>  $subject,
+                        'total_count'       =>  $count,
+                        'last_month_count'  =>  isset($yinbiao_last_month[$school_id])
+                        && isset($yinbiao_last_month[$school_id][$card])
+                        && isset($yinbiao_last_month[$school_id][$card][$subject]) ?
+                            $yinbiao_last_month[$school_id][$card][$subject]: '0',
+                        'last_week_count'   =>  isset($yinbiao_last_week[$school_id])
+                        && isset($yinbiao_last_week[$school_id][$card])
+                        && isset($yinbiao_last_week[$school_id][$card][$subject]) ?
+                            $yinbiao_last_week[$school_id][$card][$subject]: '0',
+                    ];
+                }
+            }
+
+        }
+
+        $export_card_data = array_merge($export_card_data, array_values($export_yinbiao_data));
+
 
  ###################################################音标卡 (3M)####################################
         $export_yinbiao_data = [];
@@ -1890,7 +2084,7 @@ EOF;
                 ];
             }else{
                 $export_yinbiao_data[$yinbiao_item->school_id] = [
-                    'school_id'         => $relation_id,
+                    'school_id'         => intval($relation_id),
                     'school_name'       =>  $school_database_info[$relation_id]['school_name'],
                     "region_sheng"      =>  $school_database_info[$relation_id]['region_sheng'],
                     "region_shi"        =>  $school_database_info[$relation_id]['region_shi'],
@@ -2076,7 +2270,7 @@ EOF;
                 ];
             }else{
                 $export_yinbiao_data[$yinbiao_item->school_id] = [
-                    'school_id'         => $relation_id,
+                    'school_id'         => intval($relation_id),
                     'school_name'       => $school_database_info[$relation_id]['school_name'],
                     "region_sheng"      =>  $school_database_info[$relation_id]['region_sheng'],
                     "region_shi"        =>  $school_database_info[$relation_id]['region_shi'],
@@ -2204,6 +2398,7 @@ EOF;
 
 
 
+
         $export_card_data = collect($export_card_data)->sortBy('school_id')->toArray();
 
 
@@ -2224,7 +2419,7 @@ FROM
 	LEFT JOIN school_attribute marketer on marketer.school_id = school.id and marketer.key = 'marketer_id'
 	LEFT JOIN `user` marketer_user on marketer.`value` = marketer_user.id
 	LEFT join finance_school_balance on finance_school_balance.school_id = school.id
-	LEFT JOIN school_attribute attribute on attribute.school_id = school.id and attribute.key = 'region_copy'
+	LEFT JOIN school_attribute attribute on attribute.school_id = school.id and attribute.key = 'region'
 	LEFT JOIN (
 				SELECT
 				school_id,
@@ -2233,6 +2428,7 @@ FROM
 				sum(if(type='payment',fee,0 )) payment
 			FROM
 				`finance_school_statement`
+				where id > 3832
 				GROUP BY school_id
 	) finance_school_statement on finance_school_statement.school_id = school.id
 EOF;
@@ -2452,6 +2648,73 @@ GROUP BY
     school_id
 EOF;
 
+        return \DB::select(\DB::raw($sql));
+    }
+
+
+    public function getNewEnglishCard($start_str, $end_str)
+    {
+        $sql = <<<EOF
+SELECT
+	card.school_id ,card_prototype.`name` subject_name
+FROM
+	`learning`.`card` 
+	left JOIN card_prototype on card.prototype_id = card_prototype.id 
+WHERE
+	`prototype_id` IN (39,40,41,42,43,44,49,50) 
+	AND card.`school_id` NOT IN ( 1, 2000, 2010, 2033 )
+	AND `student_id` <> 1751
+	and is_activated = 1
+	and card.deleted_at is NULL
+	and card.created_at >=  '$start_str'
+	and card.created_at <=  '$end_str'
+EOF;
+        return \DB::select(\DB::raw($sql));
+    }
+
+
+    public function getNewAutumnCard($start_str, $end_str)
+    {
+        $sql = <<<EOF
+SELECT
+	card.school_id ,card_prototype.`name` card_name,SUBSTRING(course_book.`name`, 1 ,2)  subject_name
+	FROM
+	`learning`.`card` 
+	left JOIN card_prototype on card.prototype_id = card_prototype.id 
+	LEFT join course_user_book_record on course_user_book_record.card_id = card.id
+  left join course_book on course_book.id = course_user_book_record.book_id
+WHERE
+	`prototype_id` IN (47,48) 
+	AND card.`school_id` NOT IN ( 1, 2000, 2010, 2033 )
+	and is_activated = 1
+	AND card.`student_id` <> 1751
+	and card.deleted_at is NULL
+	and card.created_at >=  '$start_str'
+	and card.created_at <=  '$end_str'
+EOF;
+        return \DB::select(\DB::raw($sql));
+    }
+
+
+    public function getNewUnitTestCard($start_str, $end_str)
+    {
+        $sql = <<<EOF
+SELECT
+	card.school_id ,card_prototype.`name` card_name,SUBSTRING(course_book.`name`, 3 ,2)  subject_name
+FROM
+	`learning`.`card` 
+	left JOIN card_prototype on card.prototype_id = card_prototype.id 
+	LEFT join course_user_book_record on course_user_book_record.card_id = card.id
+  left join course_book on course_book.id = course_user_book_record.book_id
+WHERE
+	`prototype_id` IN (45, 46) 
+	AND card.`school_id` NOT IN ( 1, 2000, 2010, 2033 )
+	and is_activated = 1
+	and card.deleted_at is NULL
+	AND card.`student_id` <> 1751
+	and card.created_at >=  '$start_str'
+	and card.created_at <=  '$end_str'
+EOF;
         return \DB::select(\DB::raw($sql));
     }
 }
