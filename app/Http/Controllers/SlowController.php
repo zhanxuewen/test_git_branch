@@ -86,11 +86,18 @@ class SlowController extends Controller
                 $count = ES::table($table)->count();
                 $logs = array_merge($logs, ES::table($table)->take($count)->get()->toArray());
             } else {
-                $count = ES::table($table)->whereMatch('env', 'slowLog')->count();
-                $logs = array_merge($logs, ES::table($table)->whereMatch('env', 'slowLog')->take($count)->get()->toArray());
+                $count = $this->queryRpcSlow($table)->count();
+                $_logs = $this->queryRpcSlow($table)->select(['time', 'msg'])->take($count)->get()->toArray();
+                $logs = array_merge($logs, $_logs);
             }
         }
         return [$logs, $d];
+    }
+
+    protected function queryRpcSlow($table)
+    {
+        return ES::table($table)->whereMatch('env', 'slowLog')
+            ->whereMatch('msg', 'slowLog.INFO: info');
     }
 
     protected function greater($a, $b)
