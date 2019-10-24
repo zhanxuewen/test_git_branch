@@ -20,6 +20,11 @@ class BaseSchedule
         return $tmp;
     }
 
+    protected function decodeName($name)
+    {
+        return html_entity_decode(str_replace('&#039;', '\'', $name));
+    }
+
     protected function getManagers()
     {
         $list = \DB::table('user_account')->selectRaw('id, nickname')->where('user_type_id', 1)->get();
@@ -69,6 +74,26 @@ class BaseSchedule
     {
         $list = \DB::table('school_popularize_data')->selectRaw('school_id, updated_at')->where('key', 'is_partner_school')->where('value', 1)->get();
         return $this->queryToArray($list, 'school_id', 'updated_at');
+    }
+
+    public function getPrincipal()
+    {
+        $list = \DB::table('school_member')->selectRaw('school_member.school_id, nickname, phone')->join('user_account', 'user_account.id', '=', 'school_member.account_id')->join('user', 'user.id', '=', 'user_account.user_id')->where('account_type_id', 6)->get();
+        $data = [];
+        foreach ($list as $item) {
+            $data[$item->school_id] = [$item->nickname, $item->phone];
+        }
+        return $data;
+    }
+
+    public function getVipCount($end)
+    {
+        $list = \DB::table('statistic_school_record')->selectRaw('school_id, vip_student, try_student')->where('date_type', $end)->get();
+        $data = [];
+        foreach ($list as $item) {
+            $data[$item->school_id] = [$item->vip_student, $item->try_student];
+        }
+        return $data;
     }
 
     public function getRegions()

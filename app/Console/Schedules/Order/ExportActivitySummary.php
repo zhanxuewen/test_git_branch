@@ -15,6 +15,8 @@ class ExportActivitySummary extends BaseSchedule
     protected $marketers;
     protected $set_prices;
     protected $d_prices;
+    protected $principals;
+    protected $vipCounts;
     protected $date;
     protected $cont_s;
     protected $regions;
@@ -30,7 +32,7 @@ class ExportActivitySummary extends BaseSchedule
     public function handle($day = [], $send = true)
     {
         Helper::modifyDatabaseConfig('online');
-        $this->init();
+        $this->init($day['end']);
         $start = Carbon::parse($day['start']);
         $end = Carbon::parse($day['end'])->endOfDay();
         $report = [
@@ -47,8 +49,10 @@ class ExportActivitySummary extends BaseSchedule
         }
     }
 
-    protected function init()
+    protected function init($end)
     {
+        $this->principals = $this->getPrincipal();
+        $this->vipCounts = $this->getVipCount($end);
         $this->marketers = $this->getManagers();
         $this->set_prices = $this->setPrices();
         $this->d_prices = $this->dPrices();
@@ -74,16 +78,18 @@ class ExportActivitySummary extends BaseSchedule
         $score = $this->getSchoolScore($between);
         $schools = \DB::table('school')->where('is_active', 1)->get();
         $report = [];
-        $report[] = ['学校ID', '合同档', '学校名称', '学校试用期到', '市场专员', '省', '市', '区县', '签约日期', '加盟校', '教师数', '新增教师', '活跃教师', '学生数', '新增学生', '活跃学生',
+        $report[] = ['学校ID', '合同档', '学校名称', '校长姓名', '校长手机号', '学校试用期到', '市场专员', '省', '市', '区县', '签约日期', '加盟校', '教师数', '新增教师', '活跃教师', '学生数', '新增学生', '活跃学生',
 //            '月底有效期内学生数', '月底试用期内学生数',
-            '本月星星', '本月积分'];
+            '本月星星', '本月积分', '本月提分版人数', '仅试用人数'];
         foreach ($schools as $school) {
             $s_id = $school->id;
             $region = is_null($s_id) ? null : explode('/', $this->regions[$s_id]);
             $report[] = [
                 'id' => $s_id,
                 'title' => isset($this->cont_s[$s_id]) ? $this->cont_s[$s_id] : null,
-                'name' => $school->name,
+                'name' => $this->decodeName($school->name),
+                'pri_name' => isset($this->principals[$s_id][0]) ? $this->principals[$s_id][0] : null,
+                'pri_phone' => isset($this->principals[$s_id][1]) ? $this->principals[$s_id][1] : null,
                 'pop' => isset($pop[$s_id]) ? $pop[$s_id] : null,
                 'marketer' => $school->marketer_id == 0 ? null : $this->marketers[$school->marketer_id],
                 'shn' => isset($region[0]) ? $region[0] : null,
@@ -101,6 +107,8 @@ class ExportActivitySummary extends BaseSchedule
 //                's_try' => isset($stu_try[$s_id]) ? $stu_try[$s_id] : 0,
                 'star' => isset($star[$s_id]) ? $star[$s_id] : '0',
                 'score' => isset($score[$s_id]) ? $score[$s_id] : '0',
+                'vip' => isset($this->vipCounts[$s_id][0]) ? $this->vipCounts[$s_id][0] : '0',
+                'try' => isset($this->vipCounts[$s_id][1]) ? $this->vipCounts[$s_id][1] : '0',
             ];
         }
         return $report;
@@ -200,7 +208,7 @@ class ExportActivitySummary extends BaseSchedule
             'channel' => $this->plat[$type[0]],
             'id' => $s_id,
             'title' => isset($this->cont_s[$s_id]) ? $this->cont_s[$s_id] : null,
-            'name' => $order->name,
+            'name' => $this->decodeName($order->name),
             'shn' => isset($region[0]) ? $region[0] : null,
             'shi' => isset($region[1]) ? $region[1] : null,
             'qu' => isset($region[2]) ? $region[2] : null,
@@ -235,7 +243,7 @@ class ExportActivitySummary extends BaseSchedule
             'channel' => '学校代交',
             'id' => $s_id,
             'title' => isset($this->cont_s[$s_id]) ? $this->cont_s[$s_id] : null,
-            'name' => $order->name,
+            'name' => $this->decodeName($order->name),
             'shn' => isset($region[0]) ? $region[0] : null,
             'shi' => isset($region[1]) ? $region[1] : null,
             'qu' => isset($region[2]) ? $region[2] : null,

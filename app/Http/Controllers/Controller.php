@@ -38,6 +38,19 @@ abstract class Controller extends BaseController
         'online' => 'online',
     ];
 
+    protected $sections = [
+        'auth' => '认证',
+        'bank' => '资源库',
+        'data' => '数据'
+    ];
+
+    protected $logTypes = [
+        'export' => '导出',
+        'import' => '导入',
+        'replace' => '替换',
+        'login' => '登录',
+    ];
+
     protected $builder;
     protected $aliOss;
 

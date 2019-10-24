@@ -15,7 +15,7 @@ class DeleteLearningBill extends Command
      *
      * @var string
      */
-    protected $signature = 'delete:learning:bill {--with_testbank} {bill_ids} {conn=dev} ';
+    protected $signature = 'delete:learning:bill {--with_testbank} {bill_ids} {conn=dev} {--is_testbank}';
 
     /**
      * The console command description.
@@ -48,6 +48,12 @@ class DeleteLearningBill extends Command
         $conn = $this->argument('conn');
         $this->learn_pdo = $this->getConnPdo('learning', $conn);
         DB::setPdo($this->learn_pdo);
+        if ($this->option('is_testbank')) {
+            $ids = DB::table('testbank')->whereRaw("core_related_id in ($bill_ids)")->pluck('id')->toArray();
+            $this->deleteTestbankS(implode(',', $ids));
+            $this->info(count($ids));
+            return;
+        }
         if ($with) {
             $bills = DB::table('testbank_collection')->selectRaw('item_ids')->whereRaw("core_related_id in ($bill_ids)")->get();
             $this->output->progressStart(count($bills));

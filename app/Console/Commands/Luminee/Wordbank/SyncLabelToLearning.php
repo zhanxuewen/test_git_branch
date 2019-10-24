@@ -56,11 +56,17 @@ class SyncLabelToLearning extends Command
         $this->core_pdo = $this->getConnPdo('core', $from);
         $this->learn_pdo = $this->getConnPdo('learning', $to);
         $this->handleLabel();
+        $this->handleDelete('core_label', 'label', true);
         $this->handleScope();
+        $this->handleDelete('core_label_scope_map', 'label_scope_map');
         $max_learn = DB::setPdo($this->learn_pdo)->table('wordbank_translation_label')->max('id');
         $this->handleInsert('wordbank_translation_label', 'id, translation_id, wordbank_id, label_id, created_at, updated_at', null, $max_learn);
-        $this->handleInsert('label_type', 'id, name, level', 'core_label_type');
-        $this->handleInsert('label_scope', 'id, code, name', 'core_label_scope');
+        for ($i = 0; $i <= $max_learn; $i += 10000) {
+            $this->info($i);
+            $this->handleDelete('wordbank_translation_label', null, false, [$i, $i + 10000]);
+        }
+//        $this->handleInsert('label_type', 'id, name, level', 'core_label_type');
+//        $this->handleInsert('label_scope', 'id, code, name', 'core_label_scope');
     }
 
     protected function handleLabel()
@@ -143,6 +149,38 @@ class SyncLabelToLearning extends Command
             }
             if (!empty($data)) $this->info(count($data));
             DB::table(is_null($table2) ? $table : $table2)->insert($data);
+        }
+        $this->output->progressFinish();
+    }
+
+    protected function handleDelete($table, $table2 = null, $deleted_at = false, $between = null)
+    {
+        $_time = date('Y-m-d H:i:s');
+        $query_core = DB::setPdo($this->core_pdo)->table(is_null($table2) ? $table : $table2);
+        if ($deleted_at) $query_core->whereNull('deleted_at');
+        if (!is_null($between)) $query_core->whereBetween('id', $between);
+        $core = $query_core->pluck('id')->toArray();
+
+        $query_learn = DB::setPdo($this->learn_pdo)->table($table);
+        if ($deleted_at) $query_learn->whereNull('deleted_at');
+        if (!is_null($between)) $query_learn->whereBetween('id', $between);
+        $rows = $query_learn->pluck('id');
+        $this->output->progressStart(count($rows));
+        $chunk = array_chunk($rows->toArray(), 1000);
+        foreach ($chunk as $_rows) {
+            $data = [];
+            foreach ($_rows as $row) {
+                if (!in_array($row, $core)) $data[] = $row;
+                $this->output->progressAdvance();
+            }
+            if (!empty($data)) {
+                $this->info(count($data));
+                if ($deleted_at) {
+                    DB::table($table)->whereIn('id', $data)->update(['deleted_at' => $_time]);
+                } else {
+                    DB::table($table)->whereIn('id', $data)->delete();
+                }
+            }
         }
         $this->output->progressFinish();
     }
