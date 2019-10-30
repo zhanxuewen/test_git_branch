@@ -27,14 +27,15 @@ class RecordTableIncrement extends BaseSchedule
         }
         $local_pdo = \DB::getPdo();
         $database = $this->getDbName('online');
-        $sql = "SELECT table_name, auto_increment FROM information_schema.tables where table_schema='$database'";
+        $sql = "SELECT table_name, table_rows, auto_increment FROM information_schema.tables where table_schema='$database'";
         $tables = \DB::setPdo($this->getPdo('online'))->select($sql);
         $create = [];
         foreach ($tables as $table) {
             $name = $table->table_name;
             if (in_array($name, $this->ignore)) continue;
-            $rows = \DB::setPdo($this->getPdo('online'))->select("SELECT COUNT(id) as count FROM `$database`.`$name`");
-            $rows = $rows[0]->count;
+//            $rows = \DB::setPdo($this->getPdo('online'))->select("SELECT COUNT(id) as count FROM `$database`.`$name`");
+//            $rows = $rows[0]->count;
+            $rows = $table->table_rows;
             $create[] = [
                 'table' => $name,
                 'rows' => $rows,
