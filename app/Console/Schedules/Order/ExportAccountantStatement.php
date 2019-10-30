@@ -22,7 +22,7 @@ class ExportAccountantStatement extends BaseSchedule
         $end = Carbon::parse($day['end'])->endOfDay();
         $con_s = $this->getContract();
         $regions = $this->getRegions();
-        $between = [$start, $end];
+        $between = [$start->toDateString(), $end->toDateString()];
         $map = [
             'receipt' => '付款',
             'payment' => '收款',
