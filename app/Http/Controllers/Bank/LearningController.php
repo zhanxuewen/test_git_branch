@@ -89,4 +89,37 @@ class LearningController extends Controller
         return ['item_value' => str_replace('}__{', ',', $data . '__' . $value)];
     }
 
+    public function syncArticle(Request $request)
+    {
+        $conn = $request->get('conn', 'online');
+        $core_id = $request->get('core_id');
+        $learn_id = $request->get('learn_id');
+        $ques_id = $request->get('ques_id');
+        $pdo = $this->getConnPdo('learning', $conn);
+        $data = [];
+        if (!empty($core_id)) {
+            $core = DB::setPdo($this->getConnPdo('core', $this->connections[$conn]))->table('testbank_entity')->find($core_id);
+            DB::setPdo($pdo);
+            if ($request->get('type') == 'update') {
+                $ques = DB::table('assessment_question')->find($ques_id);
+                DB::table('testbank_entity')->where('id', $learn_id)->update(['testbank_extra_value' => $core->testbank_extra_value]);
+                DB::table('assessment_question')->where('id', $ques_id)->update($this->buildAssContent($ques, $core->testbank_extra_value));
+                $content = "Conn: $conn, Learning: $learn_id, Ques: $ques_id; Update Article";
+                $this->logContent('Bank', 'replace', $content);
+            }
+            $learn = DB::table('testbank_entity')->find($learn_id);
+            $ques = DB::table('assessment_question')->find($ques_id);
+            $data = compact('core', 'learn', 'ques');
+        }
+        return view('bank.learning.syncArticle', array_merge(compact('core_id', 'learn_id', 'ques_id', 'conn'), $data));
+    }
+
+    protected function buildAssContent($ques, $value)
+    {
+        $item = json_decode($ques->content);
+        $article = json_decode($value)->article;
+        $item->article = $article;
+        return ['content' => json_encode($item)];
+    }
+
 }

@@ -32,7 +32,7 @@
             @component('bank.learning.search.testbank', [
                             'core_testbank'=>$core_testbank,'core_extra'=>$core_extra,'core_entities'=>$core_entities,
                             'learn_testbank'=>$learn_testbank,'learn_extra'=>$learn_extra,'learn_entities'=>$learn_entities,
-                            'ass_testbank_s'=>$ass_testbank_s,'ass_entities'=>$ass_entities])
+                            'ass_testbank_s'=>$ass_testbank_s,'ass_entities'=>$ass_entities,'conn'=>$conn])
             @endcomponent
         @endif
         @if($type=='bill')
