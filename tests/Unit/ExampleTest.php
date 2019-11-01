@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Helper\Builder;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -14,6 +15,9 @@ class ExampleTest extends TestCase
      */
     public function testBasicTest()
     {
-        $this->assertTrue(true);
+        $builder = new Builder();
+        $query = $builder->setModel('log')->with('account')->orderBy('id', 'desc')->get();
+        $this->showQueries();
+        $this->assertTrue($this->queryCorrect());
     }
 }
