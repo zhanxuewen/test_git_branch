@@ -12,19 +12,20 @@ class LoginController extends Controller
     {
         return view('auth.login');
     }
-    
+
     public function postLogin(Request $request)
     {
         if (!Auth::attempt(['username' => $request->get('username'), 'password' => $request->get('password')], $request->has('remember_me'))) {
             return redirect()->back()->with('message', 'Username or Password is wrong!');
         }
+        $this->logContent('auth_login', 'auth_login', 'Login');
         return redirect()->route('homepage');
     }
-    
+
     public function logout()
     {
         Auth::logout();
         return redirect()->route('login');
     }
-    
+
 }

@@ -41,7 +41,7 @@ class StudentController extends Controller
         $pdo = $this->getConnPdo($project, 'online');
         $rows = $pdo->query($this->$query($params));
         $name = $query . '_' . $this->handleTableName($params);
-        return $this->exportExcel($name, $this->getRecord($rows));
+        return $this->exportExcel($name, $this->getRecord($rows), 'export_student');
     }
 
     protected function handleTableName($params)

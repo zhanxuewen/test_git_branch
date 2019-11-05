@@ -14,6 +14,7 @@ use App\Foundation\PdoBuilder;
 use Luminee\Prosthesis\AliOss;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
+use Luminee\Reporter\Repositories\ReporterRepository;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -38,26 +39,16 @@ abstract class Controller extends BaseController
         'online' => 'online',
     ];
 
-    protected $sections = [
-        'auth' => '认证',
-        'bank' => '资源库',
-        'data' => '数据'
-    ];
-
-    protected $logTypes = [
-        'export' => '导出',
-        'import' => '导入',
-        'replace' => '替换',
-        'login' => '登录',
-    ];
-
     protected $builder;
     protected $aliOss;
 
-    public function __construct(Builder $builder, AliOss $aliOss)
+    protected $reporter;
+
+    public function __construct(Builder $builder, AliOss $aliOss, ReporterRepository $reporter)
     {
         $this->builder = $builder;
         $this->aliOss = $aliOss;
+        $this->reporter = $reporter;
     }
 
     protected function getUser($field = null)
@@ -81,11 +72,21 @@ abstract class Controller extends BaseController
         return $this->getRedis('analyze')->del([$id . '_routes', $id . '_info']);
     }
 
-    protected function logContent($section, $type, $content)
+    /**
+     * @param $scope
+     * @param $action
+     * @param $content
+     * @param array | null $object
+     */
+    protected function logContent($scope, $action, $content, $object = null)
     {
+        $scope = $this->reporter->findScope($scope, 'code');
+        $action = $this->reporter->findAction($action, 'code');
         $now = date('Y-m-d H:i:s');
-        $data = ['section' => $section, 'log_type' => $type, 'account_id' => $this->getUser('id'), 'content' => $content, 'created_at' => $now, 'updated_at' => $now];
-        \DB::setPdo($this->getPdo('structure'))->table('logs')->insert($data);
+        $data = ['scope_id' => $scope->id, 'account_id' => $this->getUser('id'), 'action_id' => $action->id, 'content' => $content, 'created_at' => $now, 'updated_at' => $now];
+        if (!is_null($object)) $data = array_merge($data, $object);
+        \DB::setPdo($this->getPdo('structure'));
+        $this->reporter->createLog($data);
     }
 
     protected function getPerPage()
@@ -125,9 +126,10 @@ abstract class Controller extends BaseController
         return Helper::generateCaptcha($length);
     }
 
-    protected function exportExcel($name, $record)
+    protected function exportExcel($name, $record, $section = 'export_school', $id = null, $type = null)
     {
-        $this->logContent('', 'export', $name);
+        $object = is_null($id) ? null : ['object_type' => $type, 'object_id' => $id];
+        $this->logContent($section, 'export', $name, $object);
         return $this->export($name, $record);
     }
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd0c551d19dc77537e2dc3b05b623058",
+    "content-hash": "9efba8700cd0447b65487dc4fdd8c231",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1137,6 +1137,49 @@
             "time": "2019-07-17T00:44:20+00:00"
         },
         {
+            "name": "luminee/laravel-base",
+            "version": "0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Luminee/laravel-base.git",
+                "reference": "7dbb62d0a673b80ce7e0edf2f5607cfa960ddaed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Luminee/laravel-base/zipball/7dbb62d0a673b80ce7e0edf2f5607cfa960ddaed",
+                "reference": "7dbb62d0a673b80ce7e0edf2f5607cfa960ddaed",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "~5.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Luminee\\Base\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Luminee\\Base\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "LuminEe",
+                    "email": "1123462990@qq.com"
+                }
+            ],
+            "description": "Laravel Base Building",
+            "time": "2019-10-28T02:49:26+00:00"
+        },
+        {
             "name": "luminee/prosthesis",
             "version": "1.0.1",
             "source": {
@@ -1176,23 +1219,76 @@
             "time": "2019-04-01T05:32:48+00:00"
         },
         {
-            "name": "luminee/watchdog",
-            "version": "1.0.1",
+            "name": "luminee/reporter",
+            "version": "0.0.3",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Luminee/watchdog.git",
-                "reference": "0fe0d19aad764e8c08cbe4d251f880be79d1598d"
+                "url": "https://github.com/Luminee/reporter.git",
+                "reference": "e4762166e46efa6e1dc54d4e6dd91d4188a1c025"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Luminee/watchdog/zipball/0fe0d19aad764e8c08cbe4d251f880be79d1598d",
-                "reference": "0fe0d19aad764e8c08cbe4d251f880be79d1598d",
+                "url": "https://api.github.com/repos/Luminee/reporter/zipball/e4762166e46efa6e1dc54d4e6dd91d4188a1c025",
+                "reference": "e4762166e46efa6e1dc54d4e6dd91d4188a1c025",
                 "shasum": ""
             },
             "require": {
+                "laravel/framework": "~5.1",
+                "luminee/laravel-base": "~0.1"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Luminee\\Reporter\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Luminee\\Reporter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "LuminEe",
+                    "email": "1123462990@qq.com"
+                }
+            ],
+            "description": "Record account's action into database",
+            "time": "2019-11-05T08:07:20+00:00"
+        },
+        {
+            "name": "luminee/watchdog",
+            "version": "1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Luminee/watchdog.git",
+                "reference": "54459e11e376d3157589faa209ca007c44a6d71f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Luminee/watchdog/zipball/54459e11e376d3157589faa209ca007c44a6d71f",
+                "reference": "54459e11e376d3157589faa209ca007c44a6d71f",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "~5.1",
+                "luminee/laravel-base": "~0.1",
                 "php": ">=5.5.9"
             },
             "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Luminee\\Watchdog\\WatchdogServiceProvider"
+                    ]
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Luminee\\Watchdog\\": "src/"
@@ -1216,7 +1312,7 @@
                 "luminee",
                 "watchdog"
             ],
-            "time": "2019-04-22T07:42:20+00:00"
+            "time": "2019-10-28T03:01:13+00:00"
         },
         {
             "name": "maatwebsite/excel",

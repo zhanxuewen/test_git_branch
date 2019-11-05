@@ -20,6 +20,7 @@ class CoreController extends Controller
             $data = $this->getData(DB::setPdo($dev_pdo)->table('resource')->find($id));
             if (count(DB::setPdo($online_pdo)->table('resource')->where('name', $data['name'])->get()) == 0) {
                 DB::setPdo($online_pdo)->table('resource')->insert($data);
+                $this->logContent('bank_core', 'insert', 'insert resource to [' . $conn . ']', ['object_type' => 'resource', 'object_id' => $id]);
             }
             return redirect()->back();
         }
@@ -33,6 +34,7 @@ class CoreController extends Controller
                         \DB::table('resource')->where('id', $item->id)->update(['url' => $dev_res[$name]->url]);
                     }
                 }
+                $this->logContent('bank_core', 'update', 'sync resource url by ' . $search);
             }
             return redirect()->back();
         }
@@ -52,31 +54,6 @@ class CoreController extends Controller
         $data = json_decode(json_encode($item), true);
         unset($data['id']);
         return $data;
-    }
-
-    protected function updateResource()
-    {
-        $likes = ['wordshare_new', 'listening_share'];
-        $like = $likes[0] . '_%';
-        config(['database.default' => 'dev']);
-        $resource = \DB::table('resource')->where('name', 'like', $like)->get();
-        config(['database.default' => $this->argument('conn')]);
-        $this->info('total ' . count($resource));
-        foreach ($resource as $item) {
-            $name = $item->name;
-            $data = \DB::table('resource')->where('name', $name)->get();
-            if (count($data) == 1) {
-                $value = $data[0];
-                if ($value->url == $item->url) {
-                    $this->line($name . ' Same.');
-                } else {
-                    \DB::table('resource')->where('id', $value->id)->update(['url' => $item->url]);
-                    $this->info($name . ' Done.');
-                }
-                continue;
-            }
-            $this->error($name . ' Not Exists.');
-        }
     }
 
 }

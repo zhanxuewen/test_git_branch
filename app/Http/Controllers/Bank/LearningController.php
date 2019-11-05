@@ -73,7 +73,7 @@ class LearningController extends Controller
                 DB::table('testbank_entity')->where('id', $learn_id)->update(['testbank_item_value' => $core->testbank_item_value]);
                 DB::table('assessment_question_entity')->where('id', $ass_id)->update($this->buildAssItem($ass, $core->testbank_item_value));
                 $content = "Conn: $conn, Learning: $learn_id, Ass: $ass_id; Update Entity";
-                $this->logContent('Bank', 'replace', $content);
+                $this->logContent('bank_learn', 'replace', $content);
             }
             $learn = DB::table('testbank_entity')->find($learn_id);
             $ass = DB::table('assessment_question_entity')->find($ass_id);
@@ -105,7 +105,7 @@ class LearningController extends Controller
                 DB::table('testbank_entity')->where('id', $learn_id)->update(['testbank_extra_value' => $core->testbank_extra_value]);
                 DB::table('assessment_question')->where('id', $ques_id)->update($this->buildAssContent($ques, $core->testbank_extra_value));
                 $content = "Conn: $conn, Learning: $learn_id, Ques: $ques_id; Update Article";
-                $this->logContent('Bank', 'replace', $content);
+                $this->logContent('bank_learn', 'replace', $content);
             }
             $learn = DB::table('testbank_entity')->find($learn_id);
             $ques = DB::table('assessment_question')->find($ques_id);

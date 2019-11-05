@@ -68,7 +68,7 @@ class SchoolController extends Controller
         $rows = $pdo->query($this->$query($params));
         $name = $query . '_' . $this->handleTableName($params, $pdo);
         if ($expire == 1 && isset($params['school_id'])) $this->expired = $this->getSchoolStudentsExpired($params['school_id']);
-        return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare, $hide_school_id));
+        return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare, $hide_school_id),'export_school');
     }
 
     protected function handleTableName($params, $pdo)

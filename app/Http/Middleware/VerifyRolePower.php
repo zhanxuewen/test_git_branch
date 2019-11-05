@@ -27,7 +27,7 @@ class VerifyRolePower extends GateKeeper
                 $redis->setex($id . '_info', 60 * 60 * 24, json_encode($this->getUserInfo(Auth::user())));
             }
             if (!$redis->get($id . '_routes')) {
-                $redis->setex($id . '_routes', 60 * 60 * 24, json_encode($this->getPowersByAccountId($id)));
+                $redis->setex($id . '_routes', 60 * 60 * 24, json_encode($this->watchdog->getRoutesByPowerIds($this->power_ids)));
 //                $this->watchdog->getRoutesByPowerIds($this->power_ids)
             }
             return $next($request);
