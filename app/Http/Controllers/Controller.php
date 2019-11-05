@@ -80,13 +80,15 @@ abstract class Controller extends BaseController
      */
     protected function logContent($scope, $action, $content, $object = null)
     {
+        $pdo = \DB::getPdo();
+        \DB::setPdo($this->getPdo('structure'));
         $scope = $this->reporter->findScope($scope, 'code');
         $action = $this->reporter->findAction($action, 'code');
         $now = date('Y-m-d H:i:s');
         $data = ['scope_id' => $scope->id, 'account_id' => $this->getUser('id'), 'action_id' => $action->id, 'content' => $content, 'created_at' => $now, 'updated_at' => $now];
         if (!is_null($object)) $data = array_merge($data, $object);
-        \DB::setPdo($this->getPdo('structure'));
         $this->reporter->createLog($data);
+        \DB::setPdo($pdo);
     }
 
     protected function getPerPage()
