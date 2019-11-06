@@ -19,7 +19,7 @@ class RegisterController extends Controller
             return redirect()->back()->with('message', array_shift($validator)[0]);
         }
         $guest = $this->builder->setModel('role')->where('code', 'guest')->first();
-        $user = $this->builder->setModel('account')->create($request->all());
+        $user = $this->builder->setModel('account')->create(array_merge($request->all(), ['nickname' => $request->get('username')]));
         $this->builder->setModel('accountRole')->create(['account_id' => $user->id, 'role_id' => $guest->id]);
         return redirect()->route('login');
     }

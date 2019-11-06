@@ -15,12 +15,15 @@ class CreateUserAccountTable extends Migration
         Schema::create('user_account', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
-            $table->string('username')->unique();
+            $table->string('username');
+            $table->string('nickname')->nullable();
             $table->string('password');
             $table->string('avatar');
             $table->rememberToken();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->unique('username');
         });
     }
 

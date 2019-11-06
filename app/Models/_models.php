@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'log' => App\Models\Log\Log::class,
+    'log' => Luminee\Reporter\Models\Log::class,
 
     'label' => App\Models\Label\Label::class,
     'labelType' => App\Models\Label\Type::class,

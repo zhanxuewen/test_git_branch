@@ -27,19 +27,28 @@
                 <button type="submit" class="btn btn-primary">更新</button>
             </form>
         </div>
-        <div class="col-sm-12"><hr></div>
+        <div class="col-sm-12">
+            <hr>
+        </div>
         <div class="col-sm-12">
             <form action="{{url('auth/edit')}}" method="post">
                 {!! csrf_field() !!}
-                <input type="hidden" name="type" value="avatar">
+                <input type="hidden" name="type" value="info">
                 <div class="form-group">
                     <label for="avatar">头像</label>
                     <input type="text" name="avatar" class="form-control" id="avatar" value="{{Auth::user()->avatar}}">
                 </div>
+                <div class="form-group">
+                    <label for="nickname">昵称</label>
+                    <input type="text" name="nickname" class="form-control" id="nickname"
+                           value="{{Auth::user()->nickname}}" required>
+                </div>
                 <button type="submit" class="btn btn-primary">更新</button>
             </form>
         </div>
-        <div class="col-sm-12"><hr></div>
+        <div class="col-sm-12">
+            <hr>
+        </div>
         <div class="col-sm-12">
             <a href="{{url('flushCache')}}" class="btn btn-warning">清除缓存</a>
         </div>

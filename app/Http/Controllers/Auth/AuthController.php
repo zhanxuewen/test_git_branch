@@ -28,8 +28,8 @@ class AuthController extends Controller
                     return redirect()->back()->with('message', $message);
                 }
                 break;
-            case 'avatar':
-                $user->fill(['avatar' => $request->get('avatar')])->save();
+            case 'info':
+                $user->fill(['avatar' => $request->get('avatar'), 'nickname' => $request->get('nickname')])->save();
                 $this->delUserCache($user->id);
                 break;
         }

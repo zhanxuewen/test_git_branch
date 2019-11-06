@@ -17,34 +17,34 @@ class Account extends BaseModel implements AuthenticateAbleContract,
     CanResetPasswordContract
 {
     use Authenticatable, Authorizable, CanResetPassword;
-    
+
     use SoftDeletes;
     protected $dates = ['deleted_at'];
-    
+
     protected $table = 'user_account';
-    
+
     protected $hidden = ['password'];
-    
-    protected $fillable = ['username', 'password', 'avatar'];
-    
+
+    protected $fillable = ['username', 'nickname', 'password', 'avatar'];
+
     public function role()
     {
         return $this->belongsToMany('Luminee\Watchdog\Model\Role', 'watchdog_account_role', 'account_id', 'role_id');
     }
-    
+
     public function setUsernameAttribute($value)
     {
         $this->attributes['username'] = e($value);
     }
-    
+
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
     }
-    
+
     public function setAvatarAttribute($value)
     {
         $this->attributes['avatar'] = e($value);
     }
-    
+
 }

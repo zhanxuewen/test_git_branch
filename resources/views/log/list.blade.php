@@ -14,11 +14,24 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="type">类型</label>
-            <select name="type" id="type" class="form-control">
-                <option value="all">全部</option>
-                @foreach($types as $_type)
-                    <option value="{{$_type}}" @if($_type == $type) selected @endif>{{$_type}}</option>
+            <label for="scope">Scope</label>
+            <select name="scope" id="scope" class="form-control">
+                <option value="">全部</option>
+                @foreach($scopes as $_scope)
+                    <option value="{{$_scope->id}}"
+                            @if($_scope->id == $scope) selected @endif
+                            @if($_scope->is_leaf == 0) disabled @endif>{{$_scope->name}}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="action">Action</label>
+            <select name="action" id="action" class="form-control">
+                <option value="">全部</option>
+                @foreach($actions as $_action)
+                    <option value="{{$_action->id}}"
+                            @if($_action->id == $action) selected @endif
+                            @if($_action->is_leaf == 0) disabled @endif>{{$_action->name}}</option>
                 @endforeach
             </select>
         </div>
@@ -29,18 +42,18 @@
             <caption>Logs</caption>
             <tr>
                 <th>用户</th>
-                <th>Section</th>
-                <th>类型</th>
+                <th>Scope</th>
+                <th>操作</th>
                 <th>内容</th>
                 <th>时间</th>
             </tr>
             @foreach($logs as $log)
                 <tr>
-                    <td>{{$log['account']['username']}}</td>
-                    <td>{{$log['section']}}</td>
-                    <td>{{$log['log_type']}}</td>
-                    <td>{{$log['content']}}</td>
-                    <td>{{$log['created_at']}}</td>
+                    <td>{{$users[$log->account_id]->username}}</td>
+                    <td>{{$scopes[$log->scope_id]->name}}</td>
+                    <td>{{$actions[$log->action_id]->name}}</td>
+                    <td>{{$log->content}}</td>
+                    <td>{{$log->created_at}}</td>
                 </tr>
             @endforeach
         </table>

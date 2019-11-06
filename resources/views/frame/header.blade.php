@@ -20,7 +20,7 @@
                     <img src="{!! empty($auth_user['avatar']) ? asset('asset/image/default.png') : $auth_user['avatar'] !!}"
                          class="user-image bg-gray" alt="User Image">
                     <span class="hidden-xs">[{!! isset($auth_user['role']) ? $auth_user['role'] : '' !!}]
-                        <b>{{ $auth_user['username'] }}</b></span>
+                        <b>{{ isset($auth_user['nickname'])?$auth_user['nickname']:$auth_user['username'] }}</b></span>
                 </a>
             </li>
             <li class="user user-menu"><a href="{{route('logout')}}"><i class="fa fa-sign-out"></i></a></li>

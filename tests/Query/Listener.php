@@ -2,6 +2,8 @@
 
 namespace Tests\Query;
 
+use Carbon\Carbon;
+
 class Listener
 {
     /**
@@ -85,9 +87,17 @@ class Listener
     {
         foreach ($binding as $k => $v) {
             $start = strpos($query, '?');
+            $v = $this->parseValue($v);
             $query = substr_replace($query, $v, $start, 1);
         }
         return $query;
+    }
+
+    protected function parseValue($value)
+    {
+        if (is_numeric($value)) return $value;
+        if ($value instanceof Carbon) $value = (string)$value;
+        return "'$value'";
     }
 
 }

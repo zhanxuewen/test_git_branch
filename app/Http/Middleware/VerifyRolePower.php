@@ -14,8 +14,8 @@ class VerifyRolePower extends GateKeeper
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure $next
+     * @param \Illuminate\Http\Request $request
+     * @param \Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -46,6 +46,6 @@ class VerifyRolePower extends GateKeeper
 
     public function getUserInfo($user)
     {
-        return ['id' => $user->id, 'username' => $user->username, 'avatar' => $user->avatar, 'role' => $user->role[0]->label];
+        return ['id' => $user->id, 'username' => $user->username, 'nickname' => $user->nickname, 'avatar' => $user->avatar, 'role' => $user->role[0]->label];
     }
 }
