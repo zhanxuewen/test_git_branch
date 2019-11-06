@@ -10,6 +10,10 @@
                 <input type="text" name="username" class="form-control" id="username" value="{{$account->username}}">
             </div>
             <div class="form-group">
+                <label for="nickname">Nickname</label>
+                <input type="text" name="nickname" class="form-control" id="nickname" value="{{$account->nickname}}">
+            </div>
+            <div class="form-group">
                 <label for="role_id">Role</label>
                 <select name="role_id" id="role_id" class="form-control">
                     @foreach($roles as $role)

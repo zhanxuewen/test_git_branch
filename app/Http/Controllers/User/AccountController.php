@@ -32,10 +32,13 @@ class AccountController extends Controller
     public function updateAccount(Request $request, $account_id)
     {
         $account = $this->builder->setModel('account')->find($account_id);
+        $data = [];
         $username = $request->get('username');
-        if ($account->username != $username) {
-            $account->fill(['username' => $username])->save();
-        }
+        if ($account->username != $username) $data['username'] = $username;
+        $nickname = $request->get('nickname');
+        if ($account->nickname != $nickname) $data['nickname'] = $nickname;
+        if (!empty($data)) $account->fill($data)->save();
+
         $role_id = $request->get('role_id');
         if (empty($accountRole = $this->builder->setModel('accountRole')->where('account_id', $account_id)->first())) {
             $this->builder->setModel('accountRole')->create(['account_id' => $account_id, 'role_id' => $role_id]);
