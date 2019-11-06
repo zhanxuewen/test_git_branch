@@ -1,7 +1,7 @@
 <?php
 
 Route::group([], function () {
-    $routes = ['user', 'auth', 'export', 'monitor', 'sql', 'select', 'database', 'rpc', 'tool', 'bank'];
+    $routes = ['user', 'auth', 'export', 'monitor', 'sql', 'select', 'database', 'tool', 'bank'];
     foreach ($routes as $route) {
         include base_path('routes/web_routes/') . $route . '.php';
     }

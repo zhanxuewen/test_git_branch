@@ -17,18 +17,12 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\Capture::class,
-        Commands\BuildDbWiki::class,
         Commands\BuildMigrationMD::class,
 
         Commands\Core\ModuleSeed::class,
         Commands\Core\ModuleMigrate::class,
         Commands\Core\MakeModuleSeeder::class,
         Commands\Core\MakeModuleMigration::class,
-
-        Commands\Rpc\CaptureRpcDB::class,
-        Commands\Rpc\CaptureRpcRepo::class,
-        Commands\Rpc\CaptureRpcService::class,
 
         Commands\Schedule\RecallOrderSchedule::class,
 

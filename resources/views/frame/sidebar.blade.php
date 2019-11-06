@@ -40,10 +40,7 @@
             'Slow Rpc' => 'slow_rpc'
         ], 'fa-spinner') !!}
         {!! \App\Helper\BladeHelper::treeView('架构', [
-            'UML' => 'diagrams/uml',
-            'Rpc DB' => 'db/get/modelList',
-            'Rpc Repo' => 'repo/get/repositoryList',
-            'Rpc Service' => 'service/get/serviceList'
+            'UML' => 'diagrams/uml'
         ], 'fa-object-group') !!}
         {!! \App\Helper\BladeHelper::treeView('工具', [
             'Download' => 'tool/download',
