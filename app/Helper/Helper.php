@@ -85,7 +85,7 @@ class Helper
             if ($item['type'] == 'ALL') $label .= ' ' . self::spanLabelBgColor('全表扫描');
             if (empty($item['key'])) $label .= ' ' . self::spanLabelBgColor('未使用索引');
             $_row = $item['rows'];
-            $rows = $tables[$table];
+            $rows = $tables[$table] == 0 ? 1 : $tables[$table];
             if ($_row / $rows > 0.05) {
                 $info = '获取行 ' . $_row . ' / ' . $rows . ' (' . round($_row / $rows * 100, 2) . '%)';
                 $label .= ' ' . self::spanLabelBgColor($info);
