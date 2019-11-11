@@ -28,7 +28,7 @@ class RecordTableIncrement extends BaseSchedule
         $local_pdo = \DB::getPdo();
         $database = $this->getDbName('online');
         $sql = "SELECT table_name, table_rows, auto_increment FROM information_schema.tables where table_schema='$database'";
-        $tables = \DB::setPdo($this->getPdo('online'))->select($sql);
+        $tables = \DB::setPdo($this->getConnPdo('core', 'online'))->select($sql);
         $create = [];
         foreach ($tables as $table) {
             $name = $table->table_name;

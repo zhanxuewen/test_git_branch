@@ -19,7 +19,7 @@ class SearchController extends Controller
     {
         $student_id = $request->get('student_id', null);
         if (is_null($student_id)) return view('select.student', compact('student_id'));
-        $pdo = $this->getPdo('online');
+        $pdo = $this->getConnPdo('core', 'online');
         $quit_ids = $this->getArray($pdo->query($this->quit_vanclass($student_id)));
         $exist_ids = $this->getArray($pdo->query($this->exist_vanclass($student_id)));
         foreach ($quit_ids as $key => $id) {
@@ -37,7 +37,7 @@ class SearchController extends Controller
      */
     public function partnerSchool(Request $request)
     {
-        $this->pdo = $this->getPdo('online');
+        $this->pdo = $this->getConnPdo('core', 'online');
         $marketers = $this->list_marketers();
         $marketer_id = $request->get('marketer_id', null);
         $is_partner = $request->get('is_partner', null);

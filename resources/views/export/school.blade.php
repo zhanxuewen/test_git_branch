@@ -37,13 +37,6 @@
             <div class="col-xs-8 col-sm-6">
                 {!! csrf_field() !!}
                 <div class="form-group">
-                    <label for="database">数据库选择</label>
-                    <select class="form-control" name="database" id="database">
-                        <option value="0">主数据库</option>
-                        <option value="1">词霸天库</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label for="field_phone">手机号格式</label>
                     <select class="form-control" name="field_phone" id="field_phone">
                         <option value="0">隐藏中位</option>
@@ -71,7 +64,6 @@
                         <option value="schools_principal">多学校下校长信息</option>
                         <option value="marketer_school">市场专员下学校教师</option>
                         <option value="marketer_order_sum">市场专员下订单汇总</option>
-                        <option value="word_pk_activity">词霸天活跃统计</option>
                         <option value="principal_last_login">学校管理者登录统计</option>
                     </select>
                 </div>
@@ -101,6 +93,5 @@
         <p><u>学校代交</u> 必填参数: [<b>学校 ID</b>]</p>
         <p><u>市场专员下学校教师</u> 必填参数: [<b>市场专员 ID</b>]</p>
         <p><u>市场专员下订单汇总</u> 必填参数: [<b>市场专员 ID</b>]</p>
-        <p><u>词霸天活跃统计</u> 必填参数: [<b>数据库选择</b>]</p>
     </div>
 @endsection

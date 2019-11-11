@@ -141,7 +141,7 @@ class MonitorController extends Controller
         }
         $count = [count($keys), count($_tokens)];
         $conn = $common['_conn'] == 'online' ? 'online' : 'dev';
-        $accounts = empty($ids) ? [] : $this->fetchRows($this->getPdo($conn)->query($this->list_accounts($ids)));
+        $accounts = empty($ids) ? [] : $this->fetchRows($this->getConnPdo('core', $conn)->query($this->list_accounts($ids)));
         $date = $date->toDateString();
         $compact = compact('count', 'accounts', 'list', 'date');
         return view('monitor.throttle.record', array_merge($compact, $common));
@@ -172,7 +172,7 @@ class MonitorController extends Controller
         }
         $keys = json_encode(array_keys($list));
         $conn = $common['_conn'] == 'online' ? 'online' : 'dev';
-        $accounts = empty($ids) ? [] : $this->fetchRows($this->getPdo($conn)->query($this->list_accounts($ids)));
+        $accounts = empty($ids) ? [] : $this->fetchRows($this->getConnPdo('core', $conn)->query($this->list_accounts($ids)));
         $date = $date->toDateString();
         $times = json_encode(array_keys($this->getTimes('day')));
         $compact = compact('count', 'accounts', 'list', 'keys', 'date', 'times', '_group');

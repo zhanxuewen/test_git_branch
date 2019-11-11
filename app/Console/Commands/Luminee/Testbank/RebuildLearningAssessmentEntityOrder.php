@@ -48,12 +48,8 @@ class RebuildLearningAssessmentEntityOrder extends Command
      */
     public function handle()
     {
-        $connections = [
-            'online' => ['learning' => 'online_learning'],
-            'dev' => ['learning' => 'dev_learning']
-        ];
         $conn = $this->argument('conn');
-        $this->learn_pdo = $this->getPdo($connections[$conn]['learning']);
+        $this->learn_pdo = $this->getConnPdo('learning',$conn);
 
         $ids = [772595];
 

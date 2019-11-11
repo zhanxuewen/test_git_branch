@@ -42,7 +42,7 @@ class ExportAnalyzeOrder extends Command
      */
     public function handle()
     {
-        DB::setPdo($this->getPdo('online'));
+        DB::setPdo($this->getConnPdo('core', 'online'));
 
         $this->analyzeStudent();
     }

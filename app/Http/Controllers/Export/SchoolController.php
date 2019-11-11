@@ -54,7 +54,6 @@ class SchoolController extends Controller
         $expire = $request->get('expire', 0);
         $compare = $request->get('compare', 'no');
         $hide_school_id = $request->get('hide_school_id', 1);
-        $db_change = $request->get('database', 0) == 0 ? null : 'wordpk';
         $request->filled('school_id') ? $params['school_id'] = $request->get('school_id', null) : null;
         $request->filled('school_ids') ? $params['school_ids'] = $request->get('school_ids', null) : null;
         $request->filled('vanclass_id') ? $params['vanclass_id'] = $request->get('vanclass_id', null) : null;
@@ -64,11 +63,11 @@ class SchoolController extends Controller
         $request->filled('end') ? $params['end'] = $request->get('end', null) . ' 23:59:59' : null;
         $this->field_phone = $field[$request->get('field_phone')];
         isset($params) or die('没有参数');
-        $pdo = $this->getPdo('online', $db_change);
+        $pdo = $this->getConnPdo('core', 'online');
         $rows = $pdo->query($this->$query($params));
         $name = $query . '_' . $this->handleTableName($params, $pdo);
         if ($expire == 1 && isset($params['school_id'])) $this->expired = $this->getSchoolStudentsExpired($params['school_id']);
-        return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare, $hide_school_id),'export_school');
+        return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare, $hide_school_id), 'export_school');
     }
 
     protected function handleTableName($params, $pdo)
@@ -157,11 +156,6 @@ class SchoolController extends Controller
     {
         !isset($params['teacher_id']) ? die('没有 教师ID') : null;
         return "SELECT user_account.id as student_id, nickname, $this->field_phone FROM vanclass_student INNER JOIN vanclass_teacher ON vanclass_student.vanclass_id = vanclass_teacher.vanclass_id INNER JOIN user_account ON user_account.id = vanclass_student.student_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE vanclass_teacher.teacher_id = " . $params['teacher_id'] . " AND vanclass_student.is_active = 1 GROUP BY vanclass_student.student_id";
-    }
-
-    protected function word_pk_activity($params)
-    {
-        return "SELECT user_account.school_id, sch.`name`, count(DISTINCT arena.defender_id) AS c_p_arena, count(DISTINCT arena_record.attacker_id) AS c_p_attack, count(DISTINCT sign_in.account_id) AS c_p_sign FROM user_account INNER JOIN b_vanthink_online.school AS sch ON sch.id = user_account.school_id LEFT JOIN arena ON user_account.id = arena.defender_id " . $this->getTime($params, 'arena.created_at') . " LEFT JOIN arena_record ON user_account.id = arena_record.attacker_id " . $this->getTime($params, 'arena_record.created_at') . " LEFT JOIN user_sign_in_record AS sign_in ON user_account.id = sign_in.account_id " . $this->getTime($params, 'sign_in.sign_in_at') . " GROUP BY user_account.school_id";
     }
 
     protected function principal_last_login($params)

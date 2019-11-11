@@ -61,7 +61,7 @@ class RecordOrderStatus extends BaseSchedule
         ];
         if (empty($this->local)) {
             $this->local = \DB::getPdo();
-            $this->online = $this->getPdo('online');
+            $this->online = $this->getConnPdo('core', 'online');
         }
 
         $this->ids = [];

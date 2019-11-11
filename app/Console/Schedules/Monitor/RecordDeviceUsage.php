@@ -20,7 +20,7 @@ class RecordDeviceUsage extends BaseSchedule
         }
         $local_pdo = \DB::getPdo();
         $sql = "SELECT count(DISTINCT user_id) as coo, device FROM user_device_record GROUP BY device ORDER BY coo DESC LIMIT 50";
-        $amounts = \DB::setPdo($this->getPdo('online'))->select($sql);
+        $amounts = \DB::setPdo($this->getConnPdo('core', 'online'))->select($sql);
         $create = [];
         foreach ($amounts as $amount) {
             $create[] = [

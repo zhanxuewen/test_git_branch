@@ -46,7 +46,7 @@ class AnalyzeOrder extends Command
      */
     public function handle()
     {
-        DB::setPdo($this->getPdo('online'));
+        DB::setPdo($this->getConnPdo('core', 'online'));
         $this->date = '2019-06-01';
         $this->groupBy = 'order.commodity_id';
 

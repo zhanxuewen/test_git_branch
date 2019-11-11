@@ -13,7 +13,7 @@ class ShowController extends Controller
      */
     public function marketer()
     {
-        $pdo = $this->getPdo('online');
+        $pdo = $this->getConnPdo('core', 'online');
         $marketers = $this->getRecord($pdo->query($this->list_marketer(2)));
         return view('select.marketer', compact('marketers'));
     }

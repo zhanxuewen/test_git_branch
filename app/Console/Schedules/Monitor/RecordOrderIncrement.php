@@ -27,7 +27,7 @@ class RecordOrderIncrement extends BaseSchedule
         $this->start = $day->startOfDay()->toDateTimeString();
         $this->end = $day->endOfDay()->toDateTimeString();
         $local_pdo = \DB::getPdo();
-        $pdo = \DB::setPdo($this->getPdo('online'));
+        $pdo = \DB::setPdo($this->getConnPdo('core', 'online'));
         $types = ['Single Success' => "IN ('single_success', 'success')",
             'Group Success' => "= 'group_success'",
             'Order Refund' => "LIKE '%refund%' AND finished_at IS NOT NULL",

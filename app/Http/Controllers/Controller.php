@@ -81,7 +81,7 @@ abstract class Controller extends BaseController
     protected function logContent($scope, $action, $content, $object = null)
     {
         $pdo = \DB::getPdo();
-        \DB::setPdo($this->getPdo('structure'));
+        \DB::setPdo($this->getConnPdo('structure', 'dev'));
         $scope = $this->reporter->findScope($scope, 'code');
         $action = $this->reporter->findAction($action, 'code');
         $now = date('Y-m-d H:i:s');
