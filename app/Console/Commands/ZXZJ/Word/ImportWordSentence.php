@@ -54,7 +54,7 @@ class ImportWordSentence extends Command
         $words_str = str_repeat("?,", count($words)-1) . "?";;
 
         $pdo_type = $this->argument('pdo');
-        $pdo = $this->getPdo($pdo_type);
+        $pdo = $this->getConnPdo('core', $pdo_type);
 
         // 获取所有的单词及其解释
         $sql = 'select `wordbank`.`id` wordbank_id, `vocabulary`, `wordbank`.`deleted_at` w_del, 

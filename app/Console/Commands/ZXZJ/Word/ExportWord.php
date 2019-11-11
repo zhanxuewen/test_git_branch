@@ -68,7 +68,7 @@ class ExportWord extends Command
         $this->output->progressStart(count($this->filePath));
 
         $pdo_type = $this->argument('pdo');
-        $pdo = $this->getPdo($pdo_type);
+        $pdo = $this->getConnPdo('core', $pdo_type);
 
         $save_data = [];
         foreach ($this->filePath as  $file) {
@@ -240,7 +240,7 @@ class ExportWord extends Command
     public function handleTranslation($translation)
     {
         $translation = trim($translation);
-        
+
         $trans1 = [
             ";"     => "；",
             "，"    => "；",
@@ -302,7 +302,7 @@ class ExportWord extends Command
 
 
         $translation = strtr($translation, $trans1);
-        
+
         return $translation;
     }
 

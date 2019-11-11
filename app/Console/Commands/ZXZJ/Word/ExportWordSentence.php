@@ -70,7 +70,7 @@ class ExportWordSentence extends Command
         $this->traverse($path);
 
         $pdo_type = $this->argument('pdo');
-        $pdo = $this->getPdo($pdo_type);
+        $pdo = $this->getConnPdo('core', $pdo_type);
 
 
         // 处理文件

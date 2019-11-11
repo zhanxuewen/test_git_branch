@@ -2,6 +2,8 @@
 
 namespace App\Foundation;
 
+use PDO;
+use Exception;
 use Predis\Client;
 
 trait PdoBuilder
@@ -16,19 +18,10 @@ trait PdoBuilder
 
     protected $read_redis = [];
 
-    protected $hash = '$2y$10$vdqadK98R4KKaVRB2HzWu.ks5k8LTMc.rCvmBywj2sEdsfMxXz/OG';
-
     private function getEnv()
     {
         if (empty($this->env)) $this->env = include base_path() . '/.env.array';
         return $this->env;
-    }
-
-    private function getSecretEnv()
-    {
-        is_file(storage_path('app/.env.secret')) or die('No Such File.');
-        if (empty($this->_env)) $this->_env = include storage_path('app') . '/.env.secret';
-        return $this->_env;
     }
 
     private function getConnEnv()
@@ -67,11 +60,6 @@ trait PdoBuilder
         return $txt;
     }
 
-    protected function getConf($conn)
-    {
-        return $this->getEnv()[$conn];
-    }
-
     public function getReadRedis($conn)
     {
         if (isset($this->read_redis[$conn])) return $this->read_redis[$conn];
@@ -83,7 +71,7 @@ trait PdoBuilder
 
     /**
      * @param $conn
-     * @return \Predis\Client;
+     * @return Client;
      */
     public function getRedis($conn)
     {
@@ -106,34 +94,10 @@ trait PdoBuilder
         $redis = new Client($host, $option);
         try {
             $redis->setex('master_redis', 30, $host);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return;
         }
         $this->redis[$conn] = $redis;
-    }
-
-    public function getDbName($conn)
-    {
-        return $this->getConf($conn)['database'];
-    }
-
-    public function getPdo($conn, $change_db = null)
-    {
-        $db = $this->getConf($conn);
-        if (!is_null($change_db)) $db['database'] = $change_db;
-        return $this->newPdo($db['host'], $db['database'], $db['username'], $db['password']);
-    }
-
-    public function getDeveloperConf()
-    {
-        return $this->getConf('online');
-    }
-
-    public function getSecretPdo($conn)
-    {
-        if (!\Hash::check(env('ONLINE_ALLOW'), $this->hash)) die('Permission Denied!');
-        $db = $this->getSecretEnv()[$conn];
-        return $this->newPdo($db['host'], $db['database'], $db['username'], $db['password']);
     }
 
     public function getConnProjects()
@@ -160,8 +124,8 @@ trait PdoBuilder
     private function newPdo($host, $database, $username, $password)
     {
         try {
-            return new \PDO("mysql:host={$host};dbname={$database};charset=utf8", $username, $password);
-        } catch (\Exception $e) {
+            return new PDO("mysql:host={$host};dbname={$database};charset=utf8", $username, $password);
+        } catch (Exception $e) {
             return null;
         }
     }

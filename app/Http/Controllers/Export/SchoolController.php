@@ -2,45 +2,32 @@
 
 namespace App\Http\Controllers\Export;
 
-use Carbon\Carbon;
+use DB;
+use Closure;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 class SchoolController extends Controller
 {
-    protected $field_phone;
+    protected $phone;
 
-    protected $expired = [];
+    protected $titles = [
+        'account' => ['昵称', '手机号', '班级名称'],
+        'order' => ['卡类型', '费用', '订单日期'],
+        'offline' => ['天数', '费用', '订单日期', '退款日期'],
+    ];
 
-    protected $titles
-        = [
-            'sum' => '总数',
-            'days' => '天数',
-            'time' => '时间',
-            'name' => '名称',
-            'count' => '数量',
-            'phone' => '手机',
-            '_phone' => '手机',
-            'region' => '区域',
-            'm_name' => '备注名',
-            'pay_fee' => '费用',
-            'balance' => '余额',
-            'user_type' => '身份',
-            'nickname' => '昵称',
-            'contract' => '合作档',
-            'school_id' => '学校ID',
-            'school_name' => '学校名称',
-            '_school_id' => '学校ID',
-            'c_p_sign' => '签到人数',
-            't_nickname' => '教师昵称',
-            'c_p_arena' => '摆擂人数',
-            'c_p_attack' => '攻擂人数',
-            'student_id' => '学生ID',
-            'created_at' => '创建时间',
-            'refunded_at' => '退款时间',
-            'vanclass_id' => '班级ID',
-            'commodity_name' => '卡类型',
-        ];
+    protected $title;
+
+    protected $accounts = [];
+
+    protected $expires = [];
+
+    protected $rows = [];
+
+    protected $ids = [];
+
+    protected $options = [];
 
     public function school()
     {
@@ -49,118 +36,27 @@ class SchoolController extends Controller
 
     public function postExport(Request $request)
     {
-        $field = ["INSERT (phone, 4, 4, '****') as _phone", "phone"];
-        $query = $request->get('query');
-        $expire = $request->get('expire', 0);
-        $compare = $request->get('compare', 'no');
-        $hide_school_id = $request->get('hide_school_id', 1);
-        $request->filled('school_id') ? $params['school_id'] = $request->get('school_id', null) : null;
-        $request->filled('school_ids') ? $params['school_ids'] = $request->get('school_ids', null) : null;
-        $request->filled('vanclass_id') ? $params['vanclass_id'] = $request->get('vanclass_id', null) : null;
-        $request->filled('teacher_id') ? $params['teacher_id'] = $request->get('teacher_id', null) : null;
-        $request->filled('marketer_id') ? $params['marketer_id'] = $request->get('marketer_id', null) : null;
-        $request->filled('start') ? $params['start'] = $request->get('start', null) : null;
-        $request->filled('end') ? $params['end'] = $request->get('end', null) . ' 23:59:59' : null;
-        $this->field_phone = $field[$request->get('field_phone')];
-        isset($params) or die('没有参数');
-        $pdo = $this->getConnPdo('core', 'online');
-        $rows = $pdo->query($this->$query($params));
-        $name = $query . '_' . $this->handleTableName($params, $pdo);
-        if ($expire == 1 && isset($params['school_id'])) $this->expired = $this->getSchoolStudentsExpired($params['school_id']);
-        return $this->exportExcel($name, $this->getRecord($rows, $expire, $compare, $hide_school_id), 'export_school');
+        $this->options['expire'] = $request->get('expire', 0) ? true : false;
+        $request->filled('school_id') ? $school_id = $request->get('school_id') : die('没有 学校ID');
+        $params['start'] = $request->get('start', null);
+        $params['end'] = $request->filled('end') ? $request->get('end', null) . ' 23:59:59' : null;
+        $this->phone = $request->get('field_phone') ? "phone as _phone" : "INSERT (phone, 4, 4, '****') as _phone";
+        DB::setPdo($this->getConnPdo('core', 'online'));
+        $record = $this->query($request->get('query'), $school_id, $params);
+        $name = $request->get('query') . '_' . $school_id;
+        return $this->exportExcel($name, $record, 'export_school');
     }
 
-    protected function handleTableName($params, $pdo)
+    protected function query($query, $school_id, $params)
     {
-        foreach ($params as $key => &$param) {
-            $param = $this->transParams($pdo, $key, $param);
-            $param = mb_substr($param, 0, 20);
+        switch ($query) {
+            case 'school_order':
+                return $this->school_order($school_id, $this->getTime($params, '`order`.created_at'));
+            case 'school_offline':
+                return $this->school_offline($school_id, $this->getTime($params, '`order_offline`.created_at'));
+            default:
+                die('参数错误');
         }
-        return implode('_', $params);
-    }
-
-    protected function transParams(\PDO $pdo, $key, $value)
-    {
-        if ($key == 'school_id') return $pdo->query("SELECT `name` FROM school WHERE id = $value")->fetchColumn();
-        return $value;
-    }
-
-    protected function handleIds($ids)
-    {
-        $array = array_unique(explode(',', $ids));
-        return implode(',', $array);
-    }
-
-    protected function school_order($params)
-    {
-        !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT `order`.student_id, nickname, $this->field_phone, commodity_name, pay_fee, `order`.created_at, GROUP_CONCAT(DISTINCT vanclass.`name`) as name FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id = " . $params['school_id'] . " AND school_member.account_type_id = 5 AND pay_status LIKE '%success' " . $this->getTime($params, '`order`.created_at') . " GROUP BY `order`.id";
-    }
-
-    protected function school_offline($params)
-    {
-        !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id as student_id, GROUP_CONCAT(DISTINCT vanclass.`name`) as name, nickname, $this->field_phone, days, pay_fee, order_offline.created_at, refunded_at FROM order_offline INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id = " . $params['school_id'] . " " . $this->getTime($params, '`order_offline`.created_at') . " GROUP BY order_offline.id";
-    }
-
-    protected function multi_school_order($params)
-    {
-        !isset($params['school_ids']) ? die('没有 学校IDs') : null;
-        return "SELECT school_member.school_id, school.name as school_name, `order`.student_id, nickname, $this->field_phone, commodity_name, pay_fee, `order`.created_at, GROUP_CONCAT(DISTINCT vanclass.`name`) as name FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN `order` ON `order`.student_id = school_member.account_id INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school_member.school_id IN (" . $params['school_id'] . ") AND school_member.account_type_id = 5 AND pay_status LIKE '%success' " . $this->getTime($params, '`order`.created_at') . " GROUP BY `order`.id";
-    }
-
-    protected function multi_school_offline($params)
-    {
-        !isset($params['school_ids']) ? die('没有 学校IDs') : null;
-        return "SELECT school_member.school_id, school.name as school_name, user_account.id as student_id, GROUP_CONCAT(DISTINCT vanclass.`name`) as name, nickname, $this->field_phone, days, pay_fee, order_offline.created_at, refunded_at FROM order_offline INNER JOIN school_member ON school_member.account_id = order_offline.student_id INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = order_offline.student_id INNER JOIN `user` ON `user`.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = order_offline.student_id LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE order_offline.school_id IN (" . $params['school_ids'] . ") " . $this->getTime($params, '`order_offline`.created_at') . " GROUP BY order_offline.id";
-    }
-
-    protected function no_pay_student($params)
-    {
-        !isset($params['school_id']) ? die('没有 学校ID') : null;
-        return "SELECT user_account.id as student_id, nickname, $this->field_phone FROM user_account INNER JOIN `user` ON `user`.id = user_account.user_id WHERE user_account.id IN (SELECT DISTINCT school_member.account_id FROM school_member LEFT JOIN `order` ON `order`.student_id = school_member.account_id LEFT JOIN order_offline ON order_offline.student_id = school_member.account_id WHERE school_member.school_id = " . $params['school_id'] . " AND school_member.account_type_id = 5 AND `order`.id IS NULL AND order_offline.id IS NULL)";
-    }
-
-    protected function marketer_school($params)
-    {
-        !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
-        return "SELECT nickname, $this->field_phone, school.id AS school_id, school.`name` FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school_member.account_type_id = 4 AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
-    }
-
-    protected function schools_teacher($params)
-    {
-        !isset($params['school_ids']) ? die('没有 学校IDs') : null;
-        return "SELECT nickname, $this->field_phone, school.id AS school_id, school.`name` FROM school_member INNER JOIN school ON school.id = school_member.school_id INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE school.id IN (" . $params['school_ids'] . ") AND school_member.account_type_id = 4 AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
-    }
-
-    protected function schools_principal($params)
-    {
-        !isset($params['school_ids']) ? die('没有 学校IDs') : null;
-        return "SELECT school.id AS school_id, school.`name`, nickname, $this->field_phone FROM school LEFT JOIN school_member ON school.id = school_member.school_id AND school_member.account_type_id = 6 LEFT JOIN user_account ON user_account.id = school_member.account_id LEFT JOIN `user` ON `user`.id = user_account.user_id WHERE school.id IN (" . $params['school_ids'] . ") AND school_member.is_active = 1 AND school.is_active = 1 ORDER BY school.id";
-    }
-
-    protected function marketer_order_sum($params)
-    {
-        !isset($params['marketer_id']) ? die('没有 市场专员ID') : null;
-        return "SELECT id as _school_id, GROUP_CONCAT(DISTINCT `name`) as `name`, count(DISTINCT student_id) AS count, sum(pay_fee) AS sum FROM ((SELECT school.id, school.`name`, `order`.student_id, `order`.pay_fee FROM school INNER JOIN `order` ON `order`.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1 AND `order`.pay_status LIKE '%success') UNION ALL (SELECT school.id, school.`name`, order_offline.student_id, order_offline.pay_fee FROM school INNER JOIN order_offline ON order_offline.school_id = school.id WHERE school.marketer_id = " . $params['marketer_id'] . " AND school.is_active = 1)) AS record GROUP BY id";
-    }
-
-    protected function school_student($params)
-    {
-        !isset($params['school_id']) ? die('没有 学校ID') : null;
-        $vanclass = isset($params['vanclass_id']) ? " AND vanclass_student.vanclass_id = " . $params['vanclass_id'] : "";
-        return "SELECT sua.id as student_id, sua.nickname, $this->field_phone, GROUP_CONCAT(DISTINCT tua.nickname) AS t_nickname , GROUP_CONCAT(DISTINCT vanclass.`name`) as name, GROUP_CONCAT(DISTINCT vanclass_student.mark_name) as m_name, sua.created_at FROM school_member INNER JOIN vanclass_student ON vanclass_student.student_id = school_member.account_id INNER JOIN vanclass_teacher ON vanclass_teacher.vanclass_id = vanclass_student.vanclass_id INNER JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id INNER JOIN user_account AS sua ON sua.id = school_member.account_id INNER JOIN user_account AS tua ON tua.id = vanclass_teacher.teacher_id INNER JOIN `user` ON `user`.id = sua.user_id WHERE school_member.school_id = " . $params['school_id'] . $vanclass . " AND school_member.account_type_id = 5 " . $this->getTime($params, 'user_account.created_at') . " GROUP BY student_id";
-    }
-
-    protected function teacher_student($params)
-    {
-        !isset($params['teacher_id']) ? die('没有 教师ID') : null;
-        return "SELECT user_account.id as student_id, nickname, $this->field_phone FROM vanclass_student INNER JOIN vanclass_teacher ON vanclass_student.vanclass_id = vanclass_teacher.vanclass_id INNER JOIN user_account ON user_account.id = vanclass_student.student_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE vanclass_teacher.teacher_id = " . $params['teacher_id'] . " AND vanclass_student.is_active = 1 GROUP BY vanclass_student.student_id";
-    }
-
-    protected function principal_last_login($params)
-    {
-        return "SELECT school_member.school_id, school.`name`, nickname, $this->field_phone, REPLACE (REPLACE (account_type_id, 6, '校长'), 7, '学校校管') as user_type, last_login_time as time FROM school_member INNER JOIN user_account ON user_account.id = school_member.account_id INNER JOIN school ON school.id = school_member.school_id INNER JOIN `user` ON `user`.id = user_account.user_id WHERE	school_member.account_type_id IN (6, 7) " . $this->getTime($params, 'last_login_time') . " ORDER BY school_member.school_id";
     }
 
     protected function getTime($params, $column)
@@ -170,71 +66,69 @@ class SchoolController extends Controller
         return $time;
     }
 
-    protected function getRecord($rows, $expire = 0, $compare = 'no', $hide_school_id = 1)
+    protected function school_order($school_id, $time)
     {
-        $record = [];
-        $token = null;
-        if (empty($this->expired)) {
-            $token = $this->getManageToken();
+        $this->rows = DB::select("SELECT `order`.student_id, commodity_name, pay_fee, `order`.created_at FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id WHERE school_member.school_id = $school_id AND school_member.account_type_id = 5 AND pay_status LIKE '%success' $time GROUP BY `order`.id");
+        $this->buildIds();
+        $this->getAccount();
+        $this->title = array_merge($this->titles['account'], $this->titles['order']);
+        if ($this->options['expire']) {
+            $this->getExpired();
         }
-        $hide = $hide_school_id == 1 ? ['student_id', 'school_id'] : ['student_id'];
-        foreach ($rows as $i => $row) {
-            if ($i == 0) $record[] = $this->getTitle($row, $hide, $expire);
-            $data = [];
-            foreach ($row as $key => $item) {
-                if (!is_numeric($key) && !in_array($key, $hide)) $data[] = $item;
-            }
-            if ($expire == 1) {
-                if (is_null($token)) {
-                    $data[] = $exp = $this->getExpire($row['student_id']);
-                } else {
-                    $data[] = $exp = $this->appendExpire($row, $token);
-                }
-                if ($compare !== 'no' && !Carbon::now()->$compare($exp)) continue;
-            }
+        return $this->buildRecord(function ($row) {
+            return [$row->commodity_name, $row->pay_fee, $row->created_at];
+        });
+    }
+
+    protected function school_offline($school_id, $time)
+    {
+        $this->rows = DB::select("SELECT order_offline.student_id, days, pay_fee, order_offline.created_at, refunded_at FROM order_offline WHERE order_offline.school_id = $school_id $time GROUP BY order_offline.id");
+        $this->buildIds();
+        $this->getAccount();
+        $this->title = array_merge($this->titles['account'], $this->titles['offline']);
+        if ($this->options['expire']) {
+            $this->getExpired();
+        }
+        return $this->buildRecord(function ($row) {
+            return [$row->days, $row->pay_fee, $row->created_at, $row->refunded_at];
+        });
+    }
+
+    protected function buildIds()
+    {
+        foreach ($this->rows as $row) {
+            $this->ids[] = $row->student_id;
+        }
+    }
+
+    protected function buildRecord(Closure $closure)
+    {
+        $record = [$this->title];
+        foreach ($this->rows as $row) {
+            $account = $this->accounts[$row->student_id];
+            $data = array_merge([$account->nickname, $account->_phone, $account->vanclass_name], $closure($row));
+            if ($this->options['expire'])
+                $data[] = $this->expires[$row->student_id]->expired_at;
             $record[] = $data;
         }
         return $record;
     }
 
-    protected function appendExpire($row, $token)
+    protected function getAccount()
     {
-        $res = $this->request_post($row['student_id'], $token);
-        return $res->expired_time;
-    }
-
-    protected function getExpire($student_id)
-    {
-        return isset($this->expired[$student_id]) ? $this->expired[$student_id] : null;
-    }
-
-    protected function getTitle($row, $hide, $expire = 0)
-    {
-        $data = [];
-        foreach ($row as $key => $value) {
-            if (!is_numeric($key) && !in_array($key, $hide)) {
-                $data[] = isset($this->titles[$key]) ? $this->titles[$key] : $key;
-            }
+        $sql = "SELECT user_account.id, nickname, $this->phone, GROUP_CONCAT( DISTINCT vanclass.`name` ) AS vanclass_name FROM user_account INNER JOIN user ON user.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = user_account.id AND vanclass_student.is_active = 1 LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE user_account.id IN (" . implode(',', $this->ids) . ") GROUP BY user_account.id";
+        foreach (DB::select($sql) as $row) {
+            $this->accounts[$row->id] = $row;
         }
-        if ($expire == 1) $data[] = '有效期';
-        return $data;
     }
 
-    protected function getSchoolStudentsExpired($school_id)
+    protected function getExpired()
     {
-        $conf = $this->getDeveloperConf();
-        $online = implode(',', $conf);
-        $dir = realpath(base_path() . '/../rpc_server');
-        $comm = "php $dir/artisan list:school:student_expired $school_id '$online'";
-        return json_decode(exec($comm), true);
-    }
-
-    protected function request_post($id, $token)
-    {
-        $postUrl = 'http://api.manage.wxzxzj.com/api/user/get/expiredTime?token=' . $token;
-        $curlPost = 'student_id=' . $id;
-        $data = $this->curlPost($postUrl, $curlPost);
-        return $data;
+        $this->title[] = '有效期';
+        $sql = "SELECT student_id, expired_at FROM payment_student_status WHERE student_id IN (" . implode(',', $this->ids) . ") AND paid_type = 'improve_card'";
+        foreach (DB::select($sql) as $row) {
+            $this->expires[$row->student_id] = $row;
+        }
     }
 
 }
