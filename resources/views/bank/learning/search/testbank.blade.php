@@ -63,9 +63,9 @@
 </form>
 <form action="{{url('bank/learning/sync/article')}}" method="GET" class="form-inline" target="_blank">
     <input type="hidden" name="conn" value="{{$conn}}">
-    <input type="hidden" name="core_id" value="{{$core_extra->id}}">
+    <input type="hidden" name="core_id" value="{{isset($core_extra->id)?$core_extra->id:null}}">
     @if(isset($learn_testbank) && !empty($learn_testbank))
-        <input type="hidden" name="learn_id" value="{{$learn_extra->id}}">
+        <input type="hidden" name="learn_id" value="{{isset($learn_extra->id)?$learn_extra->id:null}}">
     @endif
     @if(count($ass_testbank_s) !=0)
         <div class="form-group">
