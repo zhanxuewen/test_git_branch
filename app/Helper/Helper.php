@@ -10,10 +10,10 @@ class Helper
 
     protected static $cache = null;
 
-    public static function getCache($conn)
+    public static function getCache($pje_conn)
     {
         if (is_null(self::$cache)) {
-            self::$cache = (new self())->getRedis('analyze')->get($conn . '_table_rows');
+            self::$cache = (new self())->getRedis('analyze')->get($pje_conn . '_table_rows');
         }
         return self::$cache;
     }
@@ -71,10 +71,10 @@ class Helper
         return in_array($table, $excepts) ? true : false;
     }
 
-    public static function showExplain($explain, $conn)
+    public static function showExplain($explain, $pje_conn)
     {
         if (empty($explain)) return '';
-        $cache = self::getCache($conn);
+        $cache = self::getCache($pje_conn);
         $tables = json_decode($cache, true);
         $explain = json_decode(str_replace('&quot;', '"', $explain), true);
         $out = '';
