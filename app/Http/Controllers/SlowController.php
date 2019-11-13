@@ -20,11 +20,12 @@ class SlowController extends Controller
         $times = [];
         foreach ($logs as $log) {
             if ($start->gt($log->time)) continue;
+            $at = $log->time;
             $log = str_replace(['info ', ' []'], ['', ''], $log->msg);
             $log = json_decode($log, true);
             $method = $log['method'];
             $time = round($log['time'], 3);
-            $methods[$method][] = ['time' => $time, 'params' => count($log['params']) == 1 ? $log['params'][0] : $log['params']];
+            $methods[$method][] = ['time' => $time, 'at' => $at, 'params' => count($log['params']) == 1 ? $log['params'][0] : $log['params']];
             $counts[$method] = array_key_exists($method, $counts) ? $counts[$method] + 1 : 1;
             $times[$method] = array_key_exists($method, $times) ? $this->greater($times[$method], $time) : $time;
         }

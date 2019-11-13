@@ -43,7 +43,7 @@
                         @foreach($items as $item)
                             <tr>
                                 <td>
-                                    <span class="label @if($item['time'] >= $_sec) bg-red @else bg-gray @endif">{{$item['time']}}s</span><br><br>
+                                    <span class="label @if($item['time'] >= $_sec) bg-red @else bg-gray @endif">{{$item['time']}}s</span> {{$item['at']}}<br><br>
                                     @foreach($item['params'] as $param)
                                         <i class="fa fa-bookmark"></i> @if(is_array($param)) {!! json_encode($param) !!} @else {{$param}} @endif
                                         <br>
