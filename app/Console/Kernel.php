@@ -2,10 +2,8 @@
 
 namespace App\Console;
 
-use App\Console\Commands\ZXZJ\Word\ExportWord;
-use App\Console\Commands\ZXZJ\Word\MergeWordLabel;
-use App\Foundation\Log;
 use Carbon\Carbon;
+use App\Foundation\Log;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -17,7 +15,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\BuildMigrationMD::class,
 
         Commands\Core\ModuleSeed::class,
         Commands\Core\ModuleMigrate::class,

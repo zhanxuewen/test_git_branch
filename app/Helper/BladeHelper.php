@@ -211,4 +211,34 @@ class BladeHelper
         return $column['default'];
     }
 
+    public static function dispatchMapShow($rails, $flags, $outline, $row, $ignore)
+    {
+        $output = '';
+        $rails = explode(',', $rails);
+        foreach ($flags as $flag) {
+            if (in_array($flag['id'], $rails)) {
+                $fa = self::checkOutline($outline, $flag['id'], $row, $ignore);
+                $output .= '<i class="fa fa-lg ' . $fa . '" style="color: ' . $flag['color'] . '"></i> ';
+            }
+        }
+        return $output;
+    }
+
+    protected static function checkOutline($outline, $id, $row, $ignore)
+    {
+        if (!isset($outline[$id])) {
+            return 'fa-circle';
+        }
+
+        $out = $outline[$id];
+        foreach ($row as $key => $value) {
+            if (in_array($key, $ignore) || !isset($out->$key)) continue;
+            if ($value != $out->$key) {
+                return 'fa-check-square-o';
+            }
+        }
+
+        return 'fa-check-circle';
+    }
+
 }

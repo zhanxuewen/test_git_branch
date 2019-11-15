@@ -39,6 +39,8 @@ abstract class Controller extends BaseController
         'online' => 'online',
     ];
 
+    protected $colors = ['#337ab7','#9ed189','#d9edf7','#fcf8e3','#f2dede'];
+
     protected $builder;
     protected $aliOss;
 

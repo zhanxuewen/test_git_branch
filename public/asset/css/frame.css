@@ -52,3 +52,12 @@ div.not-read > div {
 .table > tbody > tr > td {
     word-break: break-all;
 }
+
+/* Dispatcher Maps */
+.edit-map:hover {
+    cursor: pointer;
+}
+
+.sync-out:hover {
+    cursor: pointer;
+}

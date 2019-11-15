@@ -19,6 +19,10 @@
             'Migration' => 'database/migration/history',
             'Table Correct' => 'database/table_correct'
         ], 'fa-database') !!}
+        {!! \App\Helper\BladeHelper::treeView('调度', [
+            'List' => 'dispatch/dispatcher/list',
+            'Maps' => 'dispatch/dispatcher/maps',
+        ], 'fa-steam-square') !!}
         {!! \App\Helper\BladeHelper::treeView('监控', [
             'Table' => 'monitor/table',
             'Device' => 'monitor/device',
