@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9efba8700cd0447b65487dc4fdd8c231",
+    "content-hash": "4460f5d1fdb86b2e516dfeb26b5838d1",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1178,45 +1178,6 @@
             ],
             "description": "Laravel Base Building",
             "time": "2019-10-28T02:49:26+00:00"
-        },
-        {
-            "name": "luminee/prosthesis",
-            "version": "1.0.1",
-            "source": {
-                "type": "git",
-                "url": "https://gitlab.wxzxzj.com/upend/third_party_lib.git",
-                "reference": "dc680fd65374057be00ea0eebd3c76e0f322e85d"
-            },
-            "dist": {
-                "type": "tar",
-                "url": "http://composerpackage.vanthink.cn/dist/luminee/prosthesis/luminee-prosthesis-1.0.1-eb2ef4.tar",
-                "reference": "dc680fd65374057be00ea0eebd3c76e0f322e85d",
-                "shasum": "5b76ac757199151bb54c9e8b9fd4df6a41d09509"
-            },
-            "require": {
-                "php": ">=5.5"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.8"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Luminee\\Prosthesis\\": "src/"
-                }
-            },
-            "authors": [
-                {
-                    "name": "LuminEe"
-                }
-            ],
-            "description": "Library for connect to msservice.",
-            "homepage": "https://gitlab.wxzxzj.com/upend/third_party_lib",
-            "keywords": [
-                "curl",
-                "msservice"
-            ],
-            "time": "2019-04-01T05:32:48+00:00"
         },
         {
             "name": "luminee/reporter",

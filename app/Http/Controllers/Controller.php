@@ -11,7 +11,7 @@ use App\Foundation\Carbon;
 use Illuminate\Mail\Message;
 use App\Foundation\ArrayFunc;
 use App\Foundation\PdoBuilder;
-use Luminee\Prosthesis\AliOss;
+use App\Library\ProsthesisLib;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Routing\Controller as BaseController;
 use Luminee\Reporter\Repositories\ReporterRepository;
@@ -46,10 +46,10 @@ abstract class Controller extends BaseController
 
     protected $reporter;
 
-    public function __construct(Builder $builder, AliOss $aliOss, ReporterRepository $reporter)
+    public function __construct(Builder $builder, ReporterRepository $reporter)
     {
         $this->builder = $builder;
-        $this->aliOss = $aliOss;
+        $this->aliOss = new ProsthesisLib();
         $this->reporter = $reporter;
     }
 
