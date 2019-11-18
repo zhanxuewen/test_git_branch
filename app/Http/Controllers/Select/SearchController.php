@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Select;
 
+use App\Foundation\Curl;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -95,8 +96,9 @@ class SearchController extends Controller
     {
         $uri = 'http://api.manage.wxzxzj.com/api/school';
         $token = $this->getManageToken();
-        $info = $this->curlPost($uri . '/get/schoolInfo?token=' . $token, ['school_id' => $school_id]);
-        $popular = $this->curlPost($uri . '/get/popularizelInfo?token=' . $token, ['school_id' => $school_id])->Popularizel_info;
+        $info = Curl::curlPost($uri . '/get/schoolInfo?token=' . $token, ['school_id' => $school_id]);
+        $popular = Curl::curlPost($uri . '/get/popularizelInfo?token=' . $token, ['school_id' => $school_id]);
+        $popular = json_decode($popular)->data->Popularizel_info;
         $teachers = DB::setPdo($this->pdo)->table('school_member')
             ->selectRaw('nickname, vanclass.name, count(DISTINCT vanclass_student.student_id) AS coo')
             ->join('vanclass_teacher', 'vanclass_teacher.teacher_id', '=', 'school_member.account_id')
@@ -111,7 +113,7 @@ class SearchController extends Controller
         $count = DB::setPdo($this->pdo)->table('school_member')
             ->join('user_type', 'user_type.id', '=', 'school_member.account_type_id')->where('school_id', $school_id)
             ->selectRaw('count(DISTINCT account_id) AS coo, user_type.type_name')->groupBy('user_type.id')->get();
-        return ['info' => $info, 'popular' => $popular, 'teachers' => $teachers, 'count' => $count];
+        return ['info' => json_decode($info)->data, 'popular' => $popular, 'teachers' => $teachers, 'count' => $count];
     }
 
     protected function list_marketers()

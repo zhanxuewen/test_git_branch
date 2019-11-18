@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Foundation\Curl;
 use Illuminate\Http\Request;
 
 class ToolController extends Controller
@@ -80,7 +81,7 @@ class ToolController extends Controller
 
     protected function storeFiles($url, $name, $error = null)
     {
-        $data = $this->curlGet(str_replace(' ', '%20', $url), false);
+        $data = Curl::curlGet(str_replace(' ', '%20', $url));
         if (!is_null($error) && $data == $error) return false;
         $dir = storage_path('app') . '/public';
         $file = $dir . '/' . $name;

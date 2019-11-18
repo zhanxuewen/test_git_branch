@@ -6,6 +6,7 @@ use Auth;
 use Validator;
 use App\Helper\Helper;
 use App\Helper\Builder;
+use App\Foundation\Curl;
 use App\Foundation\Excel;
 use App\Foundation\Carbon;
 use Illuminate\Mail\Message;
@@ -98,19 +99,14 @@ abstract class Controller extends BaseController
         return $this->getReadRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;
     }
 
-    protected function getZabbixToken()
-    {
-        return 'Cookie:zbx_sessionid=6b594637293a09024ff0c881f59d64c0';
-    }
-
     protected function getManageToken()
     {
         $redis = $this->getRedis('analyze');
         if (!$token = $redis->get('manage_token')) {
             $url = 'http://api.manage.wxzxzj.com/api/auth/login';
             $data = 'phone=18202542402&password=' . env('MANAGE_PASSWORD') . '&remberme=n';
-            $data = $this->curlPost($url, $data);
-            $token = $data->token;
+            $data = Curl::curlPost($url, $data);
+            $token = json_decode($data)->data->token;
             $redis->setex('manage_token', 60 * 60 * 24, $token);
         }
         return $token;
@@ -143,33 +139,6 @@ abstract class Controller extends BaseController
             $message->to($to)->subject($subject);
             $message->attach($attach);
         });
-    }
-
-    protected function curlPost($url, $data)
-    {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);  //设置url
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);  //设置http验证方法
-        curl_setopt($curl, CURLOPT_HEADER, 0);  //设置头信息
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);  //设置curl_exec获取的信息的返回方式
-        curl_setopt($curl, CURLOPT_POST, 1);  //设置发送方式为post请求
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);  //设置post的数据
-        $data = curl_exec($curl);//运行curl
-        curl_close($curl);
-        $data = json_decode($data)->data;
-        return $data;
-    }
-
-    protected function curlGet($url, $decode = true)
-    {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url); //设置抓取的url
-        curl_setopt($curl, CURLOPT_HEADER, 0); //设置头文件的信息作为数据流输出
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1); //设置获取的信息以文件流的形式返回，而不是直接输出。
-        $data = curl_exec($curl); //执行命令
-        curl_close($curl); //关闭URL请求
-        if ($decode) $data = json_decode($data)->data;
-        return $data;
     }
 
     protected function error($message)
