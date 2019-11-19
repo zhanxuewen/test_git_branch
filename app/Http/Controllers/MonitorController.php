@@ -29,7 +29,7 @@ class MonitorController extends Controller
                 $i++;
             });
         $keys = json_encode($keys);
-        return view('monitor.table', compact('rows', 'keys', 'dates', 'sub_days'));
+        return view('monitor.table', compact('rows', 'keys', 'dates', 'sub_days', 'project'));
     }
 
     public function circleTable(Request $request)

@@ -43,6 +43,7 @@ class Kernel extends HttpKernel
         'api' => [
             'throttle:60,1',
             'bindings',
+            'api.token',
         ],
     ];
 
@@ -61,5 +62,6 @@ class Kernel extends HttpKernel
         'guest' => Middleware\RedirectIfAuthenticated::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'cache.rows' => Middleware\CacheTableRows::class,
+        'api.token' => Middleware\VerifyApiToken::class,
     ];
 }

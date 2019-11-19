@@ -6,7 +6,13 @@
         <div class="btn-group" role="group">
             @foreach([14, 30, 60, 90] as $days)
                 <a class="btn btn-default @if($days == $sub_days) btn-primary active @endif"
-                   href="{!! URL::current().'?days='.$days !!}">{{$days}} Days</a>
+                   href="{!! URL::current().'?days='.$days.'&project='.$project !!}">{{$days}} Days</a>
+            @endforeach
+        </div>
+        <div class="btn-group" role="group">
+            @foreach(['core' => '在线助教', 'learning' => '百项过'] as $_project => $label)
+                <a class="btn btn-default @if($project == $_project) btn-primary active @endif"
+                   href="{!! URL::current().'?days='.$sub_days.'&project='.$_project !!}">{{$label}}</a>
             @endforeach
         </div>
         <hr>
