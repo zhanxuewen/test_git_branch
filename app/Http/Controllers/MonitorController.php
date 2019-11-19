@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Stores\Logs;
+use ES;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 
 class MonitorController extends Controller
 {
@@ -183,10 +184,44 @@ class MonitorController extends Controller
 
     public function schedule(Request $request)
     {
-        $Store_Log = new Logs();
         $day = $request->get('day', 1);
-        list($total, $list) = $Store_Log->schedule($day);
+        $list = collect();
+        foreach ($this->getLog($day) as $k => $log) {
+            foreach (explode("\n", $log->message) as $item) {
+                preg_match('/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/', $item, $match);
+                $list->push(['time' => $match[0], 'message' => $item]);
+            }
+        }
+        $list = $list->sortBy('time')->toArray();
+        $total = count($list);
         return view('monitor.schedule', compact('total', 'day', 'list'));
+    }
+
+    protected function getLog($day)
+    {
+        $d = Carbon::now();
+        $dates = [$d->format('Ymd')];
+        for ($i = 1; $i <= $day; $i++) {
+            $dates[] = $d->subDay()->format('Ymd');
+        }
+        $logs = [];
+        foreach ($dates as $date) {
+            $table = 'logstash-manage_server-' . $date;
+            try {
+                ES::table($table)->count();
+            } catch (Missing404Exception $e) {
+                continue;
+            }
+            $count = $this->querySchedule($table)->count();
+            $_logs = $this->querySchedule($table)->select(['message'])->take($count)->get()->toArray();
+            $logs = array_merge($logs, $_logs);
+        }
+        return $logs;
+    }
+
+    protected function querySchedule($table)
+    {
+        return ES::table($table)->whereMatch('path', 'schedule.log');
     }
 
     protected function getTime($values)

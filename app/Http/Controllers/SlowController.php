@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use Elasticsearch\Common\Exceptions\Missing404Exception;
 use ES;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Elasticsearch\Common\Exceptions\Missing404Exception;
 
 class SlowController extends Controller
 {
