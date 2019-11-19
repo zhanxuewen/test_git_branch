@@ -18,17 +18,6 @@ class Helper
         return self::$cache;
     }
 
-    public static function generateCaptcha($length)
-    {
-        $code_sets = "1234567890ABCDEFGHJKLMNPQRSTUVWXYZ1234567890";
-        $captcha = "";
-        $max = strlen($code_sets) - 1;
-        for ($i = 0; $i < $length; $i++) {
-            $captcha .= $code_sets[rand(0, $max)];
-        }
-        return $captcha;
-    }
-
     public static function modifyDatabaseConfig($conn)
     {
         $env = include base_path() . '/.env.array';

@@ -14,6 +14,4 @@ use Illuminate\Foundation\Inspiring;
 */
 
 Artisan::command('inspire', function () {
-    dd(md5('vanthink'));
-    $this->comment(Inspiring::quote());
 })->describe('Display an inspiring quote');

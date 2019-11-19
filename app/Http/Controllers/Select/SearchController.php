@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Select;
 
-use App\Foundation\Curl;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -44,7 +43,6 @@ class SearchController extends Controller
         $is_partner = $request->get('is_partner', null);
         $school_id = $request->get('school_id', null);
         $schools = is_null($school_id) ? $this->list_partner_school($marketer_id, $is_partner) : [];
-        $school = !is_null($school_id) ? $this->show_school($school_id) : [];
         $params = ['marketer_id' => $marketer_id, 'is_partner' => $is_partner, 'school_id' => $school_id];
         return view('select.partner', compact('schools', 'school', 'marketers', 'marketer_id', 'school_id', 'is_partner', 'params'));
     }
@@ -92,30 +90,6 @@ class SearchController extends Controller
         return $schools->paginate($this->getPerPage());
     }
 
-    protected function show_school($school_id)
-    {
-        $uri = 'http://api.manage.wxzxzj.com/api/school';
-        $token = $this->getManageToken();
-        $info = Curl::curlPost($uri . '/get/schoolInfo?token=' . $token, ['school_id' => $school_id]);
-        $popular = Curl::curlPost($uri . '/get/popularizelInfo?token=' . $token, ['school_id' => $school_id]);
-        $popular = json_decode($popular)->data->Popularizel_info;
-        $teachers = DB::setPdo($this->pdo)->table('school_member')
-            ->selectRaw('nickname, vanclass.name, count(DISTINCT vanclass_student.student_id) AS coo')
-            ->join('vanclass_teacher', 'vanclass_teacher.teacher_id', '=', 'school_member.account_id')
-            ->join('user_account', 'user_account.id', '=', 'vanclass_teacher.teacher_id')
-            ->join('vanclass', 'vanclass.id', '=', 'vanclass_teacher.vanclass_id')
-            ->join('vanclass_student', function ($join) {
-                $join->on('vanclass_student.vanclass_id', '=', 'vanclass_teacher.vanclass_id')
-                    ->where('vanclass_student.is_active', '=', 1);
-            }, null, null, 'left')
-            ->where('school_member.school_id', $school_id)->where('school_member.account_type_id', 4)
-            ->groupBy(['user_account.id', 'vanclass.id'])->orderByRaw('user_account.id, coo DESC')->get();
-        $count = DB::setPdo($this->pdo)->table('school_member')
-            ->join('user_type', 'user_type.id', '=', 'school_member.account_type_id')->where('school_id', $school_id)
-            ->selectRaw('count(DISTINCT account_id) AS coo, user_type.type_name')->groupBy('user_type.id')->get();
-        return ['info' => json_decode($info)->data, 'popular' => $popular, 'teachers' => $teachers, 'count' => $count];
-    }
-
     protected function list_marketers()
     {
         return DB::setPdo($this->pdo)->table('system_account_role')->selectRaw('user_account.id, nickname')
@@ -125,11 +99,6 @@ class SearchController extends Controller
     protected function list_vanclass($ids)
     {
         return "SELECT vanclass.id, vanclass.`name`, vanclass.student_count, teacher_id, nickname, user_account.school_id FROM vanclass INNER JOIN vanclass_teacher ON vanclass_teacher.vanclass_id = vanclass.id INNER JOIN user_account ON user_account.id = vanclass_teacher.teacher_id WHERE vanclass.id IN (" . implode(',', $ids) . ")";
-    }
-
-    protected function list_channels()
-    {
-        return "SELECT * FROM system_channel";
     }
 
     protected function getRecord($rows)
@@ -154,15 +123,6 @@ class SearchController extends Controller
             }
         }
         return $record;
-    }
-
-    protected function implodeWhere($fields, $and = 'AND')
-    {
-        $out = '';
-        foreach ($fields as $k => $field) {
-            if ($field != '') $out .= ($out == '' ? '' : " $and ") . $field;
-        }
-        return $out;
     }
 
 }

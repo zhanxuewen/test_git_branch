@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Validator;
-use App\Helper\Helper;
 use App\Helper\Builder;
-use App\Foundation\Curl;
 use App\Foundation\Excel;
 use App\Foundation\Carbon;
 use Illuminate\Mail\Message;
@@ -99,19 +97,6 @@ abstract class Controller extends BaseController
         return $this->getReadRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;
     }
 
-    protected function getManageToken()
-    {
-        $redis = $this->getRedis('analyze');
-        if (!$token = $redis->get('manage_token')) {
-            $url = 'http://api.manage.wxzxzj.com/api/auth/login';
-            $data = 'phone=18202542402&password=' . env('MANAGE_PASSWORD') . '&remberme=n';
-            $data = Curl::curlPost($url, $data);
-            $token = json_decode($data)->data->token;
-            $redis->setex('manage_token', 60 * 60 * 24, $token);
-        }
-        return $token;
-    }
-
     protected function validate($request)
     {
         foreach (array_keys($request) as $key) {
@@ -119,11 +104,6 @@ abstract class Controller extends BaseController
         }
         $validator = Validator::make($request, isset($rules) ? $rules : []);
         return $validator->fails() ? $validator->messages()->toArray() : true;
-    }
-
-    protected function generateCaptcha($length)
-    {
-        return Helper::generateCaptcha($length);
     }
 
     protected function exportExcel($name, $record, $section = 'export_school', $id = null, $type = null)

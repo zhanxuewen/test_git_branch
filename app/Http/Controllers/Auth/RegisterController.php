@@ -31,7 +31,7 @@ class RegisterController extends Controller
             return redirect()->back()->with('message', "Can not find user $username");
         }
         $redis = $this->getRedis('analyze');
-        $captcha = $this->generateCaptcha(6);
+        $captcha = str_random(6);
         $redis->setex('forget_password_' . $username . '_captcha', 60 * 10, $captcha);
         return view('auth.forgetPassword', compact('username'));
     }
