@@ -9,7 +9,7 @@
                 <option value="0">全部</option>
                 @foreach($users as $_user)
                     <option value="{{$_user->id}}"
-                            @if($_user->id == $user) selected @endif>{{$_user->username}}</option>
+                            @if($_user->id == $user) selected @endif>{{$_user->nickname}}</option>
                 @endforeach
             </select>
         </div>
@@ -49,7 +49,7 @@
             </tr>
             @foreach($logs as $log)
                 <tr>
-                    <td>{{$users[$log->account_id]->username}}</td>
+                    <td>{{$users[$log->account_id]->nickname}}</td>
                     <td>{{$scopes[$log->scope_id]->name}}</td>
                     <td>{{$actions[$log->action_id]->name}}</td>
                     <td>{{$log->content}}</td>

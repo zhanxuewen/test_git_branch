@@ -14,6 +14,7 @@ class CreateMonitorTableIncrementTable extends Migration
     {
         Schema::create('monitor_table_increment', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('project');
             $table->string('table');
             $table->unsignedBigInteger('rows');
             $table->unsignedBigInteger('auto_increment_id');

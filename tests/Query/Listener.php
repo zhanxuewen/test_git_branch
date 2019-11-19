@@ -22,6 +22,11 @@ class Listener
     protected $failPond = [];
 
     /**
+     * @var array $ignoreTables
+     */
+    protected $ignoreTables = [];
+
+    /**
      * @param $query
      * @param $bindings
      * @param $time
@@ -49,6 +54,7 @@ class Listener
     {
         $query = \DB::getPdo()->query("explain " . $sql);
         foreach ($query as $k => $row) {
+            if (in_array($row['table'], $this->ignoreTables)) continue;
             $this->checkType($row['type'], $key);
             $this->checkKey($row['key'], $key);
             $this->checkRows($row['rows'], $key);

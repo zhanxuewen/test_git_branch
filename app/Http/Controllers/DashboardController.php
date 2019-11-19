@@ -25,9 +25,10 @@ class DashboardController extends Controller
 
     protected function getRows($model, $sub_days, $item, $count)
     {
-        return $this->builder->setModel($model)->selectRaw("`$item` as item, group_concat($count ORDER BY id) as _count")
-            ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
-            ->groupBy($item)->orderByRaw("max($count) desc")->take(10)->get()->toJson();
+        $query = $this->builder->setModel($model)->selectRaw("`$item` as item, group_concat($count ORDER BY id) as _count")
+            ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString());
+        if ($item == 'table') $query->where('project', 'core');
+        return $query->groupBy($item)->orderByRaw("max($count) desc")->take(10)->get()->toJson();
     }
 
     protected function getCircle($model, $label, $table_name)
@@ -35,13 +36,14 @@ class DashboardController extends Controller
         $sub_days = $this->getSubDays($model);
         $dates = json_encode($this->listSubDays($sub_days));
         $start = Carbon::now()->subDays($sub_days)->toDateString();
-        $tables = \DB::table($table_name)->where('created_date', date('Y-m-d'))->orderBy('rows', 'desc')->take(10)->pluck('table');
+        $tables = \DB::table($table_name)->where('project', 'core')->where('created_date', date('Y-m-d'))
+            ->orderBy('rows', 'desc')->take(10)->pluck('table');
         $rows = [];
         foreach ($tables as $table) {
             $db_a = \DB::table($table_name)->selectRaw('created_date AS date, `rows`')
-                ->where('table', $table)->where('created_date', '>=', $start);
+                ->where('project', 'core')->where('table', $table)->where('created_date', '>=', $start);
             $db_b = \DB::table($table_name)->selectRaw('DATE_ADD(created_date, INTERVAL 1 DAY) AS date, `rows`')
-                ->where('table', $table)->where('created_date', '>=', $start);
+                ->where('project', 'core')->where('table', $table)->where('created_date', '>=', $start);
             $db_c = \DB::table(\DB::raw("({$db_a->toSql()}) AS a"))->mergeBindings($db_a)
                 ->join(\DB::raw("({$db_b->toSql()}) AS b"), 'a.date', '=', 'b.date', 'left')->mergeBindings($db_b)
                 ->selectRaw('a.date, a.rows AS this, b.rows AS last');

@@ -11,14 +11,15 @@ class MonitorController extends Controller
     public function table(Request $request)
     {
         $sub_days = $request->get('days', 14);
-        $empty = $this->builder->setModel('tableIncrement')->groupBy('table')->havingRaw('max(rows) < 1000')->pluck('table');
+        $project = $request->get('project', 'core');
+        $empty = $this->builder->setModel('tableIncrement')->where('project', $project)->groupBy('table')->havingRaw('max(rows) < 1000')->pluck('table');
 //        $count = $this->builder->setModel('tableIncrement')->distinct()->count('created_date');
 //        $sub_days = $count > 14 ? 14 : $count;
         $dates = json_encode($this->listSubDays($sub_days));
-        $keys = [];
         $i = 0;
-        $rows = [];
+        $rows = $keys = [];
         $this->builder->setModel('tableIncrement')->selectRaw('`table`, group_concat(rows ORDER BY id) as _rows')
+            ->where('project', $project)
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
             ->whereNotIn('table', $empty)
             ->groupBy('table')->orderByRaw('max(rows) desc')
@@ -33,14 +34,15 @@ class MonitorController extends Controller
 
     public function circleTable(Request $request)
     {
-        $tables = $this->builder->setModel('tableIncrement')->distinct()->orderBy('table')->pluck('table');
+        $project = $request->get('project', 'core');
+        $tables = $this->builder->setModel('tableIncrement')->where('project', $project)->distinct()->orderBy('table')->pluck('table');
         $table = $request->get('table', $tables[0]);
         $start = $request->filled('start') ? $request->get('start') : null;
         $start = is_null($start) || $this->earlyThan($request, 14) ? Carbon::today()->subDays(14)->toDateString() : $start;
         $db_a = \DB::table('monitor_table_increment')->selectRaw('created_date AS date, `rows`')
-            ->where('table', $table)->where('created_date', '>=', $start);
+            ->where('project', $project)->where('table', $table)->where('created_date', '>=', $start);
         $db_b = \DB::table('monitor_table_increment')->selectRaw('DATE_ADD( created_date, INTERVAL 1 DAY ) AS date, `rows`')
-            ->where('table', $table)->where('created_date', '>=', $start);
+            ->where('project', $project)->where('table', $table)->where('created_date', '>=', $start);
         $db_c = \DB::table(\DB::raw("({$db_a->toSql()}) AS a"))->mergeBindings($db_a)
             ->join(\DB::raw("({$db_b->toSql()}) AS b"), 'a.date', '=', 'b.date', 'left')->mergeBindings($db_b)
             ->selectRaw('a.date, a.rows AS this, b.rows AS last');
@@ -105,8 +107,8 @@ class MonitorController extends Controller
             'web_nginx_conn' => [707, 716, 1171, 1717]
         ];
         foreach ($ids[$group] as $item) {
-            $data[] = 'http://zabbix.vanthink.cn/chart2.php?graphid=' . $item . '&period=' . $period .
-                '&stime=' . $time . '&isNow=1&profileIdx=web.graphs&profileIdx2=' . $item . '&width=847&sid=63fd9a3fd67d7a39';
+            $data[] = 'https://zabbix.wxzxzj.com/chart2.php?graphid=' . $item . '&period=' . $period .
+                '&stime=' . $time . '&isNow=1&profileIdx=web.graphs&profileIdx2=' . $item . '&width=847&sid=4cdb6042db7bf42c';
         }
         return view('monitor.zabbix', compact('data', 'day', 'group'));
     }

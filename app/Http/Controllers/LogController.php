@@ -11,7 +11,7 @@ class LogController extends Controller
         $user = $request->get('user', 0);
         $scope = $request->get('scope', null);
         $action = $request->get('action', null);
-        $users = $this->builder->setModel('account')->selectRaw('id, username')->get()->keyBy('id');
+        $users = $this->builder->setModel('account')->selectRaw('id, username, nickname')->get()->keyBy('id');
         $scopes = $this->reporter->listScopes()->keyBy('id');
         $actions = $this->reporter->listActions()->keyBy('id');
         $query = $this->builder->setModel('log')->orderBy('id', 'desc');
