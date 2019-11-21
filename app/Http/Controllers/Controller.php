@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Auth;
 use Validator;
-use App\Helper\Builder;
 use App\Foundation\Excel;
 use App\Foundation\Carbon;
 use Illuminate\Mail\Message;
@@ -37,18 +36,28 @@ abstract class Controller extends BaseController
         'online' => 'online',
     ];
 
-    protected $colors = ['#337ab7','#9ed189','#d9edf7','#fcf8e3','#f2dede'];
+    protected $colors = ['#337ab7', '#9ed189', '#d9edf7', '#fcf8e3', '#f2dede'];
 
-    protected $builder;
+    protected $modelMap = [];
     protected $aliOss;
 
     protected $reporter;
 
-    public function __construct(Builder $builder, ReporterRepository $reporter)
+    public function __construct(ReporterRepository $reporter)
     {
-        $this->builder = $builder;
+        $this->modelMap = include app_path('Models') . '/_models.php';
         $this->aliOss = new ProsthesisLib();
         $this->reporter = $reporter;
+    }
+
+    /**
+     * @param $model
+     * @return mixed
+     */
+    protected function setModel($model)
+    {
+        $Model = $this->modelMap[$model];
+        return new $Model;
     }
 
     protected function getUser($field = null)

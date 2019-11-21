@@ -22,7 +22,7 @@ class TableController extends Controller
         $db = $this->getConnDB($project, $conn);
         $tables = $this->getRecord($pdo->query($this->query_ListTables($db)));
         $tables = $this->groupTables($tables);
-        $groups = $this->builder->setModel('dbGroup')->where('is_available', 1)->get();
+        $groups = $this->setModel('dbGroup')->where('is_available', 1)->get();
         $groups = $this->getGroups($groups);
         return view('database.table_list', compact('tables', 'groups', 'project'));
     }
@@ -35,7 +35,7 @@ class TableController extends Controller
         $db = $this->getConnDB($project, $conn);
         $columns = $this->getRecord($pdo->query($this->query_TableColumns($db, $module_name)));
         list($columns, $names) = $this->getColumns($columns);
-        $cols = $this->builder->setModel('column')->with('group')->whereHas('group', function ($query) {
+        $cols = $this->setModel('column')->with('group')->whereHas('group', function ($query) {
             $query->where('is_available', 1);
         })->whereIn('column', $names)->where('is_available', 1)->get();
         $cols = $this->getColumnsInfo($cols);
@@ -50,12 +50,12 @@ class TableController extends Controller
         if ($request->get('method') == 'put_group') {
             return $this->createNewGroup($request);
         }
-        $_groups = $this->builder->setModel('dbGroup')->get();
+        $_groups = $this->setModel('dbGroup')->get();
         $groups = [];
         foreach ($_groups as $group) {
             $groups[$group->parent_id][] = $group;
         }
-        $_columns = $this->builder->setModel('column')->get();
+        $_columns = $this->setModel('column')->get();
         $columns = [];
         foreach ($_columns as $column) {
             $columns[$column->group_id][] = $column;
@@ -125,7 +125,7 @@ class TableController extends Controller
         if (empty($info = $request->get('info'))) dd('Please Set Info');
         if (empty($_group_id = $request->get('group_id'))) dd('Please Set Group Id');
         $data = ['group_id' => $_group_id, 'column' => $_column, 'info' => $info, 'is_available' => $request->get('is_available')];
-        $this->builder->setModel('column')->create($data);
+        $this->setModel('column')->create($data);
         return redirect('database/get/columnInfo');
     }
 
@@ -135,7 +135,7 @@ class TableController extends Controller
         if (empty($name = $request->get('name'))) dd('Please Set Name');
         if (empty($parent_id = $request->get('parent_id'))) dd('Please Set Parent Id');
         $data = ['code' => $code, 'name' => $name, 'parent_id' => $parent_id, 'is_available' => $request->get('is_available')];
-        $this->builder->setModel('dbGroup')->create($data);
+        $this->setModel('dbGroup')->create($data);
         return redirect('database/get/columnInfo');
     }
 

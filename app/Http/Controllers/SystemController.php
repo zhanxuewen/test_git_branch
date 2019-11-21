@@ -8,7 +8,7 @@ class SystemController extends Controller
 {
     public function getConfig()
     {
-        $configs = $this->builder->setModel('config')->get()->toArray();
+        $configs = $this->setModel('config')->get()->toArray();
         $conn_s = $this->getConnArray();
         $conn = $this->getRedis('analyze')->get($this->getUser('id') . '_sql_analyze_conn');
         $perPage = $this->getRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;

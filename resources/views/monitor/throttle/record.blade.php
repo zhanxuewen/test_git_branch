@@ -23,7 +23,9 @@
                     <td>{{$item['token']}}</td>
                     <td @if($item['count'] > 9) class="bg-orange" @endif>{{$item['count']}}</td>
                     @if(isset($accounts[$item['token']]))
-                        {!! \App\Helper\BladeHelper::displayAccount($accounts[$item['token']]) !!}
+                        <td>{{$account['nickname']}}</td>
+                        <td>{{$account['user_type_id']}}</td>
+                        <td>{{$account['school_id']}}</td>
                     @endif
                 </tr>
             @endforeach

@@ -2,8 +2,8 @@
 
 namespace Tests\Unit;
 
-use App\Helper\Builder;
 use Tests\TestCase;
+use Luminee\Reporter\Models\Log;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ExampleTest extends TestCase
@@ -15,8 +15,7 @@ class ExampleTest extends TestCase
      */
     public function testBasicTest()
     {
-        $builder = new Builder();
-        $query = $builder->setModel('log')->with('account')->orderBy('id', 'desc')->get();
+        $query = Log::with('account')->orderBy('id', 'desc')->get();
         $this->showQueries();
         $this->assertTrue($this->queryCorrect());
     }

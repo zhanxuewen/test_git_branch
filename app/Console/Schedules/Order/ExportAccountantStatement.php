@@ -3,7 +3,6 @@
 namespace App\Console\Schedules\Order;
 
 use Carbon\Carbon;
-use App\Helper\Helper;
 use App\Console\Schedules\BaseSchedule;
 
 class ExportAccountantStatement extends BaseSchedule
@@ -17,7 +16,7 @@ class ExportAccountantStatement extends BaseSchedule
      */
     public function handle($day = [], $send = true)
     {
-        Helper::modifyDatabaseConfig('online');
+        \DB::setPdo($this->getConnPdo('core', 'online'));
         $start = Carbon::parse($day['start']);
         $end = Carbon::parse($day['end'])->endOfDay();
         $con_s = $this->getContract();

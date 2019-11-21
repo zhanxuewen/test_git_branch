@@ -18,15 +18,6 @@ class Helper
         return self::$cache;
     }
 
-    public static function modifyDatabaseConfig($conn)
-    {
-        $env = include base_path() . '/.env.array';
-        $default = config('database.default');
-        foreach ($env[$conn] as $key => $vale) {
-            config(["database.connections.$default.$key" => $vale]);
-        }
-    }
-
     public static function vsprintf($query, $bindings)
     {
         if (is_null($bindings)) {

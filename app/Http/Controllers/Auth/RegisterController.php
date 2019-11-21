@@ -18,16 +18,16 @@ class RegisterController extends Controller
         if ($validator !== true) {
             return redirect()->back()->with('message', array_shift($validator)[0]);
         }
-        $guest = $this->builder->setModel('role')->where('code', 'guest')->first();
-        $user = $this->builder->setModel('account')->create(array_merge($request->all(), ['nickname' => $request->get('username')]));
-        $this->builder->setModel('accountRole')->create(['account_id' => $user->id, 'role_id' => $guest->id]);
+        $guest = $this->setModel('role')->where('code', 'guest')->first();
+        $user = $this->setModel('account')->create(array_merge($request->all(), ['nickname' => $request->get('username')]));
+        $this->setModel('accountRole')->create(['account_id' => $user->id, 'role_id' => $guest->id]);
         return redirect()->route('login');
     }
 
     public function getForgetPassword(Request $request)
     {
         $username = $request->get('username');
-        if (!$this->builder->setModel('account')->where('username', $username)->first()) {
+        if (!$this->setModel('account')->where('username', $username)->first()) {
             return redirect()->back()->with('message', "Can not find user $username");
         }
         $redis = $this->getRedis('analyze');
@@ -39,7 +39,7 @@ class RegisterController extends Controller
     public function postForgetPassword(Request $request)
     {
         $username = $request->get('username');
-        $account = $this->builder->setModel('account')->where('username', $username)->first();
+        $account = $this->setModel('account')->where('username', $username)->first();
         $captcha = $request->get('captcha');
         $redis = $this->getRedis('analyze');
         if ($redis->get('forget_password_' . $username . '_captcha') != $captcha) {

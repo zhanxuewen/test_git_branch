@@ -3,7 +3,6 @@
 namespace App\Console\Schedules\Order;
 
 use Carbon\Carbon;
-use App\Helper\Helper;
 use App\Console\Schedules\BaseSchedule;
 
 class ExportContractBalance extends BaseSchedule
@@ -16,7 +15,7 @@ class ExportContractBalance extends BaseSchedule
      */
     public function handle($send = true)
     {
-        Helper::modifyDatabaseConfig('online');
+        \DB::setPdo($this->getConnPdo('core', 'online'));
         $sql = "SELECT school.id, school.`name`, attr.value as region, nickname, pop.`value` as contract, school_popularize_data.`value` as balance FROM school_popularize_data INNER JOIN school ON school.id = school_popularize_data.school_id INNER JOIN user_account ON school.marketer_id = user_account.id LEFT JOIN school_popularize_data AS pop ON pop.school_id = school.id AND pop.`key` = 'contract_class' LEFT JOIN school_attribute as attr ON attr.school_id = school.id AND attr.`key` = 'region' WHERE school_popularize_data.`key` = 'balance_fee' ORDER BY school.id";
         $report = [];
         $report[] = ['学校ID', '学校名称', '省', '市', '区县', '市场专员', '合同档', '余额'];

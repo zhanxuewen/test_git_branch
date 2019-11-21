@@ -9,6 +9,8 @@ class BladeHelper
 {
     use PdoBuilder;
 
+    protected static $_redis = null;
+
     protected static $user_id = null;
 
     protected static $cache = null;
@@ -16,6 +18,14 @@ class BladeHelper
     protected static $routes = null;
 
     protected static $info = null;
+
+    protected static function _getRedis($conn)
+    {
+        if (!isset(self::$_redis[$conn])) {
+            self::$_redis[$conn] = (new self())->getRedis('analyze');
+        }
+        return self::$_redis[$conn];
+    }
 
     public static function getUserId()
     {
@@ -28,7 +38,7 @@ class BladeHelper
     public static function getCache()
     {
         if (is_null(self::$cache)) {
-            self::$cache = (new self())->getRedis('analyze')->get(self::getUserId() . '_routes');
+            self::$cache = self::_getRedis('analyze')->get(self::getUserId() . '_routes');
         }
         return self::$cache;
     }
@@ -49,7 +59,7 @@ class BladeHelper
     public static function getUserInfo()
     {
         if (is_null(self::$info)) {
-            self::$info = (new self())->getRedis('analyze')->get(self::getUserId() . '_info');
+            self::$info = self::_getRedis('analyze')->get(self::getUserId() . '_info');
         }
         return self::$info;
     }
@@ -83,11 +93,6 @@ class BladeHelper
             $out .= '<a class="btn btn-default' . $class . '" href = "' . trim($url, '/') . '">' . $item . '</a>';
         }
         return $out . '</div>';
-    }
-
-    public static function displayAccount($account)
-    {
-        return "<td>{$account['nickname']}</td><td>{$account['user_type_id']}</td><td>{$account['school_id']}</td>";
     }
 
     public static function oneColumnTable($rows, $title = null)
@@ -135,12 +140,6 @@ class BladeHelper
             if ($route == $item) $exist = true;
         }
         return $exist;
-    }
-
-    public static function modifierToIcon($modifier)
-    {
-        $modifiers = ['public' => 'fa-unlock fa-flip-horizontal text-green', 'protected' => 'fa-key text-gry', 'private' => 'fa-lock text-red'];
-        return $modifiers[$modifier];
     }
 
     public static function equalOrBold($item, $value)

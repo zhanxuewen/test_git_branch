@@ -13,13 +13,13 @@ class MonitorController extends Controller
     {
         $sub_days = $request->get('days', 14);
         $project = $request->get('project', 'core');
-        $empty = $this->builder->setModel('tableIncrement')->where('project', $project)->groupBy('table')->havingRaw('max(rows) < 1000')->pluck('table');
-//        $count = $this->builder->setModel('tableIncrement')->distinct()->count('created_date');
+        $empty = $this->setModel('tableIncrement')->where('project', $project)->groupBy('table')->havingRaw('max(rows) < 1000')->pluck('table');
+//        $count = $this->setModel('tableIncrement')->distinct()->count('created_date');
 //        $sub_days = $count > 14 ? 14 : $count;
         $dates = json_encode($this->listSubDays($sub_days));
         $i = 0;
         $rows = $keys = [];
-        $this->builder->setModel('tableIncrement')->selectRaw('`table`, group_concat(rows ORDER BY id) as _rows')
+        $this->setModel('tableIncrement')->selectRaw('`table`, group_concat(rows ORDER BY id) as _rows')
             ->where('project', $project)
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
             ->whereNotIn('table', $empty)
@@ -36,7 +36,7 @@ class MonitorController extends Controller
     public function circleTable(Request $request)
     {
         $project = $request->get('project', 'core');
-        $tables = $this->builder->setModel('tableIncrement')->where('project', $project)->distinct()->orderBy('table')->pluck('table');
+        $tables = $this->setModel('tableIncrement')->where('project', $project)->distinct()->orderBy('table')->pluck('table');
         $table = $request->get('table', $tables[0]);
         $start = $request->filled('start') ? $request->get('start') : null;
         $start = is_null($start) || $this->earlyThan($request, 14) ? Carbon::today()->subDays(14)->toDateString() : $start;
@@ -57,13 +57,13 @@ class MonitorController extends Controller
 
     public function device()
     {
-        $count = $this->builder->setModel('deviceUsageAmount')->distinct()->count('created_date');
+        $count = $this->setModel('deviceUsageAmount')->distinct()->count('created_date');
         $sub_days = $count > 14 ? 14 : $count;
         $dates = json_encode($this->listSubDays($sub_days));
         $keys = [];
         $i = 0;
         $rows = [];
-        $this->builder->setModel('deviceUsageAmount')->selectRaw('`device`, group_concat(user_amount ORDER BY id) as _rows')
+        $this->setModel('deviceUsageAmount')->selectRaw('`device`, group_concat(user_amount ORDER BY id) as _rows')
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
             ->groupBy('device')->orderByRaw('max(user_amount) desc')
             ->chunk(10, function ($tables) use (&$i, &$rows, &$keys) {
@@ -77,13 +77,13 @@ class MonitorController extends Controller
 
     public function order()
     {
-        $count = $this->builder->setModel('orderIncrement')->distinct()->count('created_date');
+        $count = $this->setModel('orderIncrement')->distinct()->count('created_date');
         $sub_days = $count > 14 ? 14 : $count;
         $dates = json_encode($this->listSubDays($sub_days));
         $keys = [];
         $i = 0;
         $rows = [];
-        $this->builder->setModel('orderIncrement')->selectRaw('`type` as _type, group_concat(count ORDER BY id) as _rows')
+        $this->setModel('orderIncrement')->selectRaw('`type` as _type, group_concat(count ORDER BY id) as _rows')
             ->where('created_date', '>', Carbon::now()->subDays($sub_days)->toDateString())
             ->groupBy('type')->orderByRaw('max(count) desc')
             ->chunk(10, function ($tables) use (&$i, &$rows, &$keys) {

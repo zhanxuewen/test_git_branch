@@ -2,15 +2,22 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helper\Builder;
-
 abstract class BaseApi
 {
-    protected $builder;
+    protected $modelMap = [];
 
-    public function __construct(Builder $builder)
+    public function __construct()
     {
-        $this->builder = $builder;
+        $this->modelMap = include app_path('Models') . '/_models.php';
+    }
+
+    /**
+     * @param string $model
+     * @return mixed
+     */
+    protected function setModel($model)
+    {
+        return new $this->modelMap[$model];
     }
 
     protected function success($data)

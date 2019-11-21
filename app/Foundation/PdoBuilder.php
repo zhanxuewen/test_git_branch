@@ -11,8 +11,6 @@ trait PdoBuilder
 {
     protected $env = [];
 
-    protected $_env = [];
-
     protected $conn_env = [];
 
     protected $redis = [];
@@ -45,13 +43,13 @@ trait PdoBuilder
             if (isset($this->redis[$conn]))
                 return $this->redis[$conn];
         }
-        return $this->redis[$conn];
+        return null;
     }
 
     protected function getMasterRedis($conn, $host, $option)
     {
-        $redis = new Client($host, $option);
         try {
+            $redis = new Client($host, $option);
             $redis->setex('master_redis', 30, $host);
         } catch (Exception $e) {
             return;

@@ -3,7 +3,6 @@
 namespace App\Console\Schedules\Order;
 
 use Carbon\Carbon;
-use App\Helper\Helper;
 use App\Console\Schedules\BaseSchedule;
 
 class ExportActivitySummary extends BaseSchedule
@@ -31,7 +30,7 @@ class ExportActivitySummary extends BaseSchedule
      */
     public function handle($day = [], $send = true)
     {
-        Helper::modifyDatabaseConfig('online');
+        \DB::setPdo($this->getConnPdo('core', 'online'));
         $this->init($day['end']);
         $start = Carbon::parse($day['start']);
         $end = Carbon::parse($day['end'])->endOfDay();
