@@ -2,6 +2,7 @@
 
 namespace App\Console\Schedules\Monitor;
 
+use DB;
 use App\Console\Schedules\BaseSchedule;
 
 class RecordTableIncrement extends BaseSchedule
@@ -16,8 +17,11 @@ class RecordTableIncrement extends BaseSchedule
         'learning' => [
             'seeders',
             'migrations',
+            'finance_school_balance',
         ]
     ];
+
+    protected $local_pdo;
 
     /**
      * Execute the console command.
@@ -27,6 +31,7 @@ class RecordTableIncrement extends BaseSchedule
      */
     public function handle($day)
     {
+        $this->local_pdo = \DB::getPdo();
         foreach (['core', 'learning'] as $project) {
             $this->record($project, $day);
         }
@@ -38,15 +43,14 @@ class RecordTableIncrement extends BaseSchedule
             echo 'M_T_I ' . $project . ' at ' . $day . ' Already Done!';
             return;
         }
-        $local_pdo = \DB::getPdo();
         $database = $this->getConnDB($project, 'online');
-        $sql = "SELECT table_name, auto_increment FROM information_schema.tables where table_schema = '$database'";
-        $tables = \DB::setPdo($this->getConnPdo($project, 'online'))->select($sql);
+        DB::setPdo($this->getConnPdo($project, 'online'));
+        $tables = \DB::select("SELECT table_name, auto_increment FROM information_schema.tables where table_schema = '$database'");
         $create = [];
         foreach ($tables as $table) {
             $name = $table->table_name;
             if (in_array($name, $this->ignore[$project])) continue;
-            $rows = \DB::setPdo($this->getConnPdo($project, 'online'))->select("SELECT COUNT(id) as count FROM `$database`.`$name`");
+            $rows = \DB::select("SELECT COUNT(id) as count FROM `$database`.`$name`");
             $rows = $rows[0]->count;
 //            $rows = $table->table_rows;
             $create[] = [
@@ -58,6 +62,6 @@ class RecordTableIncrement extends BaseSchedule
                 'created_date' => $day
             ];
         }
-        \DB::setPdo($local_pdo)->table('monitor_table_increment')->insert($create);
+        \DB::setPdo($this->local_pdo)->table('monitor_table_increment')->insert($create);
     }
 }
