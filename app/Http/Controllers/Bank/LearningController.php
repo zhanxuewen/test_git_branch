@@ -75,6 +75,13 @@ class LearningController extends Controller
                 $content = "Conn: $conn, Learning: $learn_id, Ass: $ass_id; Update Entity";
                 $this->logContent('bank_learn', 'replace', $content);
             }
+            if ($request->get('type') == 'update_word') {
+                $ass = DB::table('assessment_question_entity')->find($ass_id);
+                DB::table('testbank_entity')->where('id', $learn_id)->update(['testbank_item_value' => $core->testbank_item_value]);
+                DB::table('assessment_question_entity')->where('id', $ass_id)->update($this->buildWordAssItem($ass, $core->testbank_item_value));
+                $content = "Conn: $conn, Learning: $learn_id, Ass: $ass_id; Update Word Entity";
+                $this->logContent('bank_learn', 'replace', $content);
+            }
             $learn = DB::table('testbank_entity')->find($learn_id);
             $ass = DB::table('assessment_question_entity')->find($ass_id);
             $data = compact('core', 'learn', 'ass');
@@ -87,6 +94,15 @@ class LearningController extends Controller
         $item = json_decode($ass->item_value);
         $data = json_encode(['id' => $item->id, 'testbank_id' => $item->testbank_id, 'created_at' => $item->created_at, 'updated_at' => $item->updated_at]);
         return ['item_value' => str_replace('}__{', ',', $data . '__' . $value)];
+    }
+
+    protected function buildWordAssItem($ass, $value)
+    {
+        $item = json_decode($ass->item_value);
+        foreach (json_decode($value) as $k => $v) {
+            $item->$k = $v;
+        }
+        return ['item_value' => json_encode($item)];
     }
 
     public function syncArticle(Request $request)

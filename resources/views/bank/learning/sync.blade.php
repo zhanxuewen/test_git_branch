@@ -27,7 +27,7 @@
             <div class="form-group">
                 <label for="type">操作类型</label>
                 <select name="type" id="type" class="form-control">
-                    @foreach(['search'=>'查看','update'=>'更新'] as $_type => $label)
+                    @foreach(['search'=>'查看','update'=>'更新','update_word'=>'更新单词类'] as $_type => $label)
                         <option value="{{$_type}}">{{$label}}</option>
                     @endforeach
                 </select>
