@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Foundation\Curl;
+use App\Library\Curl;
 use Illuminate\Http\Request;
 
 class ToolController extends Controller

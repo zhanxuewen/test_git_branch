@@ -3,6 +3,7 @@
 namespace App\Foundation;
 
 use PDO;
+use Cache;
 use Exception;
 use Predis\Client;
 
@@ -16,8 +17,6 @@ trait PdoBuilder
 
     protected $redis = [];
 
-    protected $read_redis = [];
-
     private function getEnv()
     {
         if (empty($this->env)) $this->env = include base_path() . '/.env.array';
@@ -30,45 +29,6 @@ trait PdoBuilder
         return $this->conn_env;
     }
 
-    private function modifyEnv($keys, $value)
-    {
-        if (empty($this->env)) return 'Env is empty.';
-        $tmp = &$this->env;
-        foreach (explode('.', $keys) as $key) {
-            $tmp = &$tmp[$key];
-        }
-        $tmp = $value;
-        return true;
-    }
-
-    private function modifyEnvFile()
-    {
-        $file = fopen(base_path('.env.array'), 'w+');
-        $txt = "<?php\r\n\r\nreturn [\r\n" . $this->arrayToContent($this->env, 0) . "\r\n\r\n];";
-        fwrite($file, $txt);
-        fclose($file);
-    }
-
-    private function arrayToContent($array, $i)
-    {
-        $txt = '';
-        $blank = $this->getBlank($i);
-        foreach ($array as $key => $value) {
-            $txt .= "\r\n$blank" . (is_numeric($key) ? '' : "'$key' => ");
-            $txt .= is_array($value) ? "[\r\n" . $this->arrayToContent($value, $i + 1) . "\r\n\r\n$blank]," : "'$value',";
-        }
-        return $txt;
-    }
-
-    public function getReadRedis($conn)
-    {
-        if (isset($this->read_redis[$conn])) return $this->read_redis[$conn];
-        $conf = $this->getEnv()['redis'][$conn];
-        $redis = new Client($conf['host'], ['parameters' => ['password' => $conf['password']]]);
-        $this->read_redis[$conn] = $redis;
-        return $redis;
-    }
-
     /**
      * @param $conn
      * @return Client;
@@ -76,16 +36,15 @@ trait PdoBuilder
     public function getRedis($conn)
     {
         if (isset($this->redis[$conn])) return $this->redis[$conn];
-        $conf = $this->getEnv()['redis']['cluster'][$conn];
+        $conf = $this->getEnv()['redis'][$conn];
         $option = ['parameters' => ['password' => $conf['password']]];
-        foreach ($conf['host'] as $k => $host) {
+        $ip = Cache::get('redis_' . $conn . '_ip');
+        $hosts = array_merge(is_null($ip) ? [] : [$ip], $conf['host']);
+        foreach ($hosts as $k => $host) {
             $this->getMasterRedis($conn, $host, $option);
-            if (!isset($this->redis[$conn])) continue;
-            $this->bubbleItem($conf['host'], $k, $host);
-            break;
+            if (isset($this->redis[$conn]))
+                return $this->redis[$conn];
         }
-        $this->modifyEnv("redis.cluster.$conn.host", $conf['host']);
-        $this->modifyEnvFile();
         return $this->redis[$conn];
     }
 
@@ -97,6 +56,7 @@ trait PdoBuilder
         } catch (Exception $e) {
             return;
         }
+        Cache::put('redis_' . $conn . '_ip', $host, 60 * 24 * 7);
         $this->redis[$conn] = $redis;
     }
 
@@ -130,19 +90,4 @@ trait PdoBuilder
         }
     }
 
-    private function bubbleItem(&$array, $key, $value)
-    {
-        if ($key == 0) return;
-        unset($array[$key]);
-        array_unshift($array, $value);
-    }
-
-    private function getBlank($i)
-    {
-        $blank = '';
-        for ($j = 0; $j <= $i; $j++) {
-            $blank .= '    ';
-        }
-        return $blank;
-    }
 }

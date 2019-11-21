@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Foundation;
+namespace App\Library;
 
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;

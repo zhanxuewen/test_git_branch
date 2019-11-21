@@ -130,7 +130,7 @@ class MonitorController extends Controller
         if (!is_null($op = $request->get('op', null))) $date = $date->$op();
         $_key = 'throttle_record_' . $date->format('Ymd');
         $conn = $common['_conn'] == 'online' ? 'online' : 'analyze';
-        $list = json_decode($this->getReadRedis($conn)->get($_key));
+        $list = json_decode($this->getRedis($conn)->get($_key));
         $keys = $_tokens = $ids = [];
         if (empty($list)) $list = [];
         foreach ($list as &$item) {
@@ -156,7 +156,7 @@ class MonitorController extends Controller
         if (!is_null($op = $request->get('op', null))) $date = $date->$op();
         $_key = 'throttle_log_' . $date->format('Ymd');
         $conn = $common['_conn'] == 'online' ? 'online' : 'analyze';
-        $hash = $this->getReadRedis($conn)->hgetall($_key);
+        $hash = $this->getRedis($conn)->hgetall($_key);
         $_keys = $list = $tokens = $ids = [];
         $_group = $request->get('group', 'token');
         if (empty($hash)) $hash = [];

@@ -8,7 +8,6 @@ use App\Helper\Builder;
 use App\Foundation\Excel;
 use App\Foundation\Carbon;
 use Illuminate\Mail\Message;
-use App\Foundation\ArrayFunc;
 use App\Foundation\PdoBuilder;
 use App\Library\ProsthesisLib;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -20,7 +19,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 abstract class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests,
-        PdoBuilder, ArrayFunc, Excel, Carbon;
+        PdoBuilder, Excel, Carbon;
 
     protected $user;
 
@@ -94,7 +93,7 @@ abstract class Controller extends BaseController
 
     protected function getPerPage()
     {
-        return $this->getReadRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;
+        return $this->getRedis('analyze')->get($this->getUser('id') . '_per_page') ?: 30;
     }
 
     protected function validate($request)

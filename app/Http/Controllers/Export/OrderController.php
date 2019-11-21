@@ -62,4 +62,12 @@ class OrderController extends Controller
         }
     }
 
+    protected function preg_in_array($preg, $array)
+    {
+        foreach ($array as $item) {
+            if (preg_match($preg, $item) > 0) return $item;
+        }
+        return false;
+    }
+
 }

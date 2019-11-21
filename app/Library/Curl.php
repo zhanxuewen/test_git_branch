@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Foundation;
+namespace App\Library;
 
 class Curl
 {
     /**
      * @param $url
-     * @return string
+     * @return bool|string
      */
     public static function curlGet($url)
     {
@@ -19,6 +19,11 @@ class Curl
         return $data;
     }
 
+    /**
+     * @param $url
+     * @param $data
+     * @return bool|string
+     */
     public static function curlPost($url, $data)
     {
         $curl = curl_init();
