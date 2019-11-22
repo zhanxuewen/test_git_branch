@@ -10,7 +10,7 @@ class MonitorApi extends BaseApi
     {
         $date = $request->get('date', date('Y-m-d'));
         $project = $request->get('project', 'core');
-        $tables = $this->setModel('tableIncrement')->selectRaw('`table`')->where('rows', '>=', 10000)
+        $tables = $this->setModel('tableIncrement')->selectRaw('`table`')->where('rows', '<', 8000)
             ->where('project', $project)->where('created_date', $date)->get();
         $rows = [];
         foreach ($tables as $table) {
