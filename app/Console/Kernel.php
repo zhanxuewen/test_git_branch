@@ -109,6 +109,10 @@ class Kernel extends ConsoleKernel
             (new Schedules\Order\ExportContractBalance())->handle();
             $this->logSchedule('Export Contract Balance Mid Monthly Done At ' . date('Y-m-d H:i:s'));
         })->monthlyOn(16, '08:40');
+
+        $schedule->call(function () {
+            (new Schedules\Monitor\CanalHeartbeat())->handle();
+        })->everyFifteenMinutes();
     }
 
     protected function logSchedule($log)
