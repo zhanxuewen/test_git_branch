@@ -1,5 +1,5 @@
 <li class="user user-menu bg-gray">
-    <a href="{{url('/')}}"><b class="text-red">点我: </b>提供昵称功能,请设置</a>
+{{--    <a href="{{url('/')}}"><b class="text-red">点我: </b>提供昵称功能,请设置</a>--}}
 </li>
 @if(session('message'))
     <li class="user user-menu bg-red">

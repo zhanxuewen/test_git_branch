@@ -29,7 +29,7 @@ class TransmitController extends Controller
         $conn = $request->get('conn');
         $this->type = $type;
         $this->conn = $conn;
-        if (empty($id)) return $this->success();
+        if (empty($id)) return view('bank.learning.transmit', compact('type', 'conn'));
         $this->core_pdo = $this->getConnPdo('core', $this->connections[$conn]);
         $this->learn_pdo = $this->getConnPdo('learning', $conn);
         switch ($type) {
@@ -52,14 +52,14 @@ class TransmitController extends Controller
         $create['is_public'] = 1;
         unset($create['id'], $create['system_label_ids']);
         $l_bill = DB::setPdo($this->learn_pdo)->table('testbank_collection')->where('core_related_id', $id)->whereNull('deleted_at')->first();
-        if (!empty($l_bill)) return $this->success('题单已存在。');
+        if (!empty($l_bill)) return $this->response('题单 ' . $id . ' 已存在。', true);
         $item_ids = $create['item_ids'];
-        if (strstr($item_ids, 'c')) return $this->error('包含引用题。');
+        if (strstr($item_ids, 'c')) return $this->response('题单 ' . $id . ' 包含引用题。', true);
         $ids = $this->getIds($item_ids);
-        if ($ids === false) return $this->error('题单内大题错误!');
+        if ($ids === false) return $this->response('题单 ' . $id . ' 内大题错误!', true);
         $this->createBill($ids, $create);
         $output = implode(' ', $this->output);
-        return $this->success($output . ' | 题单 ' . $id . ' 添加成功');
+        return $this->response($output . ' | 题单 ' . $id . ' 添加成功');
     }
 
     protected function createBill($ids, $create)
@@ -105,13 +105,13 @@ class TransmitController extends Controller
         unset($create['id'], $create['system_label_ids']);
         $l_testbank = DB::setPdo($this->learn_pdo)->table('testbank')->where('core_related_id', $id)->whereNull('deleted_at')->first();
         if (!empty($l_testbank)) {
-            return $this->type == 'testbank' ? $this->success('大题已存在。') : $this->output[] = '=';
+            return $this->type == 'testbank' ? $this->response('大题 ' . $id . ' 已存在。', true) : $this->output[] = '=';
         }
         $items = DB::setPdo($this->core_pdo)->table('testbank_entity')->where('testbank_id', $id)->whereNull('deleted_at')->get()->keyBy('id');
         $new_id = DB::setPdo($this->learn_pdo)->table('testbank')->insertGetId($create);
         $ids = $this->handleEntity($items, $create['item_ids'], $new_id);
         DB::table('testbank')->where('id', $new_id)->update(['item_ids' => $ids]);
-        return $this->type == 'testbank' ? $this->success('大题 ' . $id . ' 添加成功') : $this->output[] = '+';
+        return $this->type == 'testbank' ? $this->response('大题 ' . $id . ' 添加成功') : $this->output[] = '+';
     }
 
     // With Learning Pdo
@@ -136,37 +136,9 @@ class TransmitController extends Controller
             ->whereNotNull('testbank_item_value')->whereNull('deleted_at')->first()->ids;
     }
 
-
-    protected function success($message = '')
+    protected function response($message, $error = false)
     {
-        return view('bank.learning.transmit', array_merge(['type' => $this->type, 'conn' => $this->conn], ['message' => $message]));
+        return json_encode(['msg' => $message, 'error' => $error]);
     }
 
-    /**
-     * @param Request $request
-     * @return mixed
-     */
-    public function learningWordbank(Request $request)
-    {
-        $words = $request->get('words');
-        $conn = $request->get('conn');
-        $this->conn = $conn;
-        if (empty($words)) return $this->success();
-        $this->core_pdo = $this->getConnPdo('core', $this->conn);
-        $this->learn_pdo = $this->getConnPdo('learning', $this->conn);
-        foreach (explode(',', $words) as $word) {
-            $this->handleWord($word);
-        }
-        return $this->wordSuccess();
-    }
-
-    protected function handleWord($word)
-    {
-
-    }
-
-    protected function wordSuccess($message = '')
-    {
-        return view('bank.learning.transmit.wordbank', array_merge(['type' => $this->type, 'conn' => $this->conn], ['message' => $message]));
-    }
 }
