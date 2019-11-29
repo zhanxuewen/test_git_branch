@@ -1,63 +1,57 @@
 <?php
+
 namespace App\Console\Common\ZXZJ;
 
-use App\Helper\Helper;
+use DB;
+use App\Console\Pool\SchoolInfo;
 
 class SchoolAccountant
 {
     /**
-     * @param $start    '2019-01-01'
-     * @param $end      '2019-10-10'
+     * @param $start '2019-01-01'
+     * @param $end '2019-10-10'
+     * @return array
      */
-    public static function getSchoolAccountant($start,$end,$conn='dev')
+    public static function get($start, $end)
     {
-        Helper::modifyDatabaseConfig($conn);
         // 获得所有学校的合同等级
-        $school_contract = \DB::table('school_popularize_data')->selectRaw('school_id, value')->where('key', 'contract_class')
-            ->get()->pluck('value', 'school_id')->toArray();
-        $school_region = \DB::table('school_attribute')->selectRaw('school_id, value')->where('key', 'region')
-            ->get()->pluck('value', 'school_id')->toArray();
+        $contracts = SchoolInfo::getContract();
+        $regions = SchoolInfo::getRegions();
         // 获得学校的售后专员
-        $school_aftersales = \DB::table('school_attribute')
-            ->selectRaw('school_attribute.school_id,nickname')
-            ->leftJoin('user_account', 'user_account.id','=','school_attribute.value')
-            ->where('key', 'after_sales')
-            ->get()->pluck('nickname', 'school_id')->toArray();
+        $afterSales = SchoolInfo::getAfterSales();
 
+        $map = DB::table('accountant_statement_label')->get();
+        $type = $map->pluck('name', 'code')->toArray();
+        $label = $map->pluck('name', 'id')->toArray();
 
-        $statement_map = \DB::table('accountant_statement_label')->get();
-        $statement_type = $statement_map->pluck('name', 'code')->toArray();
-        $statement_label = $statement_map->pluck('name', 'id')->toArray();
-
-        $between = [$start, $end];
         $report = [];
-        $report[] = ['日期', '业务类型','费用类型', '摘要', '金额', '学校ID', '学校名称', '省', '市', '区', '市场专员','售后专员', '合作档'];
-        $orders = \DB::table('school')
-            ->selectRaw('school.id school_id, name, accountant_statement.type, accountant_statement.label_id,  date, fee, content, nickname')
+        $report[] = ['日期', '业务类型', '费用类型', '摘要', '金额', '学校ID', '学校名称', '省', '市', '区', '市场专员', '售后专员', '合作档'];
+        $rows = DB::table('school')
+            ->selectRaw('school.id school_id, name, accountant_statement.type, accountant_statement.label_id, date, fee, content, nickname')
             ->join('accountant_statement', 'school.id', '=', 'accountant_statement.school_id')
             ->join('user_account', 'user_account.id', '=', 'school.marketer_id')
-            ->where('has_rollback', '<>', 1)
-            ->whereBetween('date', $between)
-            ->orderBy('date')->get();
+            ->where('has_rollback', '<>', 1)->whereBetween('date', [$start, $end])->orderBy('date')->get();
 
-        foreach ($orders as $order) {
-            $region = explode('/', isset($school_region[$order->school_id]) ? $school_region[$order->school_id] : '');
+        foreach ($rows as $row) {
+            $id = $row->school_id;
+            $region = explode('/', isset($regions[$id]) ? $regions[$id] : '');
             $report[] = [
-                'date' => $order->date,
-                'type' => $statement_type[$order->type],
-                'label' => empty($order->label_id) ? '/':$statement_label[$order->label_id],
-                'con' => $order->content,
-                'fee' => in_array($order->label_id,[21,22]) ? '/' : $order->fee,
-                'id' => $order->school_id,
-                'name' => $order->name,
+                'date' => $row->date,
+                'type' => $type[$row->type],
+                'label' => empty($row->label_id) ? '/' : $label[$row->label_id],
+                'con' => $row->content,
+                'fee' => in_array($row->label_id, [21, 22]) ? '/' : $row->fee,
+                'id' => $id,
+                'name' => $row->name,
                 'she' => isset($region[0]) ? $region[0] : '',
                 'shi' => isset($region[1]) ? $region[1] : '',
                 'qu' => isset($region[2]) ? $region[2] : '',
-                'nick' => $order->nickname,
-                'after_sales' => isset($school_aftersales[$order->school_id]) ? $school_aftersales[$order->school_id] : '',
-                'cons' => isset($school_contract[$order->school_id]) ? $school_contract[$order->school_id] : '',
+                'nick' => $row->nickname,
+                'after_sales' => isset($afterSales[$id]) ? $afterSales[$id] : '',
+                'cons' => isset($contracts[$id]) ? $contracts[$id] : '',
             ];
         }
         return $report;
     }
+
 }

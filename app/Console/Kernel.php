@@ -45,6 +45,8 @@ class Kernel extends ConsoleKernel
         Commands\ZXZJ\Word\ExportWordSentence::class,
         Commands\ZXZJ\Word\MergeWordLabel::class,
         Commands\ZXZJ\Word\ExportWord::class,
+
+        Commands\ZXZJ\Accountant\ExportAccountantStatement::class,
     ];
 
     /**
