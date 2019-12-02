@@ -40,7 +40,7 @@ class SchoolAccountant
                 'type' => $type[$row->type],
                 'label' => empty($row->label_id) ? '/' : $label[$row->label_id],
                 'con' => $row->content,
-                'fee' => in_array($row->label_id, [21, 22]) ? '/' : $row->fee,
+                'fee' => in_array($row->type, ['E_AssociateCard', 'E_DisassociateCard']) ? '/' : $row->fee,
                 'id' => $id,
                 'name' => $row->name,
                 'she' => isset($region[0]) ? $region[0] : '',
