@@ -21,6 +21,7 @@ class SlowController extends Controller
         foreach ($logs as $log) {
             if ($start->gt($log->time)) continue;
             $at = $log->time;
+            if (strpos($log->msg, 'debug ') === 0) continue;
             $log = str_replace(['info ', ' []'], ['', ''], $log->msg);
             $log = json_decode($log, true);
             $method = $log['method'];
