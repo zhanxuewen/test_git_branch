@@ -38,6 +38,7 @@
             '同步百项过小题' => 'bank/learning/sync/entity',
             '同步百项过题干' => 'bank/learning/sync/article',
             '同步题库到百项过' => 'bank/transmit/learning/testbank',
+            '删除百项过题单' => 'bank/transmit/delete/bill',
         ], 'fa-bank') !!}
         {!! \App\Helper\BladeHelper::treeView('慢查询', [
             'Slow Mysql' => 'slow_mysql',

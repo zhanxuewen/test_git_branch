@@ -54,6 +54,8 @@ class SchoolController extends Controller
                 return $this->school_order($school_id, $this->getTime($params, '`order`.created_at'));
             case 'school_offline':
                 return $this->school_offline($school_id, $this->getTime($params, '`order_offline`.created_at'));
+            case 'school_student':
+                return $this->school_students($school_id, $this->getTime($params, 'joined_time'));
             default:
                 die('参数错误');
         }
@@ -91,6 +93,20 @@ class SchoolController extends Controller
         }
         return $this->buildRecord(function ($row) {
             return [$row->days, $row->pay_fee, $row->created_at, $row->refunded_at];
+        });
+    }
+
+    protected function school_students($school_id, $time)
+    {
+        $this->rows = DB::select("SELECT account_id as student_id FROM school_member WHERE school_id = $school_id AND account_type_id = 5 AND is_active = 1 $time");
+        $this->buildIds();
+        $this->getAccount();
+        $this->title = $this->titles['account'];
+        if ($this->options['expire']) {
+            $this->getExpired();
+        }
+        return $this->buildRecord(function ($row) {
+            return [];
         });
     }
 

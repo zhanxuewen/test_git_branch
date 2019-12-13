@@ -43,6 +43,27 @@ class TransmitController extends Controller
         }
     }
 
+    public function deleteBill(Request $request)
+    {
+        $ids = $request->get('ids');
+        $conn = $request->get('conn');
+        $info = '';
+        if (!empty($ids)) {
+            DB::setPdo($this->getConnPdo('learning', $conn));
+            foreach (explode(',', $ids) as $id) {
+                if ($request->get('with_testbank')) {
+                    $items = DB::table('testbank_collection')->where('core_related_id', $id)->first(['item_ids'])->item_ids;
+                    DB::table('testbank_entity')->whereRaw("testbank_id in ($items)")->delete();
+                    DB::table('testbank')->whereRaw("id in ($items)")->delete();
+                }
+                DB::table('testbank_collection')->where('core_related_id', $id)->delete();
+                $info .= "Bill : $id has been deleted.<br>";
+            }
+            $this->logContent('bank_learn', 'delete', "Conn: $conn, Bills: $ids; Been Deleted.");
+        }
+        return view('bank.learning.delete_bill', compact('conn', 'info'));
+    }
+
     protected function handleBill($id)
     {
         $c_bill = DB::setPdo($this->core_pdo)->table('testbank_collection')->where('id', $id)->first();

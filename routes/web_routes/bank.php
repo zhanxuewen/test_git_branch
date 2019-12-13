@@ -11,5 +11,6 @@ Route::group(['namespace' => 'Bank', 'prefix' => 'bank'], function () {
     });
     Route::group(['prefix' => 'transmit'], function () {
         Route::get('learning/testbank', ['uses' => 'TransmitController@learningTestbank']);
+        Route::get('delete/bill', ['uses' => 'TransmitController@deleteBill']);
     });
 });

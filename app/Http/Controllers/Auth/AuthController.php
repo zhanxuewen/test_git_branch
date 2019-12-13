@@ -50,4 +50,23 @@ class AuthController extends Controller
         return null;
     }
 
+    protected function showColors($pieces = 4)
+    {
+        $total = 256;
+        $span = $total / $pieces;
+        $pool = [];
+        for ($i = 0; $i < $total; $i += $span) {
+            $pool[] = dechex($i + $span / 2);
+        }
+        $colors = [];
+        foreach ($pool as $r) {
+            foreach ($pool as $g) {
+                foreach ($pool as $b) {
+                    $colors[] = "#$r$g$b";
+                }
+            }
+        }
+        return $colors;
+    }
+
 }
