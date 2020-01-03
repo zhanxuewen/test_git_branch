@@ -35,13 +35,15 @@
                         <option value="school_student">学校学生</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label for="expire">是否附加有效期查询</label>
-                    <select class="form-control" name="expire" id="expire">
-                        <option value="0">否</option>
-                        <option value="1">是</option>
-                    </select>
-                </div>
+                @foreach(['expire'=> '有效期查询', 'teacher' => '老师名', 'register' => '注册时间'] as $key => $label)
+                    <div class="form-group">
+                        <label for="{{$key}}">是否附加{{$label}}</label>
+                        <select class="form-control" name="{{$key}}" id="{{$key}}">
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </div>
+                @endforeach
                 <input class="btn btn-primary" type="submit" value="导出">
             </div>
         </form>

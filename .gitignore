@@ -4,3 +4,4 @@
 .conn.conf.php
 /.idea
 _ide_helper.php
+.DS_Store

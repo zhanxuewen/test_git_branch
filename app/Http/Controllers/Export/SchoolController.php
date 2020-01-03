@@ -21,6 +21,8 @@ class SchoolController extends Controller
 
     protected $accounts = [];
 
+    protected $teachers = [];
+
     protected $expires = [];
 
     protected $rows = [];
@@ -37,6 +39,8 @@ class SchoolController extends Controller
     public function postExport(Request $request)
     {
         $this->options['expire'] = $request->get('expire', 0) ? true : false;
+        $this->options['teacher'] = $request->get('teacher', 0) ? true : false;
+        $this->options['register'] = $request->get('register', 0) ? true : false;
         $request->filled('school_id') ? $school_id = $request->get('school_id') : die('没有 学校ID');
         $params['start'] = $request->get('start', null);
         $params['end'] = $request->filled('end') ? $request->get('end', null) . ' 23:59:59' : null;
@@ -102,8 +106,14 @@ class SchoolController extends Controller
         $this->buildIds();
         $this->getAccount();
         $this->title = $this->titles['account'];
+        if ($this->options['register']){
+            $this->title[] = '注册时间';
+        }
         if ($this->options['expire']) {
             $this->getExpired();
+        }
+        if ($this->options['teacher']){
+            $this->getTeacher();
         }
         return $this->buildRecord(function ($row) {
             return [];
@@ -123,8 +133,12 @@ class SchoolController extends Controller
         foreach ($this->rows as $row) {
             $account = $this->accounts[$row->student_id];
             $data = array_merge([$account->nickname, $account->_phone, $account->vanclass_name], $closure($row));
+            if ($this->options['register'])
+                $data[] = $account->created_at;
             if ($this->options['expire'])
                 $data[] = $this->expires[$row->student_id]->expired_at;
+            if ($this->options['teacher'])
+                isset($this->teachers[$row->student_id]) ? $data[] = $this->teachers[$row->student_id]->teacher_name : null;
             $record[] = $data;
         }
         return $record;
@@ -132,9 +146,18 @@ class SchoolController extends Controller
 
     protected function getAccount()
     {
-        $sql = "SELECT user_account.id, nickname, $this->phone, GROUP_CONCAT( DISTINCT vanclass.`name` ) AS vanclass_name FROM user_account INNER JOIN user ON user.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = user_account.id AND vanclass_student.is_active = 1 LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE user_account.id IN (" . implode(',', $this->ids) . ") GROUP BY user_account.id";
+        $sql = "SELECT user_account.id, nickname, $this->phone, user_account.created_at, GROUP_CONCAT( DISTINCT vanclass.`name` ) AS vanclass_name FROM user_account INNER JOIN user ON user.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = user_account.id AND vanclass_student.is_active = 1 LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE user_account.id IN (" . implode(',', $this->ids) . ") GROUP BY user_account.id";
         foreach (DB::select($sql) as $row) {
             $this->accounts[$row->id] = $row;
+        }
+    }
+
+    protected function getTeacher()
+    {
+        $this->title[] = '老师';
+        $sql = "SELECT vanclass_student.student_id, GROUP_CONCAT( DISTINCT user_account.`nickname` ) AS teacher_name FROM vanclass_student LEFT JOIN vanclass_teacher ON vanclass_student.vanclass_id = vanclass_teacher.vanclass_id LEFT JOIN user_account ON vanclass_teacher.teacher_id = user_account.id WHERE vanclass_student.student_id IN (" . implode(',', $this->ids) . ") AND vanclass_student.is_active = 1 GROUP BY vanclass_student.student_id";
+        foreach (DB::select($sql) as $row) {
+            $this->teachers[$row->student_id] = $row;
         }
     }
 
