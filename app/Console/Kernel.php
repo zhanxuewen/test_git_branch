@@ -113,9 +113,6 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             (new Schedules\Monitor\CanalHeartbeat())->handle();
         })->everyFifteenMinutes();
-        $schedule->call(function () {
-            $this->logSchedule('Test Schedule');
-        })->everyMinute();
     }
 
     protected function logSchedule($log)
