@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Export;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Console\Schedules\Order;
 use App\Http\Controllers\Controller;
 
 class OrderController extends Controller
@@ -16,7 +17,7 @@ class OrderController extends Controller
             return (int)$item;
         }, $month));
         if ($request->has('day')) {
-            exec('/usr/share/php ' . base_path() . '/artisan recall:order:schedule ' . $request->get('day'));
+            $this->recallOrderSchedule($request->get('day'));
             return redirect(\URL::current() . '?month=' . $month);
         }
         $dir = storage_path('exports/order/') . $month;
@@ -68,6 +69,21 @@ class OrderController extends Controller
             if (preg_match($preg, $item) > 0) return $item;
         }
         return false;
+    }
+
+    protected function recallOrderSchedule($day, $type = 'order', $send = false){
+        if (strstr($day, ',')) {
+            $days = explode(',', $day);
+            $day = ['start' => $days[0], 'end' => $days[1]];
+        }
+        switch ($type){
+            case 'order':
+                return (new Order\ExportOrderList())->handle($day, $send);
+            case 'offline':
+                return (new Order\ExportOfflineList())->handle($day, $send);
+            default:
+                return 'Type Error!';
+        }
     }
 
 }

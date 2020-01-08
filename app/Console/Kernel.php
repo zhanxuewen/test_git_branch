@@ -21,8 +21,6 @@ class Kernel extends ConsoleKernel
         Commands\Core\MakeModuleSeeder::class,
         Commands\Core\MakeModuleMigration::class,
 
-        Commands\Schedule\RecallOrderSchedule::class,
-
         // Rewrite Laravel Commands
         Commands\Rewrite\MigrateRollback::class,
 
@@ -115,6 +113,9 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             (new Schedules\Monitor\CanalHeartbeat())->handle();
         })->everyFifteenMinutes();
+        $schedule->call(function () {
+            $this->logSchedule('Test Schedule');
+        })->everyMinute();
     }
 
     protected function logSchedule($log)
