@@ -2,14 +2,16 @@
 
 namespace App\Console\Schedules\Monitor;
 
-use App\Library\Curl;
 use DB;
 use App\Library\Log;
+use App\Library\Curl;
 use App\Console\Schedules\BaseSchedule;
 
 class CanalHeartbeat extends BaseSchedule
 {
     protected $logs = [];
+
+    protected $ignore = ['dev', 'test'];
 
     /**
      * Execute the console command.
@@ -24,7 +26,8 @@ class CanalHeartbeat extends BaseSchedule
         }
         sleep(10);
         foreach (['dev', 'test', 'teach', 'trail', 'online'] as $conn) {
-            $this->detect($conn, $value);
+            if (!in_array($conn, $this->ignore))
+                $this->detect($conn, $value);
         }
         if (!empty($this->logs))
             $this->log();
