@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Inspiring;
+use App\Library\Log;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,4 +15,5 @@ use Illuminate\Foundation\Inspiring;
 */
 
 Artisan::command('inspire', function () {
+    (new Log())->info('schedule', 'Test Inspire Schedule');
 })->describe('Display an inspiring quote');
