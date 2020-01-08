@@ -103,7 +103,7 @@ class StudentController extends Controller
     protected function new_label_wordbank($params)
     {
         !isset($params['label_id']) ? die('没有 标签ID') : null;
-        return "SELECT vocabulary, translation, label.name FROM wordbank_translation_label INNER JOIN wordbank_translation ON wordbank_translation.id = wordbank_translation_label.translation_id INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id INNER JOIN label ON label.id = wordbank_translation_label.label_id WHERE label_id IN ( SELECT id FROM label WHERE parent_id = " . $params['label_id'] . " )";
+        return "SELECT vocabulary, translation, label.name FROM wordbank_translation_label INNER JOIN wordbank_translation ON wordbank_translation.id = wordbank_translation_label.translation_id INNER JOIN wordbank ON wordbank.id = wordbank_translation_label.wordbank_id INNER JOIN label ON label.id = wordbank_translation_label.label_id WHERE label_id IN ( SELECT id FROM label WHERE parent_id = " . $params['label_id'] . " ) GROUP BY label_id, translation_id";
     }
 
     protected function getRecord($rows)
