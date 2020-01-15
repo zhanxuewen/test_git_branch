@@ -44,7 +44,7 @@ class Kernel extends ConsoleKernel
         Commands\ZXZJ\Word\MergeWordLabel::class,
         Commands\ZXZJ\Word\ExportWord::class,
 
-        Commands\ZXZJ\Accountant\ExportAccountantStatement::class,
+//        Commands\ZXZJ\Accountant\ExportAccountantStatement::class,
     ];
 
     /**
@@ -113,6 +113,10 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             (new Schedules\Monitor\CanalHeartbeat())->handle();
         })->everyFifteenMinutes();
+
+        $schedule->call(function () {
+            (new Schedules\Monitor\ScheduleHeartbeat())->handle();
+        })->everyThirtyMinutes();
     }
 
     protected function logSchedule($log)
