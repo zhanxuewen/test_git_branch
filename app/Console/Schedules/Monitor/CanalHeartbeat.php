@@ -11,7 +11,7 @@ class CanalHeartbeat extends BaseSchedule
 {
     protected $logs = [];
 
-    protected $ignore = ['test'];
+    protected $ignore = [];
 
     /**
      * Execute the console command.
