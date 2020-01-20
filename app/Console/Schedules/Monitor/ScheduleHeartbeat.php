@@ -21,8 +21,7 @@ class ScheduleHeartbeat extends BaseSchedule
     public function handle()
     {
         // 在线助教
-//        foreach (['dev', 'test', 'online'] as $platfrom) {
-        foreach (['dev'] as $platfrom) {
+        foreach (['dev', 'test', 'online'] as $platfrom) {
             $this->checkSchedule('core', $platfrom);
         }
         // 百项过
