@@ -89,6 +89,7 @@ class SlowController extends Controller
                 $logs = array_merge($logs, ES::table($table)->take($count)->get()->toArray());
             } else {
                 $count = $this->queryRpcSlow($table)->count();
+                if ($count > 300) $count = 300;
                 $_logs = $this->queryRpcSlow($table)->select(['time', 'msg'])->take($count)->get()->toArray();
                 $logs = array_merge($logs, $_logs);
             }
