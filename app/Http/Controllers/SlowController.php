@@ -98,7 +98,8 @@ class SlowController extends Controller
 
     protected function queryRpcSlow($table)
     {
-        return ES::table($table)->whereMatch('env', 'slowLog')
+        return ES::table($table)
+        // ->whereMatch('env', 'slowLog')
             ->whereMatch('msg', 'slowLog.INFO: info');
     }
 
