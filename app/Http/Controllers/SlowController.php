@@ -100,7 +100,7 @@ class SlowController extends Controller
     {
         return ES::table($table)
         // ->whereMatch('env', 'slowLog')
-            ->whereMatch('msg', 'slowLog.INFO: info');
+            ->whereMatch('message', 'slowLog.INFO: info');
     }
 
     protected function greater($a, $b)
