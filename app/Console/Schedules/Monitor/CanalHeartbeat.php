@@ -9,9 +9,48 @@ use App\Console\Schedules\BaseSchedule;
 
 class CanalHeartbeat extends BaseSchedule
 {
+    protected $value;
+
     protected $logs = [];
 
-    protected $ignore = [];
+    protected $projects = [
+        'learning' => [
+            'conn' => ['dev', 'test', 'teach', 'trail', 'online'],
+            'change' => [
+                'project' => 'core',
+                'conn' => ['dev', 'test', 'online']
+            ],
+            'rule' => [
+                'table' => 'label',
+                'id' => 3,
+                'update' => 'code'
+            ],
+            'detect' => [
+                'table' => 'core_label',
+                'id' => 3,
+                'field' => 'code'
+            ],
+            'ignore' => ['test']
+        ],
+        'kids' => [
+            'conn' => ['dev'],
+            'change' => [
+                'project' => 'core',
+                'conn' => ['dev']
+            ],
+            'rule' => [
+                'table' => 'school_label',
+                'id' => 1,
+                'update' => 'updated_at'
+            ],
+            'detect' => [
+                'table' => 'school_label',
+                'id' => 1,
+                'field' => 'updated_at'
+            ],
+            'ignore' => []
+        ]
+    ];
 
     /**
      * Execute the console command.
@@ -20,29 +59,36 @@ class CanalHeartbeat extends BaseSchedule
      */
     public function handle()
     {
-        $value = date('Y-m-d H:i:s');
-        foreach (['dev', 'test', 'online'] as $conn) {
-            $this->change($conn, $value);
+        $this->value = date('Y-m-d H:i:s');
+        foreach ($this->projects as $project => $conf) {
+            $this->change($conf['change'], $conf['rule']);
         }
         sleep(10);
-        foreach (['dev', 'test', 'teach', 'trail', 'online'] as $conn) {
-            if (!in_array($conn, $this->ignore))
-                $this->detect($conn, $value);
+        foreach ($this->projects as $project => $conf) {
+            $this->detect($project, $conf['conn'], $conf['detect'], $conf['ignore']);
         }
         if (!empty($this->logs))
             $this->log();
     }
 
-    protected function change($conn, $value)
+    protected function change($change, $rule)
     {
-        DB::setPdo($this->getConnPdo('core', $conn))->table('label')->where('id', 3)->update(['code' => $value]);
+        foreach ($change['conn'] as $conn) {
+            DB::setPdo($this->getConnPdo($change['project'], $conn))->table($rule['table'])
+                ->where('id', $rule['id'])->update([$rule['update'] => $this->value]);
+        }
     }
 
-    protected function detect($conn, $value)
+    protected function detect($project, $conn_s, $detect, $ignore = [])
     {
-        $check = DB::setPdo($this->getConnPdo('learning', $conn))->table('core_label')->find(3);
-        if ($check->code != $value)
-            $this->logs[] = $conn;
+        $field = $detect['field'];
+        foreach ($conn_s as $conn) {
+            if (in_array($conn, $ignore)) continue;
+
+            $check = DB::setPdo($this->getConnPdo($project, $conn))->table($detect['table'])->find($detect['id']);
+            if ($check->$field != $this->value)
+                $this->logs[] = $project . '@' . $conn;
+        }
     }
 
     protected function log()
