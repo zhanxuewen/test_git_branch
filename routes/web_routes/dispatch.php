@@ -4,6 +4,7 @@ Route::group(['namespace' => 'Dispatch', 'prefix' => 'dispatch'], function () {
     Route::group(['prefix' => 'dispatcher'], function () {
         Route::group(['prefix' => 'list'], function () {
             Route::get('/', ['uses' => 'DispatcherController@lists']);
+            Route::get('save', ['uses' => 'DispatcherController@save']);
         });
         Route::group(['prefix' => 'maps'], function () {
             Route::get('/', ['uses' => 'DispatcherController@maps']);

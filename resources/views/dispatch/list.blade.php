@@ -20,7 +20,15 @@
                     @endforeach
                 </select>
             </div>
-            <button type="submit" class="btn btn-default">查询</button>
+            <div class="form-group">
+                <label for="action">操作</label>
+                <select name="action" id="action" class="form-control">
+                    @foreach(['search' => '查询', 'create' => '新建'] as $_action => $label)
+                        <option value="{{$_action}}">{{$label}}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="btn btn-default">操作</button>
         </form>
     </div>
     <div class="col-sm-6">

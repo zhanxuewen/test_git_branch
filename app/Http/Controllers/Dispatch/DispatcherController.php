@@ -19,9 +19,24 @@ class DispatcherController extends Controller
     {
         $conn = $request->get('conn', 'dev');
         $type = $request->get('type', 'rail');
+        $action = $request->get('action', 'search');
+        if ($action == 'create') {
+            return view('dispatch.create', compact('conn', 'type'));
+        }
         $pdo = $this->getConnPdo('dispatcher', $conn);
         $rows = DB::setPdo($pdo)->table($this->map[$type])->get();
         return view('dispatch.list', compact('rows', 'conn', 'type'));
+    }
+
+    public function save(Request $request)
+    {
+        $conn = $request->get('conn', 'dev');
+        $type = $request->get('type', 'rail');
+        $data = ['code' => $request->get('code')];
+        if ($type == 'rail') $data['name'] = $request->get('name');
+        $pdo = $this->getConnPdo('dispatcher', $conn);
+        DB::setPdo($pdo)->table($this->map[$type])->create($data);
+        return redirect()->route('dispatch/dispatcher/list');
     }
 
     public function maps(Request $request)
