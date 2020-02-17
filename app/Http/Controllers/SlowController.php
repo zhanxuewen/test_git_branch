@@ -19,6 +19,7 @@ class SlowController extends Controller
         $methods = [];
         $times = [];
         foreach ($logs as $log) {
+            if (strstr($log->message, 'slowLog.INFO: debug')) continue;
             list($at, $info) = explode(' slowLog.INFO: info ', $log->message);
             $at = trim($at, '[]');
             if ($start->gt($at)) continue;
