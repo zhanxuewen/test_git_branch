@@ -19,14 +19,13 @@ class SlowController extends Controller
         $methods = [];
         $times = [];
         foreach ($logs as $log) {
-            if ($start->gt($log->time)) continue;
-            $at = $log->time;
-            if (strpos($log->msg, 'debug ') === 0) continue;
-            $log = str_replace(['info ', ' []'], ['', ''], $log->msg);
-            $log = json_decode($log, true);
-            $method = $log['method'];
-            $time = round($log['time'], 3);
-            $methods[$method][] = ['time' => $time, 'at' => $at, 'params' => count($log['params']) == 1 ? $log['params'][0] : $log['params']];
+            list($at, $info) = explode(' slowLog.INFO: info ', $log->message);
+            $at = trim($at, '[]');
+            if ($start->gt($at)) continue;
+            $json = json_decode(str_replace(' []', '', $info), true);
+            $method = $json['method'];
+            $time = round($json['time'], 3);
+            $methods[$method][] = ['time' => $time, 'at' => $at, 'params' => count($json['params']) == 1 ? $json['params'][0] : $json['params']];
             $counts[$method] = array_key_exists($method, $counts) ? $counts[$method] + 1 : 1;
             $times[$method] = array_key_exists($method, $times) ? $this->greater($times[$method], $time) : $time;
         }
@@ -100,9 +99,7 @@ class SlowController extends Controller
 
     protected function queryRpcSlow($table)
     {
-        return ES::table($table)
-        // ->whereMatch('env', 'slowLog')
-            ->whereMatch('message', 'slowLog.INFO: info')->whereMatch('message', 'time');
+        return ES::table($table)->whereMatch('message', 'slowLog.INFO: info')->whereMatch('message', 'time');
     }
 
     protected function greater($a, $b)

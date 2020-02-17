@@ -7,7 +7,7 @@
             <a class="btn btn-default @if($day == $_day) btn-primary active @endif"
                href="{!! URL::current().'?day='.$day.'&count='.$_count.'&sec='.$_sec !!}">{{$day}} day</a>
         @endforeach
-        <h4>[ 数量阀值:{{$_count}} 时间阀值:{{$_sec}} ]</h4>
+        <h5>[ 数量阀值:{{$_count}} 时间阀值:{{$_sec}} ]</h5>
         <h4>{!! $start !!} - {!! date('Y-m-d H:i:s') !!}</h4>
         <table class="table table-bordered table-hover">
             <caption>次数</caption>
