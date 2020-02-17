@@ -9,8 +9,8 @@
         @endforeach
         <a class="btn btn-warning pull-right" id="toggle-hide">Show / Hide</a>
         <table class="table table-bordered table-hover">
-            <caption>[ 时间阀值:{{$_sec}}s] {!! \Carbon\Carbon::now()->subDays($_day) !!}
-                - {!! date('Y-m-d H:i:s') !!}</caption>
+            <caption>[ 时间阀值:{{$_sec}}s] <b>{!! \Carbon\Carbon::now()->subDays($_day) !!}
+                    - {!! date('Y-m-d H:i:s') !!}</b> [<u>已更新为北京时间</u>]</caption>
             @foreach($times as $key=>$v)
                 <tr>
                     <td @if(strstr($sql_s[$key]['date'],' 00:') && strstr($sql_s[$key]['user'],'manage')) class="need-hide" @endif>
