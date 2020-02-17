@@ -129,8 +129,12 @@ class Kernel extends ConsoleKernel
         })->everyFifteenMinutes();
 
         $schedule->call(function () {
-            (new Schedules\Monitor\ScheduleHeartbeat())->handle();
+            (new Schedules\Monitor\ScheduleHeartbeat())->handle(0);
         })->everyThirtyMinutes();
+        // 检查 定时任务是否执行完了
+        $schedule->call(function () {
+            (new Schedules\Monitor\ScheduleHeartbeat())->handle(1);
+        })->dailyAt('07:30');
     }
 
     protected function logSchedule($log)
