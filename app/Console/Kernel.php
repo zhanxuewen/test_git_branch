@@ -69,6 +69,20 @@ class Kernel extends ConsoleKernel
             $this->logSchedule('Record Order Status Done At ' . date('Y-m-d H:i:s'));
         })->dailyAt('01:00');
 
+
+        // 百项过 未上架图书 学习进度
+        $schedule->call(function (Schedules\Learning\ExportSchoolLearningStudent $schedule) {
+            $this->logSchedule('Export Learning  SchoolLearningStudent Start At ' . date('Y-m-d H:i:s'));
+            $schedule->handle();
+            $this->logSchedule('Export Learning  SchoolLearningStudent  Done At ' . date('Y-m-d H:i:s'));
+        })->dailyAt('07:00');
+        // 百项过 学校 学习人数
+        $schedule->call(function (Schedules\Learning\ExportBookLearningProcess $schedule) {
+            $this->logSchedule('Export Learning  BookLearningProcess Start At ' . date('Y-m-d H:i:s'));
+            $schedule->handle();
+            $this->logSchedule('Export Learning  BookLearningProcess  Done At ' . date('Y-m-d H:i:s'));
+        })->dailyAt('07:05');
+
         // Export Order And Offline
         $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
             $this->logSchedule('Export Order Start At ' . date('Y-m-d H:i:s'));
