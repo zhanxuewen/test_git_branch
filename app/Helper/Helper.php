@@ -39,7 +39,7 @@ class Helper
             if ($item['type'] == 'ALL') return false;
             if (empty($item['key'])) return false;
             $_row = $item['rows'];
-            $rows = $tables[$table];
+            $rows = $tables[$table] == 0 ? 1 : $tables[$table];
             if ($_row / $rows > 0.05) return false;
         }
         return true;
