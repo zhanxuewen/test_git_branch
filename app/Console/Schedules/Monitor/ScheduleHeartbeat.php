@@ -20,7 +20,7 @@ class ScheduleHeartbeat extends BaseSchedule
      */
     public function handle($check_result = 0)
     {
-        if (Carbon::now()->gt(date('Y-m-d 00:00:05'))){
+        if (Carbon::now()->gt(Carbon::now()->startOfDay()->addMinutes(5))){
             // 在线助教
             foreach (['dev', 'test', 'online'] as $platfrom) {
                 $this->checkSchedule('core', $platfrom);
