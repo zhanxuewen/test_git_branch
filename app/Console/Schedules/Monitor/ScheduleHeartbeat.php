@@ -100,7 +100,10 @@ class ScheduleHeartbeat extends BaseSchedule
                 ->where('created_date', date('Y-m-d'))
                 ->first();
             if (empty($record)){
-                $this->sendCheckResult($project, $platfrom,$item);
+                if ($item == 'Check Expired Group Has Done' && Carbon::today()->isFriday()){
+                }else{
+                    $this->sendCheckResult($project, $platfrom,$item);
+                }
             }
         }
     }
