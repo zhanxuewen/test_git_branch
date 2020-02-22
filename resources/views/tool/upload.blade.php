@@ -19,7 +19,7 @@
                     <select name="type" id="type" class="form-control">
                         <option value="image">Image</option>
                         <option value="audio">Audio</option>
-                        <option value="video">Video</option>
+{{--                        <option value="video">Video</option>--}}
                         <option value="apk">Apk</option>
                     </select>
                 </div>
