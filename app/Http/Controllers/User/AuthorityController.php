@@ -131,6 +131,7 @@ class AuthorityController extends Controller
             $url = implode('|', $route->methods()) . '@' . $uri;
             if (in_array($url, $routes)) continue;
             $create[] = [
+                'action' => $uri,
                 'route' => $url,
                 'created_at' => $now,
                 'updated_at' => $now

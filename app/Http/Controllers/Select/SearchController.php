@@ -30,6 +30,21 @@ class SearchController extends Controller
         return view('select.student', compact('vanclass', 'student', 'student_id'));
     }
 
+    public function learningCards(Request $request)
+    {
+        $phones = $request->get('phones', null);
+        if (is_null($phones)) return view('select.learning.cards', compact('phones'));
+        $phone_s = explode(',', str_replace('，', ',', $phones));
+        $rows = DB::setPdo($this->getConnPdo('learning', 'online'))->table('user')
+            ->join('card', 'card.student_id', '=', 'user.id')
+            ->join('card_prototype', 'card_prototype.id', '=', 'card.prototype_id')
+            ->join('course_user_book_record', 'course_user_book_record.card_id', '=', 'card.id')
+            ->join('course_book', 'course_book.id', '=', 'course_user_book_record.book_id')
+            ->selectRaw('phone,	user.name AS nickname, card_number, card.id, card.activated_at, card_prototype.name, course_book.name AS book')
+            ->whereIn('user.phone', $phone_s)->whereNull('card.deleted_at')->get();
+        return view('select.learning.cards', compact('phones', 'rows'));
+    }
+
     /**
      * List And Search Partner School
      * @param Request $request
