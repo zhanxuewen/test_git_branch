@@ -45,7 +45,7 @@ class TransmitController extends Controller
 
     public function deleteBill(Request $request)
     {
-        $ids = $request->get('ids');
+        $ids = str_replace('，', ',', $request->get('ids'));
         $conn = $request->get('conn');
         $info = '';
         if (!empty($ids)) {
