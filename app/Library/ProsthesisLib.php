@@ -99,6 +99,11 @@ class ProsthesisLib
         ];
     }
 
+    public function uploadVideo($video, $name = '')
+    {
+        return $this->upload($video, 'video', $name);
+    }
+
     public function uploadApk($apk, $name = '')
     {
         return $this->upload($apk, 'apk', $name);

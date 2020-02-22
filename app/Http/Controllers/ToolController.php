@@ -66,6 +66,7 @@ class ToolController extends Controller
         $info = [];
         if ($type == 'image') $info = $this->aliOss->uploadImage($file);
         if ($type == 'audio') $info = $this->aliOss->uploadAudio($file);
+        if ($type == 'video') $info = $this->aliOss->uploadVideo($file);
         if ($type == 'apk') $info = $this->aliOss->uploadApk($file);
         $result = isset($info['src']) ? $info['src'] : $info;
         $this->logContent('tool_upload', 'upload', $result);
