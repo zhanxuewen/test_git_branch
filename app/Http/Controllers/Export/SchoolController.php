@@ -11,6 +11,8 @@ class SchoolController extends Controller
 {
     protected $phone;
 
+    protected $name;
+
     protected $titles = [
         'account' => ['昵称', '手机号', '班级名称'],
         'order' => ['卡类型', '费用', '订单日期'],
@@ -45,6 +47,7 @@ class SchoolController extends Controller
         $params['start'] = $request->get('start', null);
         $params['end'] = $request->filled('end') ? $request->get('end', null) . ' 23:59:59' : null;
         $this->phone = $request->get('field_phone') ? "phone as _phone" : "INSERT (phone, 4, 4, '****') as _phone";
+        $this->name = $request->get('field_phone') ? "nickname as _nickname" : "concat(left(nickname,(CHAR_LENGTH(nickname)-1)),'*') as _nickname";
         DB::setPdo($this->getConnPdo('core', 'online'));
         $record = $this->query($request->get('query'), $school_id, $params);
         $name = $request->get('query') . '_' . $school_id;
@@ -132,7 +135,7 @@ class SchoolController extends Controller
         $record = [$this->title];
         foreach ($this->rows as $row) {
             $account = $this->accounts[$row->student_id];
-            $data = array_merge([$account->nickname, $account->_phone, $account->vanclass_name], $closure($row));
+            $data = array_merge([$account->_nickname, $account->_phone, $account->vanclass_name], $closure($row));
             if ($this->options['register'])
                 $data[] = $account->created_at;
             if ($this->options['expire'])
@@ -146,7 +149,7 @@ class SchoolController extends Controller
 
     protected function getAccount()
     {
-        $sql = "SELECT user_account.id, nickname, $this->phone, user_account.created_at, GROUP_CONCAT( DISTINCT vanclass.`name` ) AS vanclass_name FROM user_account INNER JOIN user ON user.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = user_account.id AND vanclass_student.is_active = 1 LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE user_account.id IN (" . implode(',', $this->ids) . ") GROUP BY user_account.id";
+        $sql = "SELECT user_account.id, $this->name, $this->phone, user_account.created_at, GROUP_CONCAT( DISTINCT vanclass.`name` ) AS vanclass_name FROM user_account INNER JOIN user ON user.id = user_account.user_id LEFT JOIN vanclass_student ON vanclass_student.student_id = user_account.id AND vanclass_student.is_active = 1 LEFT JOIN vanclass ON vanclass.id = vanclass_student.vanclass_id WHERE user_account.id IN (" . implode(',', $this->ids) . ") GROUP BY user_account.id";
         foreach (DB::select($sql) as $row) {
             $this->accounts[$row->id] = $row;
         }
