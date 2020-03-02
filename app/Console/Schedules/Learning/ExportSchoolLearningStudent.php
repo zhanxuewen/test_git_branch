@@ -322,7 +322,7 @@ EOF;
         $path = 'learning';
         $file = $this->sheetsStore($path . '/' . $filename, ['学校学习学生'=>$report, '前十名学生(筛选)'=>$report_2nd, '前十名学生(全部)'=>$report_3rd]);
 
-        $this->email(['xiemin68@163.com','zhanxuewen2018@126.com'],
+        $this->email(['xiemin68@163.com','shirui2811@126.com','zhanxuewen2018@126.com'],
             'emails.export2', ['object' => '每日' . '学校学习人数'],
             '百项过学习人数统计_'.date('md'), realpath($file));
     }
