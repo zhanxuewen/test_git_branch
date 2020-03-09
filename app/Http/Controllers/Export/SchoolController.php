@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Export;
 
+use Carbon\Carbon;
 use DB;
 use Closure;
 use Illuminate\Http\Request;
@@ -109,13 +110,13 @@ class SchoolController extends Controller
         $this->buildIds();
         $this->getAccount();
         $this->title = $this->titles['account'];
-        if ($this->options['register']){
+        if ($this->options['register']) {
             $this->title[] = '注册时间';
         }
         if ($this->options['expire']) {
             $this->getExpired();
         }
-        if ($this->options['teacher']){
+        if ($this->options['teacher']) {
             $this->getTeacher();
         }
         return $this->buildRecord(function ($row) {
@@ -133,13 +134,17 @@ class SchoolController extends Controller
     protected function buildRecord(Closure $closure)
     {
         $record = [$this->title];
+        $now = Carbon::now();
         foreach ($this->rows as $row) {
             $account = $this->accounts[$row->student_id];
             $data = array_merge([$account->_nickname, $account->_phone, $account->vanclass_name], $closure($row));
             if ($this->options['register'])
                 $data[] = $account->created_at;
-            if ($this->options['expire'])
-                $data[] = $this->expires[$row->student_id]->expired_at;
+            if ($this->options['expire']) {
+                $exp = $this->expires[$row->student_id]->expired_at;
+                $data[] = $exp;
+                $data[] = $now->lte($exp) ? '是' : '否';
+            }
             if ($this->options['teacher'])
                 isset($this->teachers[$row->student_id]) ? $data[] = $this->teachers[$row->student_id]->teacher_name : null;
             $record[] = $data;
@@ -167,6 +172,7 @@ class SchoolController extends Controller
     protected function getExpired()
     {
         $this->title[] = '有效期';
+        $this->title[] = '是否是提分版';
         $sql = "SELECT student_id, expired_at FROM payment_student_status WHERE student_id IN (" . implode(',', $this->ids) . ") AND paid_type = 'improve_card'";
         foreach (DB::select($sql) as $row) {
             $this->expires[$row->student_id] = $row;
