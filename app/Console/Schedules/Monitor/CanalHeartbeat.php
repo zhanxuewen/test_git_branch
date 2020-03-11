@@ -48,7 +48,7 @@ class CanalHeartbeat extends BaseSchedule
                 'id' => 1,
                 'field' => 'updated_at'
             ],
-            'ignore' => []
+            'ignore' => ['dev']
         ]
     ];
 
