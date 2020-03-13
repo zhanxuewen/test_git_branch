@@ -35,7 +35,9 @@ EOF;
 
         // 订阅人数
         $sql = <<<EOF
-    select tmp.* ,count(*) 'unit_total' ,sum(course_book_catalog.is_available) 'up_unit_total'  from  (
+    select tmp.* ,count(*) 'unit_total' ,
+    sum(course_book_catalog.is_available) 'up_unit_total' , 
+    GROUP_CONCAT(if(course_book_catalog.is_available = 1, course_book_catalog.`name`, ''))  'up_unit_name' from  (
 SELECT
     course_book.id book_id,
     course_book.name book_name,
@@ -78,7 +80,7 @@ EOF;
         }));
 
         $report1 = [];
-        $report1[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元', '已完成单元', '已完成单元详情', '订阅人数'];
+        $report1[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元','上架单元名称', '已完成单元', '已完成单元详情', '订阅人数'];
 
 
         foreach ($student_count as $item){
@@ -87,6 +89,9 @@ EOF;
             $student_count = $item->student_count;      // 订阅学生
             $unit_total = $item->unit_total;            // 所含单元
             $up_unit_total = $item->up_unit_total;      // 上架单元
+            $up_unit_name = $item->up_unit_name;      // 上架单元名称
+
+            $up_unit_name = implode(',', array_filter(explode(',',$up_unit_name)));
 
             if (isset($processlist[$book_id])){
                 $count = count($processlist[$book_id]);
@@ -97,12 +102,14 @@ EOF;
                             $book_name,
                             $unit_total,
                             $up_unit_total,
+                            $up_unit_name,
                             $count,
                             $process_item,
                             $student_count
                         ];
                     }else{
                         $report1[] = [
+                            '',
                             '',
                             '',
                             '',
@@ -121,6 +128,7 @@ EOF;
                     $book_name,
                     $unit_total,
                     $up_unit_total,
+                    $up_unit_name,
                     0,
                     '/',
                     $student_count
@@ -156,7 +164,9 @@ EOF;
 
         // 订阅人数
         $sql = <<<EOF
-    select tmp.* ,count(*) 'unit_total' ,sum(course_book_catalog.is_available) 'up_unit_total'  from  (
+     select tmp.* ,count(*) 'unit_total' ,
+    sum(course_book_catalog.is_available) 'up_unit_total' , 
+    GROUP_CONCAT(if(course_book_catalog.is_available = 1, course_book_catalog.`name`, ''))  'up_unit_name' from   (
 SELECT
     course_book.id book_id,
     course_book.name book_name,
@@ -198,7 +208,7 @@ EOF;
 
         }));
         $report2 = [];
-        $report2[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元', '已完成单元', '已完成单元详情', '订阅人数'];
+        $report2[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元', '上架单元名称', '已完成单元', '已完成单元详情', '订阅人数'];
 
 
         foreach ($student_count as $item){
@@ -207,7 +217,8 @@ EOF;
             $student_count = $item->student_count;      // 订阅学生
             $unit_total = $item->unit_total;            // 所含单元
             $up_unit_total = $item->up_unit_total;      // 上架单元
-
+            $up_unit_name = $item->up_unit_name;      // 上架单元名称
+            $up_unit_name = implode(',', array_filter(explode(',',$up_unit_name)));
             if (isset($processlist[$book_id])){
                 $count = count($processlist[$book_id]);
                 foreach ($processlist[$book_id] as $key=>$process_item){
@@ -217,12 +228,14 @@ EOF;
                             $book_name,
                             $unit_total,
                             $up_unit_total,
+                            $up_unit_name,
                             $count,
                             $process_item,
                             $student_count
                         ];
                     }else{
                         $report2[] = [
+                            '',
                             '',
                             '',
                             '',
@@ -241,6 +254,7 @@ EOF;
                     $book_name,
                     $unit_total,
                     $up_unit_total,
+                    $up_unit_name,
                     0,
                     '/',
                     $student_count
