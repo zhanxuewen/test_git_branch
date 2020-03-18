@@ -33,10 +33,10 @@ class CanalHeartbeat extends BaseSchedule
             'ignore' => ['test']
         ],
         'kids' => [
-            'conn' => ['dev'],
+            'conn' => ['dev', 'online'],
             'change' => [
                 'project' => 'core',
-                'conn' => ['dev']
+                'conn' => ['dev', 'online']
             ],
             'rule' => [
                 'table' => 'school_label',
