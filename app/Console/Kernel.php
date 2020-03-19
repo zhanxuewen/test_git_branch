@@ -27,6 +27,9 @@ class Kernel extends ConsoleKernel
         Commands\Database\GenerateGrantSql::class,
         Commands\Database\GenerateUpdatePassword::class,
 
+//        Commands\Luminee\Database\GenerateColumns::class,
+
+//        Commands\Luminee\Order\ExportSchools::class,
         Commands\Luminee\Order\AnalyzeOrder::class,
         Commands\Luminee\Order\ExportAnalyzeOrder::class,
 
@@ -36,6 +39,8 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Testbank\RebuildLearningAssessmentEntityOrder::class,
         Commands\Luminee\Testbank\UpdateLearningEntity::class,
         Commands\Luminee\Testbank\FixLearningItems::class,
+//        Commands\Luminee\Testbank\RebuildCoreTestbankEntity::class,
+//        Commands\Luminee\Testbank\CopyTestbankToKids::class,
 
 
         // 在线助教
@@ -50,7 +55,7 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
+     * @param \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -59,8 +64,8 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $today = date('Y-m-d');
             $this->logSchedule('Monitor Record Start At ' . date('Y-m-d H:i:s'));
-            (new Schedules\Monitor\RecordTableIncrement())->handle($today);
-            $this->logSchedule('Record Table Increment Done At ' . date('Y-m-d H:i:s'));
+//            (new Schedules\Monitor\RecordTableIncrement())->handle($today);
+//            $this->logSchedule('Record Table Increment Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Monitor\RecordDeviceUsage())->handle($today);
             $this->logSchedule('Record Device Usage Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Monitor\RecordOrderIncrement())->handle($this->getYesterday());
