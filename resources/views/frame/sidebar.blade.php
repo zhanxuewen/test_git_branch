@@ -15,8 +15,7 @@
         ], 'fa-table') !!}
         {!! \App\Helper\BladeHelper::treeView('数据库', [
             'Diff' => 'database/diff',
-            'Table' => 'database/get/tableList',
-            'Column' => 'database/get/columnInfo',
+            'DBWiki' => 'database/DBWiki',
             'Migration' => 'database/migration/history',
             'Table Correct' => 'database/table_correct'
         ], 'fa-database') !!}

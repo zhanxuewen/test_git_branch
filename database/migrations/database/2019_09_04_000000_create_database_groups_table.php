@@ -16,10 +16,10 @@ class CreateDatabaseGroupsTable extends Migration
         Schema::create('database_groups', function (Blueprint $table) {
             $table->increments('id');
             $table->string('code');
-            $table->string('name')->nullable();
             $table->string('type');
             $table->integer('parent_id');
-            $table->boolean('is_available');
+            $table->string('info');
+            $table->softDeletes();
         });
     }
 

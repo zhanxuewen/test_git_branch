@@ -15,10 +15,12 @@ class CreateDatabaseColumnsTable extends Migration
     {
         Schema::create('database_columns', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('group_id')->nullable();
+            $table->integer('group_id');
             $table->string('column');
             $table->string('info');
-            $table->boolean('is_available');
+            $table->softDeletes();
+
+            $table->index('group_id');
         });
     }
 
