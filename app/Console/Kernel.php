@@ -27,11 +27,12 @@ class Kernel extends ConsoleKernel
         Commands\Database\GenerateGrantSql::class,
         Commands\Database\GenerateUpdatePassword::class,
 
-//        Commands\Luminee\Database\GenerateColumns::class,
+        Commands\Luminee\Database\GenerateColumns::class,
 
 //        Commands\Luminee\Order\ExportSchools::class,
         Commands\Luminee\Order\AnalyzeOrder::class,
         Commands\Luminee\Order\ExportAnalyzeOrder::class,
+        Commands\Luminee\Order\CheckMSE::class,
 
         Commands\Luminee\Testbank\SyncTestbankToLearning::class,
         Commands\Luminee\Testbank\DeleteLearningBill::class,
@@ -41,6 +42,8 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Testbank\FixLearningItems::class,
 //        Commands\Luminee\Testbank\RebuildCoreTestbankEntity::class,
 //        Commands\Luminee\Testbank\CopyTestbankToKids::class,
+        Commands\Luminee\Testbank\ExportAudioAnalyze::class,
+        Commands\Luminee\Testbank\SyncTestbankToCoreDev::class,
 
 
         // 在线助教
