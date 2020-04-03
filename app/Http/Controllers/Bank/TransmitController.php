@@ -36,7 +36,8 @@ class TransmitController extends Controller
             case 'bill':
                 return $this->handleBill($id);
             case 'testbank':
-                $testbank = DB::setPdo($this->core_pdo)->table('testbank')->where('id', $id)->first();
+                $testbank = DB::setPdo($this->core_pdo)->table('testbank')->where('id', $id)->whereNull('deleted_at')->first();
+                if (empty($testbank)) return $this->response('大题 ' . $id . ' 不存在。', true);
                 return $this->handleTestbank($testbank);
             default:
                 return $this->error('类型错误!');
@@ -66,7 +67,8 @@ class TransmitController extends Controller
 
     protected function handleBill($id)
     {
-        $c_bill = DB::setPdo($this->core_pdo)->table('testbank_collection')->where('id', $id)->first();
+        $c_bill = DB::setPdo($this->core_pdo)->table('testbank_collection')->where('id', $id)->whereNull('deleted_at')->first();
+        if (empty($c_bill)) return $this->response('题单 ' . $id . ' 不存在。', true);
         $create = json_decode(json_encode($c_bill), true);
         $id = $create['id'];
         $create['core_related_id'] = $id;

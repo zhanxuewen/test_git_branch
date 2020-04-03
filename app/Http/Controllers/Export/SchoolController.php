@@ -85,6 +85,9 @@ class SchoolController extends Controller
         if ($this->options['expire']) {
             $this->getExpired();
         }
+        if ($this->options['teacher']) {
+            $this->getTeacher();
+        }
         return $this->buildRecord(function ($row) {
             return [$row->commodity_name, $row->pay_fee, $row->created_at];
         });
@@ -98,6 +101,9 @@ class SchoolController extends Controller
         $this->title = array_merge($this->titles['account'], $this->titles['offline']);
         if ($this->options['expire']) {
             $this->getExpired();
+        }
+        if ($this->options['teacher']) {
+            $this->getTeacher();
         }
         return $this->buildRecord(function ($row) {
             return [$row->days, $row->pay_fee, $row->created_at, $row->refunded_at];
