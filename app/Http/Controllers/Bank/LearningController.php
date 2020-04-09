@@ -133,8 +133,9 @@ class LearningController extends Controller
     protected function buildAssContent($ques, $value)
     {
         $item = json_decode($ques->content);
-        $article = json_decode($value)->article;
-        $item->article = $article;
+        foreach (json_decode($value) as $k => $v) {
+            $item->$k = $v;
+        }
         return ['content' => json_encode($item)];
     }
 
