@@ -47,3 +47,14 @@
         @endif
     @endif
 @endsection
+
+@section('script')
+    <script>
+        $(document).ready(function () {
+            $("span.btn-info").on('click', function () {
+                $("input#ques_id").val($(this).attr('id'));
+                $("#sync_article_form").submit();
+            })
+        });
+    </script>
+@endsection

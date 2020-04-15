@@ -19,7 +19,7 @@
             <div class="col-sm-12"><h3>百项过课程题</h3></div>
             @foreach($ass_testbank_s as $testbank)
                 <div class="col-sm-6">
-                    <p>Question</p>
+                    <p>Question <span class="btn btn-info" id="{{$testbank->id}}">查看|修改题干</span></p>
                     <ul>
                         @foreach($testbank as $key => $value)
                             <li>
@@ -54,6 +54,7 @@
                         @endforeach
                     </ul>
                 </div>
+                <div class="col-sm-12"></div>
             @endforeach
         @endif
     @endif
@@ -61,17 +62,18 @@
         <button type="submit" class="btn btn-default">To Sync</button>
     </div>
 </form>
-<form action="{{url('bank/learning/sync/article')}}" method="GET" class="form-inline" target="_blank">
+<form action="{{url('bank/learning/sync/article')}}" method="GET" class="form-inline" target="_blank" id="sync_article_form">
     <input type="hidden" name="conn" value="{{$conn}}">
     <input type="hidden" name="core_id" value="{{isset($core_extra->id)?$core_extra->id:null}}">
+    <input type="hidden" name="ques_id" value="" id="ques_id">
     @if(isset($learn_testbank) && !empty($learn_testbank))
         <input type="hidden" name="learn_id" value="{{isset($learn_extra->id)?$learn_extra->id:null}}">
     @endif
-    @if(count($ass_testbank_s) !=0)
-        <div class="form-group">
-            <label for="ques_id">百项过课程 大题ID</label>
-            <input type="number" class="form-control" name="ques_id" id="ques_id" value="{{$ass_testbank_s[0]->id}}">
-        </div>
-    @endif
-    <button type="submit" class="btn btn-default">查看|修改题干</button>
+{{--    @if(count($ass_testbank_s) !=0)--}}
+{{--        <div class="form-group">--}}
+{{--            <label for="ques_id">百项过课程 大题ID</label>--}}
+{{--            <input type="number" class="form-control" name="ques_id" id="ques_id" value="{{$ass_testbank_s[0]->id}}">--}}
+{{--        </div>--}}
+{{--    @endif--}}
+{{--    <button type="submit" class="btn btn-default">查看|修改题干</button>--}}
 </form>
