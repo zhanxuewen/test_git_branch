@@ -43,7 +43,10 @@ class Kernel extends ConsoleKernel
 //        Commands\Luminee\Testbank\RebuildCoreTestbankEntity::class,
 //        Commands\Luminee\Testbank\CopyTestbankToKids::class,
         Commands\Luminee\Testbank\ExportAudioAnalyze::class,
+//        Commands\Luminee\Testbank\ExportAudioSort::class,
         Commands\Luminee\Testbank\SyncTestbankToCoreDev::class,
+
+//        Commands\Luminee\Statistic\ExportStudentActivity::class,
 
 
         // 在线助教
@@ -67,8 +70,8 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $today = date('Y-m-d');
             $this->logSchedule('Monitor Record Start At ' . date('Y-m-d H:i:s'));
-//            (new Schedules\Monitor\RecordTableIncrement())->handle($today);
-//            $this->logSchedule('Record Table Increment Done At ' . date('Y-m-d H:i:s'));
+            (new Schedules\Monitor\RecordTableIncrement())->handle($today);
+            $this->logSchedule('Record Table Increment Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Monitor\RecordDeviceUsage())->handle($today);
             $this->logSchedule('Record Device Usage Done At ' . date('Y-m-d H:i:s'));
             (new Schedules\Monitor\RecordOrderIncrement())->handle($this->getYesterday());
