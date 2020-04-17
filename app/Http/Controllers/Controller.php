@@ -39,6 +39,10 @@ abstract class Controller extends BaseController
     protected $colors = ['#337ab7', '#9ed189', '#d9edf7', '#fcf8e3', '#f2dede'];
 
     protected $modelMap = [];
+
+    /**
+     * @var ProsthesisLib
+     */
     protected $aliOss;
 
     protected $reporter;
@@ -46,8 +50,12 @@ abstract class Controller extends BaseController
     public function __construct(ReporterRepository $reporter)
     {
         $this->modelMap = include app_path('Models') . '/_models.php';
-        $this->aliOss = new ProsthesisLib();
         $this->reporter = $reporter;
+    }
+
+    protected function newProsthesisLib()
+    {
+        $this->aliOss = new ProsthesisLib();
     }
 
     /**

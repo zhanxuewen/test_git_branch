@@ -63,6 +63,7 @@ class ToolController extends Controller
         $type = $request->get('type', 'image');
         $file = $request->file('file');
         putenv('THIRD_PARTY_HOST=' . $third_url[$env]);
+        $this->newProsthesisLib();
         $info = [];
         if ($type == 'image') $info = $this->aliOss->uploadImage($file);
         if ($type == 'audio') $info = $this->aliOss->uploadAudio($file);
