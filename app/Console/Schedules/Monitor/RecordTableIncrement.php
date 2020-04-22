@@ -32,19 +32,19 @@ class RecordTableIncrement extends BaseSchedule
     public function handle($day)
     {
         $this->local_pdo = \DB::getPdo();
-        foreach (['core', 'learning'] as $project) {
-            $this->record($project, $day);
+        foreach (['core' => 'online4', 'learning' => 'online'] as $project => $conn) {
+            $this->record($project, $conn, $day);
         }
     }
 
-    protected function record($project, $day)
+    protected function record($project, $conn, $day)
     {
         if (\DB::table('monitor_table_increment')->where('project', $project)->where('created_date', $day)->count() > 0) {
             echo 'M_T_I ' . $project . ' at ' . $day . ' Already Done!';
             return;
         }
-        $database = $this->getConnDB($project, 'online');
-        DB::setPdo($this->getConnPdo($project, 'online'));
+        $database = $this->getConnDB($project, $conn);
+        DB::setPdo($this->getConnPdo($project, $conn));
         $tables = \DB::select("SELECT table_name, auto_increment FROM information_schema.tables where table_schema = '$database'");
         $create = [];
         foreach ($tables as $table) {

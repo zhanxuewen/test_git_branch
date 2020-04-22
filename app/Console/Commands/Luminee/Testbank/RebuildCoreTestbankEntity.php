@@ -48,7 +48,7 @@ class RebuildCoreTestbankEntity extends Command
     public function handle()
     {
         $conn = $this->argument('conn');
-        $testbank_ids = [406339,966628,966629,966630,966631,966976,966977,966981,966982,967143,967144,967145,967146,645844,54171];
+        $testbank_ids = [505724,505750,505754,505766,505768,505036,505072,505162,505605,505613,505623,505638,505640,505642,505648,505657,505666,505671,505678,505680,505682,505686,505701,505716,505719,505721,505723,505749,505753,505765,505767];
         $extra = $this->option('with_extra');
 //        $index = $this->ask('Which index do you want to change? [ 1 | 1,2 | all ]');
         $index = 'all';

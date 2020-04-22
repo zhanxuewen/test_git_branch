@@ -41,6 +41,7 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Testbank\UpdateLearningEntity::class,
         Commands\Luminee\Testbank\FixLearningItems::class,
 //        Commands\Luminee\Testbank\RebuildCoreTestbankEntity::class,
+//        Commands\Luminee\Testbank\RemoveCoreTestbankEntity::class,
 //        Commands\Luminee\Testbank\CopyTestbankToKids::class,
         Commands\Luminee\Testbank\ExportAudioAnalyze::class,
 //        Commands\Luminee\Testbank\ExportAudioSort::class,
