@@ -38,6 +38,7 @@ class SystemController extends Controller
         return [
             'core-dev' => 'Core Dev',
             'core-test' => 'Core Test',
+            'kids-dev' => 'Kids Dev',
             'learning-dev' => 'Learning Dev',
             'word_short-dev' => 'WordShorthand Dev'
         ];
