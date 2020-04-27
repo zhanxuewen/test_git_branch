@@ -8,6 +8,8 @@ return [
 
     'notice' => App\Models\Notice\Notice::class,
 
+    'navicat' => App\Models\Log\Navicat::class,
+
     'account' => App\Models\User\Account::class,
 
     'role' => Luminee\Watchdog\Model\Role::class,

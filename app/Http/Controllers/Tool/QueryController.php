@@ -11,9 +11,9 @@ use App\Http\Controllers\Controller;
 class QueryController extends Controller
 {
     protected $projects = [
-        'core' => ['online4'],
-        'learning' => ['online'],
-        'kids' => ['online'],
+        'core' => ['dev'],
+        'learning' => ['dev'],
+        'kids' => ['dev'],
     ];
 
     public function getQuery(Request $request)
@@ -26,11 +26,32 @@ class QueryController extends Controller
     {
         $_conn = $request->get('conn');
         list($project, $conn) = explode('-', $_conn);
-        $sql = $request->get('sql');
+        $sql = trim($request->get('sql'));
         if (is_null($pdo = $this->getConnPdo($project, $conn)))
             return 'f';
-        $rows = $pdo->query($sql)->fetchColumn();
-        return json_encode($rows);
+        if (!strstr($sql, 'limit'))
+            return 'l';
+        $start = microtime(true);
+        $sta = $pdo->query($sql);
+        $time = round(microtime(true) - $start, 3);
+        $keys = [];
+        foreach ($first = $sta->fetchObject() as $key => $item) {
+            $keys[] = $key;
+        }
+        $this->setModel('navicat')->create($this->buildNavicat($project, $conn, $sql, $time));
+        return json_encode(['keys' => $keys, 'time' => $time, 'rows' => array_merge([$first], $sta->fetchAll())]);
+    }
+
+    protected function buildNavicat($project, $conn, $sql, $time)
+    {
+        return [
+            'account_id' => $this->getUser('id'),
+            'project' => $project,
+            'connection' => $conn,
+            'query' => $sql,
+            'time' => $time,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
     }
 
 
