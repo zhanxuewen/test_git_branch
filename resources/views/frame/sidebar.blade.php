@@ -49,7 +49,8 @@
         ], 'fa-object-group') !!}
         {!! \App\Helper\BladeHelper::treeView('工具', [
             'Download' => 'tool/download',
-            'Upload' => 'tool/upload'
+            'Upload' => 'tool/upload',
+            'Query' => 'tool/query'
         ], 'fa-legal') !!}
         {!! \App\Helper\BladeHelper::treeView('用户与权限', [
             'Account' => 'user/listAccount',

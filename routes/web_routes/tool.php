@@ -6,4 +6,8 @@ Route::group(['namespace' => 'Tool', 'prefix' => 'tool'], function () {
     Route::post('ajax/download', ['uses' => 'ToolController@ajaxDownload']);
     Route::get('upload', ['uses' => 'ToolController@getUpload']);
     Route::post('ajax/upload', ['uses' => 'ToolController@ajaxUpload']);
+
+    Route::get('query', ['uses' => 'QueryController@getQuery']);
+    Route::post('query', ['uses' => 'QueryController@ajaxQuery']);
+
 });
