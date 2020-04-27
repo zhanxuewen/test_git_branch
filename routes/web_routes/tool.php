@@ -1,9 +1,9 @@
 <?php
 
-Route::group([], function () {
-    Route::get('tool/download', ['uses' => 'ToolController@getDownload']);
-    Route::post('tool/download', ['uses' => 'ToolController@postDownload']);
-    Route::post('ajax/tool/download', ['uses' => 'ToolController@ajaxDownload']);
-    Route::get('tool/upload', ['uses' => 'ToolController@getUpload']);
-    Route::post('ajax/tool/upload', ['uses' => 'ToolController@ajaxUpload']);
+Route::group(['namespace' => 'Tool', 'prefix' => 'tool'], function () {
+    Route::get('download', ['uses' => 'ToolController@getDownload']);
+    Route::post('download', ['uses' => 'ToolController@postDownload']);
+    Route::post('ajax/download', ['uses' => 'ToolController@ajaxDownload']);
+    Route::get('upload', ['uses' => 'ToolController@getUpload']);
+    Route::post('ajax/upload', ['uses' => 'ToolController@ajaxUpload']);
 });

@@ -56,7 +56,7 @@
                 formData.append('file', file.files[0]);
                 $.ajax({
                     type: "POST",
-                    url: "/ajax/tool/upload",
+                    url: "/tool/ajax/upload",
                     processData: false,
                     contentType: false,
                     data: formData,

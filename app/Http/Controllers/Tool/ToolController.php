@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Tool;
 
 use App\Library\Curl;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ToolController extends Controller
 {

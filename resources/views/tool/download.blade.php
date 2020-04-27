@@ -59,7 +59,7 @@
                 let file = JSON.parse('{!! session('file') !!}');
                 let arr = file.split('|');
                 let token = $('meta[name="csrf-token"]').attr('content');
-                let form = $("<form></form>").attr("action", "/ajax/tool/download").attr("method", "post");
+                let form = $("<form></form>").attr("action", "/tool/ajax/download").attr("method", "post");
                 form.append($("<input />").attr("type", "hidden").attr("name", "_token").attr("value", token));
                 form.append($("<input />").attr("type", "hidden").attr("name", "file").attr("value", arr[0]));
                 form.append($("<input />").attr("type", "hidden").attr("name", "name").attr("value", arr[1]));
