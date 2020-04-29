@@ -24,6 +24,9 @@
         </form>
     </div>
     <div class="col-sm-6">
+        @if(Auth::user()->role[0]->code == 'super_admin')
+            <a href="{{url('tool/show/queries')}}" class="btn btn-default pull-right">Show Queries</a>
+        @endif
         <p>规则:</p>
         <ul>
             <li>仅用于查询, 执行操作有记录</li>

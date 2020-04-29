@@ -18,6 +18,7 @@ class CreateLogNavicatTable extends Migration
             $table->integer('account_id');
             $table->string('project');
             $table->string('connection');
+            $table->string('type');
             $table->text('query');
             $table->decimal('time', 15, 8);
             $table->timestamp('created_at');

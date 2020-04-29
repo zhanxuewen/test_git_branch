@@ -9,5 +9,6 @@ Route::group(['namespace' => 'Tool', 'prefix' => 'tool'], function () {
 
     Route::get('query', ['uses' => 'QueryController@getQuery']);
     Route::post('query', ['uses' => 'QueryController@ajaxQuery']);
+    Route::get('show/queries', ['uses' => 'QueryController@showQueries']);
 
 });
