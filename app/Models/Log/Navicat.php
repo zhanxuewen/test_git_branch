@@ -10,7 +10,7 @@ class Navicat extends BaseModel
 
     public $timestamps = false;
 
-    protected $fillable = ['account_id', 'project', 'connection', 'query', 'time', 'created_at'];
+    protected $fillable = ['account_id', 'project', 'connection', 'type', 'query', 'time', 'created_at'];
 
     public function account()
     {
