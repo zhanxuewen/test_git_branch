@@ -4,7 +4,7 @@
 @section('section')
     <div class="col-xs-12">
         <form action="{{URL::current()}}" class="form-inline" method="GET">
-            <label for="account_id">Account Id</label>
+            <label for="account_id">Account</label>
             <select name="account_id" id="account_id" class="form-control">
                 <option value="0">All</option>
                 @foreach($accounts as $account)
