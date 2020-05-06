@@ -50,7 +50,7 @@ class RecordTableIncrement extends BaseSchedule
         foreach ($tables as $table) {
             $name = $table->table_name;
             if (in_array($name, $this->ignore[$project])) continue;
-            $rows = \DB::select("SELECT COUNT(id) as count FROM `$database`.`$name`");
+            $rows = \DB::select("SELECT COUNT(*) as count FROM `$database`.`$name`");
             $rows = $rows[0]->count;
 //            $rows = $table->table_rows;
             $create[] = [
