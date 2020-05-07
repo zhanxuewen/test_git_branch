@@ -15,7 +15,7 @@ class RebuildCoreTestbankEntity extends Command
      *
      * @var string
      */
-    protected $signature = 'rebuild:core_testbank:entity {testbank_ids} {--with_extra} {conn=dev}';
+    protected $signature = 'rebuild:core_testbank:entity {conn=dev}';
 
     /**
      * The console command description.
@@ -24,11 +24,11 @@ class RebuildCoreTestbankEntity extends Command
      */
     protected $description = 'rebuild core testbank entity';
 
-    protected $core_pdo;
-
-    protected $index;
-
     protected $field = 'testbank_item_value';
+
+    protected $level = [1,2];
+
+    protected $loops = 2;
 
     /**
      * Create a new command instance.
@@ -48,18 +48,15 @@ class RebuildCoreTestbankEntity extends Command
     public function handle()
     {
         $conn = $this->argument('conn');
-        $testbank_ids = [505724,505750,505754,505766,505768,505036,505072,505162,505605,505613,505623,505638,505640,505642,505648,505657,505666,505671,505678,505680,505682,505686,505701,505716,505719,505721,505723,505749,505753,505765,505767];
-        $extra = $this->option('with_extra');
-//        $index = $this->ask('Which index do you want to change? [ 1 | 1,2 | all ]');
-        $index = 'all';
-        $this->index = $index == 'all' ? 'all' : explode(',', $index);
+        $testbank_ids = [18513,18302,18350,18398,18429,18659,18610];
         DB::setPdo($this->getConnPdo('core', $conn));
         foreach ($testbank_ids as $testbank_id) {
-            $this->handleFunc($testbank_id, $extra);
+            $this->comment('[[At]] '.$testbank_id);
+            $this->handleFunc($testbank_id);
         }
     }
 
-    public function handleFunc($testbank_id, $extra)
+    public function handleFunc($testbank_id)
     {
         $entities = DB::table('testbank_entity')->where('testbank_id', $testbank_id)->whereNull('deleted_at')->get();
         $items = [];
@@ -77,11 +74,30 @@ class RebuildCoreTestbankEntity extends Command
                 $items[$key = 'index_' . $json['index']] = $entity->$_key;
             }
         }
-        $ids = DB::table('user_quoted_testbank')->where('origin_id', $testbank_id)->where('origin_type', 'testbank')->whereNull('deleted_at')->pluck('id')->toArray();
+        $ids = [$testbank_id];
+        $level = $this->level;
+        for ($i = 1; $i <= $this->loops; $i++) {
+            $this->comment("At Level $i");
+            $ids = $this->queryHandleQuoted($items, $ids, $i, $level);
+            if (is_null($ids)){
+                $this->line('***** Empty [break]****');
+                break;
+            }
+        }
+    }
+
+    protected function queryHandleQuoted($items, $_ids, $now_l, $level)
+    {
+        $type = $now_l > 1 ? 'quotedTestbank' : 'testbank';
+        $ids = DB::table('user_quoted_testbank')->whereIn('origin_id', $_ids)->where('origin_type', $type)->whereNull('deleted_at')->pluck('id')->toArray();
+        if (empty($ids)) return null;
         $this->line('Total ids : ' . count($ids));
-        if ($extra && isset($items['extra']))
-            $this->handleExtra($items['extra'], $ids);
-        $this->handleItem($items, $ids);
+        if (in_array($now_l, $level)) {
+            if (isset($items['extra']))
+                $this->handleExtra($items['extra'], $ids);
+            $this->handleItem($items, $ids);
+        }
+        return $ids;
     }
 
     protected function handleExtra($extra, $ids)
@@ -97,8 +113,6 @@ class RebuildCoreTestbankEntity extends Command
             if ($key == 'extra')
                 continue;
             $k = str_replace('index_', '', $key);
-            if ($this->index != 'all' && !in_array($k, $this->index))
-                continue;
             $count = DB::table('user_quoted_testbank_entity')->whereIn('quoted_testbank_id', $ids)
                 ->where($this->field, 'like', '%index":' . $k . '%')->whereNull('deleted_at')->update([$this->field => $item]);
             $this->info('Item ' . $key . ' : ' . $count);
