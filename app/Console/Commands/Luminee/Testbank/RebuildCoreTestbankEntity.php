@@ -26,7 +26,7 @@ class RebuildCoreTestbankEntity extends Command
 
     protected $field = 'testbank_item_value';
 
-    protected $level = [1,2];
+    protected $level = [1, 2];
 
     protected $loops = 2;
 
@@ -48,10 +48,10 @@ class RebuildCoreTestbankEntity extends Command
     public function handle()
     {
         $conn = $this->argument('conn');
-        $testbank_ids = [18513,18302,18350,18398,18429,18659,18610];
+        $testbank_ids = [];
         DB::setPdo($this->getConnPdo('core', $conn));
         foreach ($testbank_ids as $testbank_id) {
-            $this->comment('[[At]] '.$testbank_id);
+            $this->comment('[[At]] ' . $testbank_id);
             $this->handleFunc($testbank_id);
         }
     }
@@ -79,7 +79,7 @@ class RebuildCoreTestbankEntity extends Command
         for ($i = 1; $i <= $this->loops; $i++) {
             $this->comment("At Level $i");
             $ids = $this->queryHandleQuoted($items, $ids, $i, $level);
-            if (is_null($ids)){
+            if (is_null($ids)) {
                 $this->line('***** Empty [break]****');
                 break;
             }
@@ -114,7 +114,7 @@ class RebuildCoreTestbankEntity extends Command
                 continue;
             $k = str_replace('index_', '', $key);
             $count = DB::table('user_quoted_testbank_entity')->whereIn('quoted_testbank_id', $ids)
-                ->where($this->field, 'like', '%index":' . $k . '%')->whereNull('deleted_at')->update([$this->field => $item]);
+                ->whereRaw($this->field . " -> '$.index' = $k")->whereNull('deleted_at')->update([$this->field => $item]);
             $this->info('Item ' . $key . ' : ' . $count);
         }
     }

@@ -26,7 +26,7 @@ class ReindexCoreTestbankEntity extends Command
 
     protected $field = 'testbank_item_value';
 
-    protected $level = [0,1,2];
+    protected $level = [0, 1, 2];
 
     protected $loops = 2;
 
@@ -48,7 +48,7 @@ class ReindexCoreTestbankEntity extends Command
     public function handle()
     {
         $conn = $this->argument('conn');
-        $testbank_ids = [18513,18302,18350,18398,18429,18659,18610];
+        $testbank_ids = [];
         DB::setPdo($this->getConnPdo('core', $conn));
         foreach ($testbank_ids as $testbank_id) {
             $this->comment('[[At]] ' . $testbank_id);
