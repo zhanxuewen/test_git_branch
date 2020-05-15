@@ -16,7 +16,7 @@
             @endforeach
         </div>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-9">
         @foreach($rows as $conn => $row)
             @if($conn == 'dev') @continue @endif
             {!! \App\Helper\BladeHelper::oneColumnTable( array_diff($rows['dev'], $row),"Dev - " . ucfirst($conn)) !!}

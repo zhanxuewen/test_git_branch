@@ -28,7 +28,7 @@ class ShowController extends Controller
         $type_id = $request->get('type_id', 1);
         $project = $request->get('project', 'core');
         $sort = $request->get('sort', 'desc');
-        $pdo = $this->getConnPdo($project, 'online');
+        $pdo = $this->getConnPdo($project, 'online4');
         $types = $this->getRecord($pdo->query("SELECT * FROM label_type"));
         $_labels = $pdo->query($this->list_labels($type_id, $sort));
         $labels = [];
