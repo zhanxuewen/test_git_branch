@@ -26,9 +26,9 @@ class RebuildCoreTestbankEntity extends Command
 
     protected $field = 'testbank_item_value';
 
-    protected $level = [1, 2];
+    protected $level = [1, 2, 3, 4, 5, 6];
 
-    protected $loops = 2;
+    protected $loops = 6;
 
     /**
      * Create a new command instance.

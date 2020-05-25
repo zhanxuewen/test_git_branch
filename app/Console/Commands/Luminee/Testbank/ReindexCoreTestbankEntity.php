@@ -26,9 +26,9 @@ class ReindexCoreTestbankEntity extends Command
 
     protected $field = 'testbank_item_value';
 
-    protected $level = [0, 1, 2];
+    protected $level = [0, 1, 2, 3, 4, 5, 6];
 
-    protected $loops = 2;
+    protected $loops = 6;
 
     /**
      * Create a new command instance.
@@ -64,7 +64,7 @@ class ReindexCoreTestbankEntity extends Command
             $this->comment("At Level $i");
             $ids = $this->queryTestbank($ids, $i, $level);
             if (is_null($ids)) {
-                $this->line('***** Empty [break]****');
+                $this->error('***** Empty [break]****');
                 break;
             }
         }
@@ -93,7 +93,8 @@ class ReindexCoreTestbankEntity extends Command
     {
         $table = $now_l == 0 ? 'testbank_entity' : 'user_quoted_testbank_entity';
         $key = $now_l == 0 ? 'testbank_id' : 'quoted_testbank_id';
-        $items = DB::table($table)->whereIn($key, $ids)->selectRaw("id, $key, testbank_extra_value, testbank_item_value")->get();
+        $items = DB::table($table)->whereIn($key, $ids)->whereNull('deleted_at')
+            ->selectRaw("id, $key, testbank_extra_value, testbank_item_value")->get();
         $apd = $upd = $tnk = [];
         foreach ($items as $item) {
             if (empty($item->testbank_item_value)) continue;
@@ -104,7 +105,7 @@ class ReindexCoreTestbankEntity extends Command
             $_id_ = $item->id;
             !isset($json->index) ?
                 $apd['k' . $now_k][] = $_id_ :
-                ($json->index == $now_k ? null : $upd['k' . $now_k][] = $_id_);
+                ($json->index == $now_k ? null : $upd['k' . $now_k][] = [$_id_, $json->index]);
         }
         if (!empty($apd))
             $this->appendIndex($apd, $table);
@@ -128,11 +129,17 @@ class ReindexCoreTestbankEntity extends Command
     {
         foreach ($upd as $key => $ids) {
             $k = str_replace('k', '', $key);
-            $search = 'index":0';
-            $replace = 'index":' . $k;
-            $update = DB::raw("REPLACE(`testbank_item_value`, '$search',  '$replace')");
-            $count = DB::table($table)->whereIn('id', $ids)->update(['testbank_item_value' => $update]);
-            $this->info('Update Item ' . $k . ' : ' . $count);
+            $tmp = [];
+            foreach ($ids as $_l) {
+                $tmp[$_l[1]][] = $_l[0];
+            }
+            foreach ($tmp as $ind => $_ids) {
+                $search = 'index":' . $ind;
+                $replace = 'index":' . $k;
+                $update = DB::raw("REPLACE(`testbank_item_value`, '$search',  '$replace')");
+                $count = DB::table($table)->whereIn('id', $_ids)->update(['testbank_item_value' => $update]);
+                $this->info('Update Item ' . $k . ' : [index ' . $ind . '] ' . $count);
+            }
         }
     }
 

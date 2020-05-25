@@ -6,7 +6,7 @@ use DB;
 use App\Foundation\PdoBuilder;
 use Illuminate\Console\Command;
 
-class RemoveCoreTestbankEntity extends Command
+class AppendCoreTestbankEntity extends Command
 {
     use PdoBuilder;
 
@@ -15,7 +15,7 @@ class RemoveCoreTestbankEntity extends Command
      *
      * @var string
      */
-    protected $signature = 'remove:core_testbank:entity {conn=dev}';
+    protected $signature = 'append:core_testbank:entity {conn=dev}';
 
     /**
      * The console command description.
@@ -83,37 +83,55 @@ class RemoveCoreTestbankEntity extends Command
         if (empty($ids)) return null;
         $this->line('Total ids : ' . count($ids));
         if (in_array($now_l, $level)) {
-            $this->removeItem($count, $ids);
+            $this->appendItem($count, $ids);
         }
         return $ids;
     }
 
-    protected function removeItem($count, $ids)
+    protected function appendItem($count, $ids)
     {
-        $tmp = DB::table('user_quoted_testbank')->whereIn('id',$ids)->whereNull('deleted_at')->where('item_count', '>', $count)->selectRaw('id, item_ids')->get()->toArray();
+        $tmp = DB::table('user_quoted_testbank')->whereIn('id', $ids)->whereNull('deleted_at')->where('item_count', '<', $count)->selectRaw('id, item_count, item_ids')->get()->toArray();
         if (empty($tmp)) return;
-        dd($tmp);
-        $ent_ids = DB::table('user_quoted_testbank_entity')->whereIn('quoted_testbank_id', $ids)->whereRaw("testbank_item_value->'$.index' > " . $max)->whereNull('deleted_at')->pluck('id')->toArray();
-        $update = [];
+        $insert = [];
+        $__ids = [];
+        $__tmp = [];
+        $s_id = DB::table('user_quoted_testbank_entity')->max('id');
+        $now = date('Y-m-d H:i:s');
         foreach ($tmp as $item) {
-            $item_ids = trim(str_replace($ent_ids, [''], $item->item_ids), ',');
-            $update[] = ['id' => $item->id, 'item_ids' => $item_ids];
+            $t_id = $item->id;
+            for ($i = $item->item_count; $i < $count; $i++) {
+                $insert[] = [
+                    'quoted_testbank_id' => $t_id,
+                    'testbank_item_value' => '{"index":' . $i . '}',
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ];
+            }
+            $__ids[] = $t_id;
+            $__tmp[$t_id] = $item->item_ids;
         }
-        DB::table('user_quoted_testbank_entity')->whereIn('id', $ent_ids)->update(['deleted_at' => $this->now]);
-        $this->multiUpdate($update);
+        DB::table('user_quoted_testbank_entity')->insert($insert);
+        $items = DB::table('user_quoted_testbank_entity')->where('id', '>', $s_id)
+            ->whereIn('quoted_testbank_id', $__ids)->selectRaw('id, quoted_testbank_id')->get()->toArray();
+        $update = [];
+        foreach ($items as $item) {
+            $update[$item->quoted_testbank_id][] = $item->id;
+        }
+        $this->multiUpdate($update, $__tmp, $count);
         $this->info('Update: ' . count($update));
     }
 
-    protected function multiUpdate($data)
+    protected function multiUpdate($data, $__tmp, $count)
     {
         $ids = $when = '';
-        foreach ($data as $column) {
-            $id = $column['id'];
+        foreach ($data as $t_id => $items) {
+            $id = $t_id;
             $ids .= $id . ',';
-            $when .= " WHEN " . $id . " THEN '" . $column['item_ids'] . "'";
+            $_rep = $__tmp[$t_id] . ',' . implode(',', $items);
+            $when .= " WHEN " . $id . " THEN '" . $_rep . "'";
         }
         $ids = rtrim($ids, ',');
-        $query = "UPDATE user_quoted_testbank SET item_ids = (CASE id" . $when . " END) WHERE id IN (" . $ids . ")";
+        $query = "UPDATE user_quoted_testbank SET item_ids = (CASE id" . $when . " END), item_count = $count WHERE id IN (" . $ids . ")";
         \DB::select($query);
     }
 

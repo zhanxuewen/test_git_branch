@@ -18,6 +18,7 @@ class SchoolController extends Controller
         'account' => ['昵称', '手机号', '班级名称', '备注名'],
         'order' => ['卡类型', '费用', '订单日期'],
         'offline' => ['天数', '费用', '订单日期', '退款日期'],
+        'offline_refund' => ['退回天数', '退回费用', '订单日期', '退款日期'],
     ];
 
     protected $title;
@@ -62,6 +63,8 @@ class SchoolController extends Controller
                 return $this->school_order($school_id, $this->getTime($params, '`order`.created_at'));
             case 'school_offline':
                 return $this->school_offline($school_id, $this->getTime($params, '`order_offline`.created_at'));
+            case 'school_offline_refund':
+                return $this->school_offline_refund($school_id, $this->getTime($params, '`order_offline_refund`.created_at'));
             case 'school_student':
                 return $this->school_students($school_id, $this->getTime($params, 'joined_time'));
             default:
@@ -107,6 +110,23 @@ class SchoolController extends Controller
         }
         return $this->buildRecord(function ($row) {
             return [$row->days, $row->pay_fee, $row->created_at, $row->refunded_at];
+        });
+    }
+
+    protected function school_offline_refund($school_id, $time)
+    {
+        $this->rows = DB::select("SELECT order_offline.student_id, refund_days, refund_fee, order_offline.created_at, refunded_at FROM order_offline INNER JOIN order_offline_refund ON order_offline.id = order_offline_refund.offline_id WHERE order_offline.school_id = $school_id $time GROUP BY order_offline.id");
+        $this->buildIds();
+        $this->getAccount();
+        $this->title = array_merge($this->titles['account'], $this->titles['offline_refund']);
+        if ($this->options['expire']) {
+            $this->getExpired();
+        }
+        if ($this->options['teacher']) {
+            $this->getTeacher();
+        }
+        return $this->buildRecord(function ($row) {
+            return [$row->refund_days, $row->refund_fee, $row->created_at, $row->refunded_at];
         });
     }
 

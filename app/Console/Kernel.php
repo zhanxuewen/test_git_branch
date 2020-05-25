@@ -43,10 +43,12 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Testbank\RebuildCoreTestbankEntity::class,
         Commands\Luminee\Testbank\ReindexCoreTestbankEntity::class,
 //        Commands\Luminee\Testbank\RemoveCoreTestbankEntity::class,
+        Commands\Luminee\Testbank\AppendCoreTestbankEntity::class,
 //        Commands\Luminee\Testbank\CopyTestbankToKids::class,
         Commands\Luminee\Testbank\ExportAudioAnalyze::class,
 //        Commands\Luminee\Testbank\ExportAudioSort::class,
         Commands\Luminee\Testbank\SyncTestbankToCoreDev::class,
+        Commands\Luminee\Testbank\ChangePuzzle::class,
 
 //        Commands\Luminee\Statistic\ExportStudentActivity::class,
 

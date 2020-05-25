@@ -32,6 +32,7 @@
                     <select class="form-control" name="query" id="query">
                         <option value="school_order">学校下订单</option>
                         <option value="school_offline">学校代交</option>
+                        <option value="school_offline_refund">学校代交代退</option>
                         <option value="school_student">学校学生</option>
                     </select>
                 </div>
