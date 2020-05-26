@@ -47,8 +47,8 @@ class SyncTestbankToCoreDev extends Command
     public function handle()
     {
         $this->online_pdo = $this->getConnPdo('core', 'online');
-        $this->dev_pdo = $this->getConnPdo('core', 'test');
-        $bill_ids = [548233,548244,548245,548249,548256,588830,588832,588834,588837,591546,591554,591575,591581,591585,591587,591588,591590,591592,591594];
+        $this->dev_pdo = $this->getConnPdo('core', 'dev');
+        $bill_ids = [];
         DB::setPdo($this->online_pdo)->table('testbank_collection')->whereIn('id', $bill_ids)
             ->whereNull('deleted_at')->orderBy('id')->chunk(1000, function ($bills) {
                 $this->handleBill($bills);

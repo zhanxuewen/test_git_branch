@@ -84,6 +84,7 @@ class AppendCoreTestbankEntity extends Command
         $this->line('Total ids : ' . count($ids));
         if (in_array($now_l, $level)) {
             $this->appendItem($count, $ids);
+            $this->appendItem($count, $ids);
         }
         return $ids;
     }
