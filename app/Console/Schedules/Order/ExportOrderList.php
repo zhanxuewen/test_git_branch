@@ -85,19 +85,19 @@ class ExportOrderList extends BaseSchedule
         }
 
         $refunds = \DB::table('order_refund')
-            ->selectRaw('order_refund.out_refund_no, order.out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, refund_fee, order.pay_fee, commodity_name,commodity_id, order_refund.created_at')
+            ->selectRaw('order_refund.out_refund_no, order.out_trade_no, trade_type, is_group_order, school.id, school.name, school.marketer_id, nickname, group_concat(DISTINCT vanclass_student.mark_name) as _mark_name, user.phone, refund_fee, order.pay_fee, commodity_name,commodity_id, order_refund.success_at')
             ->join('order', 'order.out_trade_no', '=', 'order_refund.out_trade_no')
             ->join('user_account', 'user_account.id', '=', 'order.student_id')
             ->join('user', 'user.id', '=', 'user_account.user_id')
             ->join('school', 'school.id', '=', 'order.school_id', 'left')
             ->join('vanclass_student', 'order.student_id', '=', 'vanclass_student.student_id', 'left')
-            ->whereBetween('order_refund.created_at', [$start, $end])
+            ->whereBetween('order_refund.success_at', [$start, $end])
             ->where('user_account.id', '<>', 3253)
             ->groupBy('order.id')->get();
         foreach ($refunds as $order) {
             $num = $order->out_refund_no;
             $s_id = $order->id;
-            $time = $num == '' ? Carbon::parse($order->created_at) : Carbon::parse(substr($num, 0, 14));
+            $time = $num == '' ? Carbon::parse($order->success_at) : Carbon::parse(substr($num, 0, 14));
             $type = explode('_', substr($order->out_trade_no, 15, 5));
             $region = is_null($s_id) ? null : explode('/', $regions[$s_id]);
             if ($type[2] != 1) {
