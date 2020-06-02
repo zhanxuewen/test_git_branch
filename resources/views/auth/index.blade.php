@@ -53,4 +53,9 @@
             <a href="{{url('flushCache')}}" class="btn btn-warning">清除缓存</a>
         </div>
     </div>
+
+    <div class="col-sm-8">
+        <h4>2020.06.02 更新</h4>
+        <p><b>*</b> 停用以下 schedule : [监控移动设备] [监控订单]</p>
+    </div>
 @endsection
