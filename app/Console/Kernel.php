@@ -34,6 +34,8 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Order\ExportAnalyzeOrder::class,
         Commands\Luminee\Order\CheckMSE::class,
 
+//        Commands\Luminee\Order\CheckMultiStudent::class,
+
         Commands\Luminee\Testbank\SyncTestbankToLearning::class,
         Commands\Luminee\Testbank\DeleteLearningBill::class,
         Commands\Luminee\Testbank\RebuildLearningEntityOrder::class,
@@ -48,7 +50,7 @@ class Kernel extends ConsoleKernel
         Commands\Luminee\Testbank\ExportAudioAnalyze::class,
 //        Commands\Luminee\Testbank\ExportAudioSort::class,
         Commands\Luminee\Testbank\SyncTestbankToCoreDev::class,
-        Commands\Luminee\Testbank\ChangePuzzle::class,
+//        Commands\Luminee\Testbank\ChangePuzzle::class,
 
 //        Commands\Luminee\Statistic\ExportStudentActivity::class,
 
