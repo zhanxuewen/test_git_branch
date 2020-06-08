@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Bank;
 
+use App\Http\Controllers\Bank\Model\Entity;
 use DB;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -47,6 +48,40 @@ class CoreController extends Controller
             }
         }
         return view('bank.core.resource', compact('dev_res', 'online_res', 'search', 'type', 'conn'));
+    }
+
+    public function updateTestbankEntity(Request $request)
+    {
+        $conn = $request->get('conn', 'dev');
+        $id = $request->get('id', '');
+        $type = $request->get('type', 'search');
+        if (empty($id)) return view('bank.core.testbankEntity', compact('conn', 'id', 'type'));
+        $pdo = $this->getConnPdo('core', $conn);
+        DB::setPdo($pdo);
+        if ($type == 'search') {
+            $model = new Entity();
+            $entities = $model->where('testbank_id', $id)->get()->toArray();
+            return view('bank.core.testbankEntity', compact('conn', 'id', 'type', 'entities'));
+        }
+        if ($type == 'sync') {
+            $entity_id = $request->get('entity_id');
+            if (empty($entity_id)) dd('请选择小题');
+            $search = trim(json_encode($request->get('search')), '"');
+            $replace = trim(json_encode($request->get('replace')), '"');
+            if ($request->get('quote') == 1) {
+                $search = '"' . $search . '"';
+                $replace = '"' . $replace . '"';
+            }
+            $field = $request->get('field') == 0 ? 'testbank_item_value' : 'testbank_extra_value';
+            $value = DB::table('testbank_entity')->where('id', $entity_id)->first()->$field;
+            $value = str_replace($search, $replace, $value);
+            DB::table('testbank_entity')->where('id', $entity_id)->update([$field => $value]);
+            $model = new Entity();
+            $entities = $model->where('testbank_id', $id)->get()->toArray();
+            $type = 'search';
+            return view('bank.core.testbankEntity', compact('conn', 'id', 'type', 'entities'));
+        }
+        dd('Wrong Type');
     }
 
     protected function getData($item)

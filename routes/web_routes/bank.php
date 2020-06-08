@@ -8,6 +8,7 @@ Route::group(['namespace' => 'Bank', 'prefix' => 'bank'], function () {
     });
     Route::group(['prefix' => 'core'], function () {
         Route::get('resource', ['uses' => 'CoreController@resource']);
+        Route::get('testbankEntity', ['uses' => 'CoreController@updateTestbankEntity']);
     });
     Route::group(['prefix' => 'transmit'], function () {
         Route::get('learning/testbank', ['uses' => 'TransmitController@learningTestbank']);
