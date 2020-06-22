@@ -11,7 +11,6 @@
             'Labels' => 'select/labels',
             'Quit Student' => 'select/quit_student',
             '百项过开卡' => 'select/learningCards',
-            'Partner School' => 'select/partner_school',
         ], 'fa-table') !!}
         {!! \App\Helper\BladeHelper::treeView('数据库', [
             'Diff' => 'database/diff',

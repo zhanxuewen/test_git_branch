@@ -3,7 +3,7 @@
 
 @section('section')
     <div class="col-sm-12">
-        @foreach(['table'=>'Table Increment', 'device'=>'Device Usage Amount','circle'=> 'Table Circle Increment'] as $key => $label)
+        @foreach(['table'=>'Table Increment','circle'=> 'Table Circle Increment'] as $key => $label)
             <div class="box box-info">
                 <div class="box-header with-border">
                     <h3 class="box-title">{{$label}} Top 10</h3>
@@ -26,7 +26,7 @@
 
 @section('script')
     <script>
-        $.each(['table', 'device', 'circle'], function () {
+        $.each(['table', 'circle'], function () {
             let set = [];
             $.each(JSON.parse($('#' + this + '_row').val()), function (index) {
                 set.push({

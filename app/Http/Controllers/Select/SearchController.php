@@ -45,23 +45,6 @@ class SearchController extends Controller
         return view('select.learning.cards', compact('phones', 'rows'));
     }
 
-    /**
-     * List And Search Partner School
-     * @param Request $request
-     * @return mixed
-     */
-    public function partnerSchool(Request $request)
-    {
-        $this->pdo = $this->getConnPdo('core', 'online');
-        $marketers = $this->list_marketers();
-        $marketer_id = $request->get('marketer_id', null);
-        $is_partner = $request->get('is_partner', null);
-        $school_id = $request->get('school_id', null);
-        $schools = is_null($school_id) ? $this->list_partner_school($marketer_id, $is_partner) : [];
-        $params = ['marketer_id' => $marketer_id, 'is_partner' => $is_partner, 'school_id' => $school_id];
-        return view('select.partner', compact('schools', 'school', 'marketers', 'marketer_id', 'school_id', 'is_partner', 'params'));
-    }
-
     protected function find_student($student_id)
     {
         return "SELECT nickname, phone FROM user_account INNER JOIN user ON user.id = user_account.user_id WHERE user_account.id =" . $student_id;
@@ -75,40 +58,6 @@ class SearchController extends Controller
     protected function exist_vanclass($student_id)
     {
         return "SELECT DISTINCT vanclass_id FROM vanclass_student_homework WHERE student_id = " . $student_id . " AND deleted_at IS NULL";
-    }
-
-    protected function list_partner_school($marketer_id, $is_partner)
-    {
-        $schools = DB::setPdo($this->pdo)->table('school')
-            ->selectRaw('school.id, school.name, nickname, school_attribute.value AS region, school_popularize_data.value AS class');
-        if (!is_null($is_partner)) {
-            $schools->join('school_popularize_data AS partner', function ($join) {
-                $join->on('partner.school_id', '=', 'school.id')
-                    ->where('partner.key', '=', 'is_partner_school');
-            }, null, null, 'left');
-            $is_partner == 1 ? $schools->where('partner.value', 1) : $schools->where(function ($query) {
-                $query->whereNull('partner.id')
-                    ->orWhere('partner.value', '=', 0);
-            });
-        }
-        $schools->join('school_popularize_data', function ($join) {
-            $join->on('school_popularize_data.school_id', '=', 'school.id')
-                ->where('school_popularize_data.key', '=', 'contract_class');
-        }, null, null, 'left')
-            ->join('school_attribute', function ($join) {
-                $join->on('school_attribute.school_id', '=', 'school.id')
-                    ->where('school_attribute.key', '=', 'region');
-            }, null, null, 'left')
-            ->join('user_account', 'user_account.id', '=', 'school.marketer_id');
-        if (isset($marketer_id)) $schools->where('school.marketer_id', $marketer_id);
-        $schools->where('school.is_active', 1)->orderBy('school.id');
-        return $schools->paginate($this->getPerPage());
-    }
-
-    protected function list_marketers()
-    {
-        return DB::setPdo($this->pdo)->table('system_account_role')->selectRaw('user_account.id, nickname')
-            ->join('user_account', 'user_account.id', '=', 'system_account_role.account_id')->where('role_id', 2)->get();
     }
 
     protected function list_vanclass($ids)

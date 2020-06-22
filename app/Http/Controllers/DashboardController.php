@@ -9,9 +9,8 @@ class DashboardController extends Controller
     public function dashboard()
     {
         $table = $this->getRecord('tableIncrement', 'table', 'table', 'rows');
-        $device = $this->getRecord('deviceUsageAmount', 'device', 'device', 'user_amount');
         $circle = $this->getCircle('tableIncrement', 'circle', 'monitor_table_increment');
-        $data = array_merge_recursive($table, $device, $circle);
+        $data = array_merge_recursive($table, $circle);
         return view('dashboard.dashboard', $data);
     }
 
