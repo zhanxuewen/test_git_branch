@@ -244,7 +244,7 @@ class BladeHelper
     {
         if (strstr($text, '</>')){
             $text = str_replace('</>', '</span>', $text);
-            $text = preg_replace('/<([\w:]+)>/i', '<span style="${1}">', $text);
+            $text = preg_replace('/<([\w:;]+)>/i', '<span style="${1}">', $text);
         }
         return $text;
     }
