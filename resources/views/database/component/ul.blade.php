@@ -16,7 +16,9 @@
     <ul>
         @foreach($objects as $object)
             <li id="{{$object->id}}">
-                <span class="{{$key}}_li show_li">{{$object->$field}}</span> <span>{{$object->info}}</span>
+                <span class="{{$key}}_li show_li">{{$object->$field}}</span> 
+            <i class="hidden">{{ $object->info }}</i>
+                <span>{!! App\Helper\BladeHelper::textCss($object->info) !!}</span>
             </li>
         @endforeach
     </ul>

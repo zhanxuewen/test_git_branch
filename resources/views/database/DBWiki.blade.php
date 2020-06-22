@@ -201,8 +201,7 @@
             $("#edit-box input[name='project_id']").val($("#the_form input[name='project_id']").val());
             $("#edit-box input[name='module_id']").val($("#the_form input[name='module_id']").val());
             $("#edit-box input[name='table_id']").val($("#the_form input[name='table_id']").val());
-            console.log(_this.next('span'));
-            $("#edit-box #info").val(_this.next('span').text());
+            $("#edit-box #info").val(_this.next('i').text());
         }
 
     </script>
