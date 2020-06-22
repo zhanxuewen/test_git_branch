@@ -4,7 +4,7 @@
 
 html, body {
     height: 100%;
-    font-family: Consolas, Microsoft YaHei, '宋体' !important;
+    font-family: Menlo,Monaco,Consolas,'Microsoft YaHei','宋体' !important;
 }
 
 body {
