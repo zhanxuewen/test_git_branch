@@ -4,6 +4,13 @@
 @section('section')
     <div class="col-sm-12">
         <div class="col-sm-8">
+            <div class="btn-group" role="group">
+                @foreach(['core', 'learning', 'kids'] as $_project)
+                    <a class="btn btn-default @if($_project == $project) btn-primary active @endif"
+                       href="{!! URL::current().'?project='.$_project !!}">{{ucfirst($_project)}}</a>
+                @endforeach
+            </div>
+            <hr>
             <p>
                 <span class="text-green">绿色为 dev 新增</span> |
                 <span class="text-red">红色为 dev 已删除</span>
