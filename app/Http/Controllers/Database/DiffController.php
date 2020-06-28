@@ -25,8 +25,59 @@ class DiffController extends Controller
 
     public function table_correct(Request $request)
     {
-        $conn = $request->get('conn', 'dev');
-        dd($conn);
+        $project = $request->get('project', 'core');
+        $dev_columns = $this->getColumns($project, 'dev');
+        $online_columns = $this->getColumns($project, 'online');
+        $diff = [];
+        $this->diffColumn($diff, $dev_columns, $online_columns, '+');
+        $this->diffColumn($diff, $online_columns, $dev_columns, '-');
+        ksort($diff);
+        return view('database.table_correct', compact('project', 'diff'));
+    }
+
+    protected function diffColumn(&$diff, $stan, $check, $symbol)
+    {
+        foreach ($stan as $table => $columns) {
+            if (!isset($check[$table])) {
+                $diff[$table] = $symbol;
+                continue;
+            }
+            foreach ($columns as $column => $type) {
+                if (!isset($check[$table][$column])) {
+                    $diff[$table][$column] = $symbol;
+                    continue;
+                }
+                if ($symbol === '-') continue;
+                $_diff = $this->diffColumnType($type, $check[$table][$column]);
+                if (!empty($_diff)) $diff[$table][$column] = $_diff;
+            }
+        }
+    }
+
+    protected function diffColumnType($stan, $check)
+    {
+        $diff = [];
+        foreach ($stan as $k => $v) {
+            if ($v != $check[$k]) $diff[$k] = [$v, $check[$k]];
+        }
+        return $diff;
+    }
+
+    protected function getColumns($project, $conn)
+    {
+        \DB::setPdo($this->getConnPdo($project, $conn));
+        $data = \DB::table('information_schema.columns')
+            ->selectRaw('table_name, column_name, column_type, is_nullable, column_key')
+            ->where('table_schema', $this->getConnDB($project, $conn))->get();
+        $columns = [];
+        foreach ($data as $column) {
+            $columns[$column->table_name][$column->column_name] = [
+                'column_type' => $column->column_type,
+                'is_nullable' => $column->is_nullable,
+                'column_key' => $column->column_key
+            ];
+        }
+        return $columns;
     }
 
 }
