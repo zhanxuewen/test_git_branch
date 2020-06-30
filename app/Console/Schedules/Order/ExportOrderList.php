@@ -16,7 +16,7 @@ class ExportOrderList extends BaseSchedule
      */
     public function handle($day = '', $send = true)
     {
-        \DB::setPdo($this->getConnPdo('core', 'online'));
+        \DB::setPdo($this->getConnPdo('core', 'onlineNew'));
         if (is_array($day)) {
             $start = Carbon::parse($day['start']);
             $end = Carbon::parse($day['end'])->endOfDay();
