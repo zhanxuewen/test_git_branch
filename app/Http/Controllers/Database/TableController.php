@@ -27,9 +27,11 @@ class TableController extends Controller
         $projects = $this->setModel('dbGroup')->where('type', 'project')->get()->keyBy('id');
         $modules = $tables = $columns = [];
         if (!is_null($project_id))
-            $modules = $this->setModel('dbGroup')->where('type', 'module')->where('parent_id', $project_id)->get()->keyBy('id');
+            $modules = $this->setModel('dbGroup')->where('type', 'module')
+                ->where('parent_id', $project_id)->orderBy('code')->get()->keyBy('id');
         if (!is_null($module_id))
-            $tables = $this->setModel('dbGroup')->where('type', 'table')->where('parent_id', $module_id)->get()->keyBy('id');
+            $tables = $this->setModel('dbGroup')->where('type', 'table')
+                ->where('parent_id', $module_id)->orderBy('code')->get()->keyBy('id');
         if (!is_null($table_id))
             $columns = $this->setModel('column')->where('group_id', $table_id)->get();
         return view('database.DBWiki', compact('projects', 'modules', 'tables', 'columns', 'project_id', 'module_id', 'table_id'));
