@@ -17,7 +17,9 @@ class CreateDatabaseColumnsTable extends Migration
             $table->increments('id');
             $table->integer('group_id');
             $table->string('column');
-            $table->string('info');
+            $table->string('type');
+            $table->tinyInteger('order');
+            $table->string('info')->nullable();
             $table->softDeletes();
 
             $table->index('group_id');

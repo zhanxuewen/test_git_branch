@@ -8,13 +8,6 @@ use App\Http\Controllers\Controller;
 
 class TableController extends Controller
 {
-    protected $groupTypes = [
-        'default' => '默认',
-        'project' => '项目',
-        'module' => '模块',
-        'table' => '表'
-    ];
-
     /**
      * @param Request $request
      * @return mixed
@@ -33,7 +26,7 @@ class TableController extends Controller
             $tables = $this->setModel('dbGroup')->where('type', 'table')
                 ->where('parent_id', $module_id)->orderBy('code')->get()->keyBy('id');
         if (!is_null($table_id))
-            $columns = $this->setModel('column')->where('group_id', $table_id)->get();
+            $columns = $this->setModel('column')->where('group_id', $table_id)->orderBy('order')->get();
         return view('database.DBWiki', compact('projects', 'modules', 'tables', 'columns', 'project_id', 'module_id', 'table_id'));
     }
 

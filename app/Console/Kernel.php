@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
         Commands\Database\GenerateGrantSql::class,
         Commands\Database\GenerateUpdatePassword::class,
 
-        Commands\Luminee\Database\GenerateColumns::class,
+        Commands\Luminee\Database\GenerateDBWiki::class,
 
 //        Commands\Luminee\Order\ExportSchools::class,
         Commands\Luminee\Order\AnalyzeOrder::class,
@@ -51,6 +51,8 @@ class Kernel extends ConsoleKernel
 //        Commands\Luminee\Testbank\ExportAudioSort::class,
         Commands\Luminee\Testbank\SyncTestbankToCoreDev::class,
 //        Commands\Luminee\Testbank\ChangePuzzle::class,
+//        Commands\Luminee\Testbank\GetStudentHomework::class,
+//        Commands\Luminee\Testbank\SyncLibraryCover::class,
 
 //        Commands\Luminee\Statistic\ExportStudentActivity::class,
 

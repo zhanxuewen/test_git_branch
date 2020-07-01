@@ -18,7 +18,7 @@ class CreateDatabaseGroupsTable extends Migration
             $table->string('code');
             $table->string('type');
             $table->integer('parent_id');
-            $table->string('info');
+            $table->string('info')->nullable();
             $table->softDeletes();
         });
     }

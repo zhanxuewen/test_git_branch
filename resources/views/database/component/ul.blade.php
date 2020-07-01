@@ -10,14 +10,21 @@
     .show_li:hover {
         cursor: pointer;
     }
+
+    .column_type {
+        font-size: xx-small;
+        color: gray;
+        border: 1px solid gray;
+    }
 </style>
 
 <div class="col-sm-12 @if($hide) hide @endif" id="{{$key}}_list">
     <ul>
         @foreach($objects as $object)
             <li id="{{$object->id}}">
-                <span class="{{$key}}_li show_li">{{$object->$field}}</span> 
-            <i class="hidden">{{ $object->info }}</i>
+                <span class="{{$key}}_li show_li">{{$object->$field}}</span>
+                @if($key == 'column') <i class="column_type">{{$object->type}}</i> @endif
+                <i class="hidden">{{ $object->info }}</i>
                 <span>{!! App\Helper\BladeHelper::textCss($object->info) !!}</span>
             </li>
         @endforeach
