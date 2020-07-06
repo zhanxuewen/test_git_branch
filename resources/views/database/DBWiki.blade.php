@@ -201,7 +201,7 @@
             $("#edit-box input[name='project_id']").val($("#the_form input[name='project_id']").val());
             $("#edit-box input[name='module_id']").val($("#the_form input[name='module_id']").val());
             $("#edit-box input[name='table_id']").val($("#the_form input[name='table_id']").val());
-            $("#edit-box #info").val(_this.next('i').text());
+            $("#edit-box #info").val(_this.next('code').text());
         }
 
     </script>

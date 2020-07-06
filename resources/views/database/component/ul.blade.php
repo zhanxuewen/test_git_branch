@@ -23,8 +23,8 @@
         @foreach($objects as $object)
             <li id="{{$object->id}}">
                 <span class="{{$key}}_li show_li">{{$object->$field}}</span>
+                <code class="hidden">{{ $object->info }}</code>
                 @if($key == 'column') <i class="column_type">{{$object->type}}</i> @endif
-                <i class="hidden">{{ $object->info }}</i>
                 <span>{!! App\Helper\BladeHelper::textCss($object->info) !!}</span>
             </li>
         @endforeach
