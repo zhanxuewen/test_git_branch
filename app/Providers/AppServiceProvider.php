@@ -23,6 +23,11 @@ class AppServiceProvider extends ServiceProvider
             });
         }
 
+        if(env('IS_HTTPS')){
+            \URL::forceScheme('https');
+        }
+
+
         //
     }
 
