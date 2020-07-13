@@ -106,7 +106,7 @@ EOF;
             }
 
             if (count( $insert_statements )){
-                \DB::table('card')->insert($insert_statements);
+                \DB::table('finance_school_statement')->insert($insert_statements);
             }
 
 
@@ -159,9 +159,9 @@ EOF;
             $path = 'learning';
             $file = $this->sheetsStore($path . '/' . $filename, ['学习卡列表'=>$report, '操作记录'=>$report2]);
 
-//        $this->email(['xiemin68@163.com','shirui2811@126.com'],
-//            'emails.export2', ['object' => '百项过体验校学习卡过期操作'],
-//            '百项过体验校学习卡过期操作_'.date('md'), realpath($file));
+        $this->email(['xiemin68@163.com','shirui2811@126.com'],
+            'emails.export2', ['object' => '百项过体验校学习卡过期操作'],
+            'BXG_disable_cards_'.date('md'), realpath($file));
 
         }
 

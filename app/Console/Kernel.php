@@ -102,6 +102,13 @@ class Kernel extends ConsoleKernel
             $this->logSchedule('Export Learning  BookLearningProcess  Done At ' . date('Y-m-d H:i:s'));
         })->dailyAt('07:05');
 
+        // 百项过 体验校 学习卡 使  过期
+        $schedule->call(function (Schedules\Learning\DisableCards $schedule) {
+            $this->logSchedule('disable experience card  Start At ' . date('Y-m-d H:i:s'));
+            $schedule->handle();
+            $this->logSchedule('disable experience card  Done At ' . date('Y-m-d H:i:s'));
+        })->dailyAt('07:10');
+
         // Export Order And Offline
         $schedule->call(function (Schedules\Order\ExportOrderList $schedule) {
             $this->logSchedule('Export Order Start At ' . date('Y-m-d H:i:s'));

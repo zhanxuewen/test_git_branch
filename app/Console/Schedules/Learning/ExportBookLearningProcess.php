@@ -41,7 +41,8 @@ EOF;
 SELECT
     course_book.id book_id,
     course_book.name book_name,
-    count(course_user_book_record.id) student_count    
+    count(course_user_book_record.id) student_count,
+    course_book.is_available 
 FROM
     `learning`.`course_book`
     left join course_user_book_record on course_user_book_record.book_id = course_book.id
@@ -80,7 +81,7 @@ EOF;
         }));
 
         $report1 = [];
-        $report1[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元','上架单元名称', '已完成单元', '已完成单元详情', '订阅人数'];
+        $report1[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元','上架单元名称', '已完成单元', '已完成单元详情', '订阅人数', '是否发布'];
 
 
         foreach ($student_count as $item){
@@ -90,6 +91,7 @@ EOF;
             $unit_total = $item->unit_total;            // 所含单元
             $up_unit_total = $item->up_unit_total;      // 上架单元
             $up_unit_name = $item->up_unit_name;      // 上架单元名称
+            $is_available = $item->is_available;      // 图书是否发布
 
             $up_unit_name = implode(',', array_filter(explode(',',$up_unit_name)));
 
@@ -105,7 +107,8 @@ EOF;
                             $up_unit_name,
                             $count,
                             $process_item,
-                            $student_count
+                            $student_count,
+                            $is_available
                         ];
                     }else{
                         $report1[] = [
@@ -116,6 +119,7 @@ EOF;
                             '',
                             '',
                             $process_item,
+                            '',
                             ''
                         ];
                     }
@@ -131,7 +135,8 @@ EOF;
                     $up_unit_name,
                     0,
                     '/',
-                    $student_count
+                    $student_count,
+                    $is_available
                 ];
 
             }
@@ -170,7 +175,8 @@ EOF;
 SELECT
     course_book.id book_id,
     course_book.name book_name,
-    count(course_user_book_record.id) student_count    
+    count(course_user_book_record.id) student_count,
+    course_book.is_available   
 FROM
     `learning`.`course_book`
     left join course_user_book_record on course_user_book_record.book_id = course_book.id
@@ -208,7 +214,7 @@ EOF;
 
         }));
         $report2 = [];
-        $report2[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元', '上架单元名称', '已完成单元', '已完成单元详情', '订阅人数'];
+        $report2[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元', '上架单元名称', '已完成单元', '已完成单元详情', '订阅人数', '是否发布'];
 
 
         foreach ($student_count as $item){
@@ -218,6 +224,7 @@ EOF;
             $unit_total = $item->unit_total;            // 所含单元
             $up_unit_total = $item->up_unit_total;      // 上架单元
             $up_unit_name = $item->up_unit_name;      // 上架单元名称
+            $is_available = $item->is_available;      // 图书是否发布
             $up_unit_name = implode(',', array_filter(explode(',',$up_unit_name)));
             if (isset($processlist[$book_id])){
                 $count = count($processlist[$book_id]);
@@ -231,7 +238,8 @@ EOF;
                             $up_unit_name,
                             $count,
                             $process_item,
-                            $student_count
+                            $student_count,
+                            $is_available
                         ];
                     }else{
                         $report2[] = [
@@ -242,6 +250,7 @@ EOF;
                             '',
                             '',
                             $process_item,
+                            '',
                             ''
                         ];
                     }
@@ -257,7 +266,8 @@ EOF;
                     $up_unit_name,
                     0,
                     '/',
-                    $student_count
+                    $student_count,
+                    $is_available
                 ];
 
             }
@@ -296,7 +306,8 @@ EOF;
 SELECT
     course_book.id book_id,
     course_book.name book_name,
-    count(course_user_book_record.id) student_count    
+    count(course_user_book_record.id) student_count,
+    course_book.is_available
 FROM
     `learning`.`course_book`
     left join course_user_book_record on course_user_book_record.book_id = course_book.id
@@ -334,7 +345,7 @@ EOF;
 
         }));
         $report3 = [];
-        $report3[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元', '上架单元名称', '已完成单元', '已完成单元详情', '订阅人数'];
+        $report3[] = ['图书id', '图书名称（上架未完成的课程名称）', '图书所含单元', '上架单元', '上架单元名称', '已完成单元', '已完成单元详情', '订阅人数', '是否发布'];
 
 
         foreach ($student_count as $item){
@@ -344,6 +355,7 @@ EOF;
             $unit_total = $item->unit_total;            // 所含单元
             $up_unit_total = $item->up_unit_total;      // 上架单元
             $up_unit_name = $item->up_unit_name;      // 上架单元名称
+            $is_available = $item->is_available;      // 图书是否发布
             $up_unit_name = implode(',', array_filter(explode(',',$up_unit_name)));
             if (isset($processlist[$book_id])){
                 $count = count($processlist[$book_id]);
@@ -357,7 +369,8 @@ EOF;
                             $up_unit_name,
                             $count,
                             $process_item,
-                            $student_count
+                            $student_count,
+                            $is_available
                         ];
                     }else{
                         $report3[] = [
@@ -368,6 +381,7 @@ EOF;
                             '',
                             '',
                             $process_item,
+                            '',
                             ''
                         ];
                     }
@@ -383,7 +397,8 @@ EOF;
                     $up_unit_name,
                     0,
                     '/',
-                    $student_count
+                    $student_count,
+                    $is_available
                 ];
 
             }
