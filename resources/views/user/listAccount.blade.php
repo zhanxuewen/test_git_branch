@@ -2,7 +2,7 @@
 @section('title','Account List')
 
 @section('section')
-    <div class="col-sm-8">
+    <div class="col-sm-12">
         <table class="table table-bordered table-hover">
             <caption>Accounts</caption>
             <tr>

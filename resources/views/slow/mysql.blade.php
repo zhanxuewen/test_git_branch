@@ -19,7 +19,7 @@
                                 bg-green @elseif(strstr($sql_s[$key]['host'],'10.30.176.166')) bg-orange @else bg-blue @endif">
                         {{$sql_s[$key]['user']}}</span><span> @ {{$sql_s[$key]['host']}}[{{$sql_s[$key]['date']}}]</span>
                         <br>
-                        <span>{{$sql_s[$key]['sql']}}</span>
+                        <span>{!! $sql_s[$key]['h_name'] !!} {{$sql_s[$key]['sql']}}</span>
                     </td>
                 </tr>
             @endforeach

@@ -45,10 +45,11 @@ class SlowController extends Controller
         foreach ($logs as $log) {
             if (empty($log)) continue;
             if (!strstr($log->message, 'User@Host')) continue;
+            $h_name = $this->showHostname($log->beat['hostname']);
             list($date, $user, $host, $time, $sql) = $this->handleMysqlLog($log->message);
             if ($start->gt($date)) continue;
             $times[] = $time;
-            $sql_s[] = ['sql' => trim($sql), 'user' => $user, 'host' => $host, 'date' => $date];
+            $sql_s[] = ['sql' => trim($sql), 'user' => $user, 'host' => $host, 'date' => $date, 'h_name' => $h_name];
         }
         arsort($times);
         return view('slow.mysql', compact('times', 'sql_s', '_day', '_sec'));
@@ -96,6 +97,14 @@ class SlowController extends Controller
             }
         }
         return [$logs, $d];
+    }
+
+    protected function showHostname($h_name)
+    {
+        $name = explode('-', $h_name)[0];
+        if ($name == 'wxzxzj') return '<span class="label" style="background-color: #5775a7">' . $name . '</span>';
+        if ($name == 'kids') return '<span class="label" style="background-color: #2bc271">' . $name . '</span>';
+        return '<span class="label" style="background-color: #a38732">' . $name . '</span>';
     }
 
     protected function queryRpcSlow($table)
