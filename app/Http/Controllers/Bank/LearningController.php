@@ -170,6 +170,8 @@ class LearningController extends Controller
             $update = ['item_ids' => rtrim($ass_t->item_ids) . ',' . $ass_e_id];
             DB::table('assessment_question')->where('id', $ass_t_id)->update($update);
         }
+        $content = "Conn: $conn, Core ID $core_id, Entity ID: $id; Append Entity.";
+        $this->logContent('bank_learn', 'insert', $content);
         return $core_id;
     }
 
@@ -229,6 +231,8 @@ class LearningController extends Controller
             $update = ['item_ids' => implode(',', array_filter($items))];
             DB::table('assessment_question')->where('id', $ass_t->id)->update($update);
         }
+        $content = "Conn: $conn, Core ID $core_id, Entity ID: $id; Remove Entity.";
+        $this->logContent('bank_learn', 'delete', $content);
         return $core_id;
     }
 
