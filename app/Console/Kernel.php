@@ -54,6 +54,8 @@ class Kernel extends ConsoleKernel
 //        Commands\Luminee\Testbank\GetStudentHomework::class,
 //        Commands\Luminee\Testbank\SyncLibraryCover::class,
 
+        Commands\Luminee\Payment\KidsPaymentExtend::class,
+
 //        Commands\Luminee\Statistic\ExportStudentActivity::class,
 
 

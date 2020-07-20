@@ -25,6 +25,14 @@
             <li>
                 <div class="radio">
                     <label><input type="radio" name="{{$field}}" value="{{$entity->id}}">{{$entity->id}}</label>
+                    @if($field == 'core_id')
+                        <a class="text-orange" href="{{url('bank/learning/appendOrRemove/entity').
+                        '?conn='.$conn.'&type=append&entity_id='.$entity->id}}">+增加小题+</a>
+                    @endif
+                    @if($field == 'learn_id')
+                        <a class="text-red" href="{{url('bank/learning/appendOrRemove/entity').
+                        '?conn='.$conn.'&type=remove&entity_id=l_'.$entity->id}}">x删除小题x</a>
+                    @endif
                 </div>
                 <ul>
                     @foreach(json_decode($entity->$item_value,true) as $key => $item)

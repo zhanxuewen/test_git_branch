@@ -139,4 +139,97 @@ class LearningController extends Controller
         return ['content' => json_encode($item)];
     }
 
+    public function appendOrRemoveEntity(Request $request)
+    {
+        $conn = $request->get('conn');
+        $type = $request->get('type');
+        $id = $request->get('entity_id');
+        $core_id = 0;
+        if ($type == 'append') $core_id = $this->appendEntity($conn, $id);
+        if ($type == 'remove') $core_id = $this->removeEntity($conn, $id);
+        return redirect('bank/learning/search/testbank?id=' . $core_id . '&type=testbank&conn=' . $conn);
+    }
+
+    protected function appendEntity($conn, $id)
+    {
+        DB::setPdo($this->getConnPdo('core', $this->connections[$conn]));
+        $entity = DB::table('testbank_entity')->find($id);
+        $core_id = $entity->testbank_id;
+        DB::setPdo($this->getConnPdo('learning', $conn));
+        $learn_t = DB::table('testbank')->where('core_related_id', $core_id)->first();
+        $learn_t_id = $learn_t->id;
+        $learn_e_id = $this->insertEntity($entity, $learn_t_id);
+        $update = ['item_ids' => rtrim($learn_t->item_ids) . ',' . $learn_e_id];
+        DB::table('testbank')->where('id', $learn_t_id)->update($update);
+        $search = '{"id":' . $learn_t->id . ',%';
+        $ass_t_s = DB::table('assessment_question')->where('content', 'like', $search)->whereNull('deleted_at')->get();
+        $learn_e = DB::table('testbank_entity')->find($learn_e_id);
+        foreach ($ass_t_s as $ass_t) {
+            $ass_t_id = $ass_t->id;
+            $ass_e_id = $this->insertAssEntity($learn_e, $ass_t_id);
+            $update = ['item_ids' => rtrim($ass_t->item_ids) . ',' . $ass_e_id];
+            DB::table('assessment_question')->where('id', $ass_t_id)->update($update);
+        }
+        return $core_id;
+    }
+
+    protected function insertEntity($entity, $t_id)
+    {
+        $create = [
+            'testbank_id' => $t_id,
+            'testbank_extra_value' => $entity->testbank_extra_value,
+            'testbank_item_value' => $entity->testbank_item_value,
+            'fix' => $entity->fix,
+            'created_at' => $entity->created_at,
+            'updated_at' => $entity->updated_at,
+            'deleted_at' => $entity->deleted_at
+        ];
+        return DB::table('testbank_entity')->insertGetId($create);
+    }
+
+    protected function insertAssEntity($entity, $ass_id)
+    {
+        $now = date('Y-m-d H:i:s');
+        $item = json_decode($entity->testbank_item_value, true);
+        foreach ($item as $key => $value) {
+            $entity->$key = $value;
+        }
+        unset($entity->testbank_extra_value);
+        unset($entity->testbank_item_value);
+        unset($entity->deleted_at);
+        $data = [
+            'question_id' => $ass_id,
+            'item_value' => json_encode($entity),
+            'created_at' => $now,
+            'updated_at' => $now,
+        ];
+        return DB::table('assessment_question_entity')->insertGetId($data);
+    }
+
+    protected function removeEntity($conn, $id)
+    {
+        list($type, $_id) = explode('_', $id);
+        DB::setPdo($this->getConnPdo('learning', $conn));
+        $core_id = 0;
+        if ($type == 'l') {
+            $entity = DB::table('testbank_entity')->find($_id);
+            $learn_t = DB::table('testbank')->find($entity->testbank_id);
+            $core_id = $learn_t->core_related_id;
+            DB::table('testbank_entity')->where('id', $_id)->update(['deleted_at' => date('Y-m-d H:i:s')]);
+            $items = explode(',', str_replace($_id, '', $learn_t->item_ids));
+            $update = ['item_ids' => implode(',', array_filter($items))];
+            DB::table('testbank')->where('id', $learn_t->id)->update($update);
+        }
+        if ($type == 'a') {
+            $a_entity = DB::table('assessment_question_entity')->find($_id);
+            $ass_t = DB::table('assessment_question')->find($a_entity->question_id);
+            $core_id = json_decode($ass_t->content)->core_related_id;
+            DB::table('assessment_question_entity')->where('id', $_id)->update(['deleted_at' => date('Y-m-d H:i:s')]);
+            $items = explode(',', str_replace($_id, '', $ass_t->item_ids));
+            $update = ['item_ids' => implode(',', array_filter($items))];
+            DB::table('assessment_question')->where('id', $ass_t->id)->update($update);
+        }
+        return $core_id;
+    }
+
 }

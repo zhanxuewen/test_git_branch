@@ -5,6 +5,7 @@ Route::group(['namespace' => 'Bank', 'prefix' => 'bank'], function () {
         Route::get('search/testbank', ['uses' => 'LearningController@searchTestbank']);
         Route::get('sync/entity', ['uses' => 'LearningController@syncEntity']);
         Route::get('sync/article', ['uses' => 'LearningController@syncArticle']);
+        Route::get('appendOrRemove/entity', ['uses' => 'LearningController@appendOrRemoveEntity']);
     });
     Route::group(['prefix' => 'core'], function () {
         Route::get('resource', ['uses' => 'CoreController@resource']);

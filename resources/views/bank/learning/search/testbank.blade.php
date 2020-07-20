@@ -2,7 +2,7 @@
     <input type="hidden" name="conn" value="{{$conn}}">
     @component('bank.learning.search.display',
         ['h3' => '在线助教','testbank'=>$core_testbank,'extra'=>$core_extra,'field'=>'core_id',
-        'entities'=>$core_entities,'item_value'=>'testbank_item_value'])
+        'entities'=>$core_entities,'item_value'=>'testbank_item_value','conn'=>$conn])
     @endcomponent
     @if(isset($learn_testbank) && !empty($learn_testbank))
         <div class="col-sm-12">
@@ -10,7 +10,7 @@
         </div>
         @component('bank.learning.search.display',
         ['h3' => '百项过题库','testbank'=>$learn_testbank,'extra'=>$learn_extra,'field'=>'learn_id',
-        'entities'=>$learn_entities,'item_value'=>'testbank_item_value'])
+        'entities'=>$learn_entities,'item_value'=>'testbank_item_value','conn'=>$conn])
         @endcomponent
         <div class="col-sm-12">
             <hr>
@@ -41,6 +41,8 @@
                                 <div class="radio">
                                     <label><input type="radio" name="ass_id"
                                                   value="{{$entity->id}}">{{$entity->id}}</label>
+                                    <a class="text-red" href="{{url('bank/learning/appendOrRemove/entity').
+                        '?conn='.$conn.'&type=remove&entity_id=a_'.$entity->id}}">x删除小题x</a>
                                 </div>
                                 <ul>
                                     @foreach(json_decode($entity->item_value,true) as $key => $item)
