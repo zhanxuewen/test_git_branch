@@ -163,9 +163,9 @@ class LearningController extends Controller
         DB::table('testbank')->where('id', $learn_t_id)->update($update);
         $search = '{"id":' . $learn_t->id . ',%';
         $ass_t_s = DB::table('assessment_question')->where('content', 'like', $search)->whereNull('deleted_at')->get();
-        $learn_e = DB::table('testbank_entity')->find($learn_e_id);
         foreach ($ass_t_s as $ass_t) {
             $ass_t_id = $ass_t->id;
+            $learn_e = DB::table('testbank_entity')->find($learn_e_id);
             $ass_e_id = $this->insertAssEntity($learn_e, $ass_t_id);
             $update = ['item_ids' => rtrim($ass_t->item_ids) . ',' . $ass_e_id];
             DB::table('assessment_question')->where('id', $ass_t_id)->update($update);
