@@ -29,7 +29,7 @@
         </div>
         <hr>
         <a class="btn btn-warning pull-right" id="toggle-hide">Bad Sql / All</a>
-        <nav aria-label="Page navigation">{!! $sql_s->render() !!}</nav>
+        <nav aria-label="Page navigation">{!! $sql_s->links() !!}</nav>
         <table class="table table-bordered table-hover">
             <caption><b>[{{ucfirst($project)}} - {{ucfirst($conn)}}]</b> total : {{count($sql_s)}}</caption>
             @foreach($sql_s as $sql)
