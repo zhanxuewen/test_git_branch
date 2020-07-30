@@ -28,13 +28,14 @@ class SqlController extends Controller
         $auth_s = $db->table('sql_log')->distinct()->pluck('auth');
         $type_s = $db->table('sql_log')->distinct()->pluck('type');
         $group_s = ['no_group', 'in_group'];
+        $uri = url(explode('?', $request->getRequestUri())[0]);
         $query = $db->table('sql_log')->where('type', $_type);
         isset($_auth) ? $query->where('auth', $_auth) : null;
         $_group == 'in_group'
             ? $query->selectRaw('*, count(*) as count')->groupBy('query')->orderBy('count', 'desc')
             : $query->orderBy('time', 'desc');
         if (!empty($between)) $query->whereBetween('created_at', $between);
-        $sql_s = $query->paginate($this->getPerPage());
+        $sql_s = $query->paginate($this->getPerPage())->withPath($uri);
         return view('sql.analyze', compact('auth_s', 'type_s', 'group_s', 'sql_s', '_auth', '_type', '_group', '_day', 'days', 'project', 'conn'));
     }
 
