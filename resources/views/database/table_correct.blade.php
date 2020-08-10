@@ -5,9 +5,17 @@
     <div class="col-sm-12">
         <div class="col-sm-8">
             <div class="btn-group" role="group">
-                @foreach(['core', 'learning', 'kids'] as $_project)
+                @foreach(['core', 'learning', 'kids', 'inventory'] as $_project)
                     <a class="btn btn-default @if($_project == $project) btn-primary active @endif"
-                       href="{!! URL::current().'?project='.$_project !!}">{{ucfirst($_project)}}</a>
+                       href="{!! URL::current().'?project='.$_project.'&conn='.$conn !!}">{{ucfirst($_project)}}</a>
+                @endforeach
+            </div>
+            <br><br>
+            <div class="btn-group" role="group">
+                @foreach($conn_s as $_conn)
+                    @if($_conn == 'dev') @continue @endif
+                    <a class="btn btn-default @if($_conn == $conn) btn-primary active @endif"
+                       href="{!! URL::current().'?project='.$project.'&conn='.$_conn !!}">{{ucfirst($_conn)}}</a>
                 @endforeach
             </div>
             <hr>

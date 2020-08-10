@@ -26,13 +26,16 @@ class DiffController extends Controller
     public function table_correct(Request $request)
     {
         $project = $request->get('project', 'core');
+        $conn_s = $this->getConnections($project);
+        $conn = $request->get('conn', 'test');
+        if (!in_array($conn, $conn_s)) $conn = 'test';
         $dev_columns = $this->getColumns($project, 'dev');
-        $online_columns = $this->getColumns($project, 'online');
+        $online_columns = $this->getColumns($project, $conn);
         $diff = [];
         $this->diffColumn($diff, $dev_columns, $online_columns, '+');
         $this->diffColumn($diff, $online_columns, $dev_columns, '-');
         ksort($diff);
-        return view('database.table_correct', compact('project', 'diff'));
+        return view('database.table_correct', compact('project', 'conn', 'conn_s', 'diff'));
     }
 
     protected function diffColumn(&$diff, $stan, $check, $symbol)
