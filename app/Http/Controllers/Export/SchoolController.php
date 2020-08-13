@@ -16,7 +16,7 @@ class SchoolController extends Controller
 
     protected $titles = [
         'account' => ['昵称', '手机号', '班级名称', '备注名'],
-        'order' => ['卡类型', '费用', '订单日期'],
+        'order' => ['卡类型', '费用', '订单日期', '退款日期'],
         'offline' => ['天数', '费用', '订单日期', '退款日期'],
         'offline_refund' => ['退回天数', '退回费用', '订单日期', '退款日期'],
     ];
@@ -81,7 +81,7 @@ class SchoolController extends Controller
 
     protected function school_order($school_id, $time)
     {
-        $this->rows = DB::select("SELECT `order`.student_id, commodity_name, pay_fee, `order`.created_at FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id WHERE school_member.school_id = $school_id AND school_member.account_type_id = 5 AND pay_status LIKE '%success' $time GROUP BY `order`.id");
+        $this->rows = DB::select("SELECT `order`.student_id, commodity_name, pay_fee, `order`.created_at, `order`.refunded_at FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id WHERE `order`.school_id = $school_id AND school_member.account_type_id = 5 AND finished_at is not null $time GROUP BY `order`.id");
         $this->buildIds();
         $this->getAccount();
         $this->title = array_merge($this->titles['account'], $this->titles['order']);
@@ -92,7 +92,7 @@ class SchoolController extends Controller
             $this->getTeacher();
         }
         return $this->buildRecord(function ($row) {
-            return [$row->commodity_name, $row->pay_fee, $row->created_at];
+            return [$row->commodity_name, $row->pay_fee, $row->created_at, $row->refunded_at];
         });
     }
 
