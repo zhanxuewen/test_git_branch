@@ -69,10 +69,17 @@
     </div>
     @if(!empty($id))
         <div class="col-sm-12">
+            <p>！带下滑线项为题干，不带的为小题。修改题干请调整相应选项</p>
             <ul>
                 @foreach($entities as $entity)
                     <li class="entity-box" id="{{$entity['id']}}">
-                        {{json_encode(json_decode($entity['testbank_item_value']),JSON_UNESCAPED_UNICODE)}}
+                        @if(is_null(json_decode($entity['testbank_item_value'])))
+                            <u>
+                                {{json_encode(json_decode($entity['testbank_extra_value']),JSON_UNESCAPED_UNICODE)}}
+                            </u>
+                        @else
+                            {{json_encode(json_decode($entity['testbank_item_value']),JSON_UNESCAPED_UNICODE)}}
+                        @endif
                     </li>
                 @endforeach
             </ul>
