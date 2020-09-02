@@ -70,13 +70,14 @@ class DiffController extends Controller
     {
         \DB::setPdo($this->getConnPdo($project, $conn));
         $data = \DB::table('information_schema.columns')
-            ->selectRaw('table_name, column_name, column_type, is_nullable, column_key')
+            ->selectRaw('table_name, column_name, column_default, column_type, is_nullable, column_key')
             ->where('table_schema', $this->getConnDB($project, $conn))->get();
         $columns = [];
         foreach ($data as $column) {
             $columns[$column->table_name][$column->column_name] = [
                 'column_type' => $column->column_type,
                 'is_nullable' => $column->is_nullable,
+                'default' => $column->column_default,
                 'column_key' => $column->column_key
             ];
         }

@@ -46,8 +46,18 @@
                                     <tr>
                                         <td class="bg-gray">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                             <i class="fa fa-arrow-right"></i> {{$key}}
-                                            <span class="text-green">{{$value[0]}}</span>
-                                            <span class="text-red">{{$value[1]}}</span></td>
+                                            <span class="text-green">
+                                                @if(is_null($value[0]))
+                                                    <u><i>NULL</i></u>
+                                                @else
+                                                    {{$value[0]}}
+                                                @endif</span>
+                                            <span class="text-red">
+                                                @if(is_null($value[1]))
+                                                    <u><i>NULL</i></u>
+                                                @else
+                                                    {{$value[1]}}
+                                                @endif</span></td>
                                     </tr>
                                 @endforeach
                             @else
