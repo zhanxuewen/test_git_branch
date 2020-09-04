@@ -45,6 +45,36 @@ class SearchController extends Controller
         return view('select.learning.cards', compact('phones', 'rows'));
     }
 
+    public function inventory(Request $request)
+    {
+        DB::setPdo($this->getConnPdo('inventory', 'online'));
+        $mapping = ['code' => '商品编号', 'children' => '包含明细', 'alias' => '配货编码', 'unit' => '单位',
+            'series' => '系列', 'p_name' => '商品名称', 'weight' => '重量', 'qty' => '库存'];
+        $raw = [
+            'product.`code`, GROUP_CONCAT(child.`code`) AS children',
+            'product.alias, unit, product_series.`name` AS series',
+            'product.`name` AS p_name, product_inventory.weight, product_inventory.qty'
+        ];
+        $rows = DB::table('product')->join('product_series', 'product.series_id', '=', 'product_series.id')
+            ->join('product_inventory', 'product_inventory.product_id', '=', 'product.id')
+            ->join('product AS child', 'product.id', '=', 'child.parent_id', 'left')
+            ->selectRaw(implode(',', $raw))->groupBy(['product.id'])->get();
+        if ($request->get('action') == 'export') {
+            $record = [$mapping];
+            foreach ($rows as $row) {
+                $data = [];
+                foreach ($mapping as $k => $map) {
+                    $data[$k] = $row->$k;
+                }
+                $record[] = $data;
+            }
+            $name = date('Y_m_d') . '_库存信息';
+            return $this->exportExcel($name, $record, 'export_inventory');
+        }
+        return view('select.inventory', compact('rows', 'mapping'));
+
+    }
+
     protected function find_student($student_id)
     {
         return "SELECT nickname, phone FROM user_account INNER JOIN user ON user.id = user_account.user_id WHERE user_account.id =" . $student_id;

@@ -10,6 +10,7 @@
             'Marketer' => 'select/marketer',
             'Labels' => 'select/labels',
             'Quit Student' => 'select/quit_student',
+            '进销存库存' => 'select/inventory',
             '百项过开卡' => 'select/learningCards',
         ], 'fa-table') !!}
         {!! \App\Helper\BladeHelper::treeView('数据库', [
