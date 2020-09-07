@@ -64,7 +64,8 @@ class SlowController extends Controller
         $sql = implode("\n", $items);
         preg_match('/\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d/', $date, $match);
         $date = Carbon::parse(str_replace('T', ' ', $match[0]));
-        $date = $date->addHours(8)->toDateTimeString();
+        $date = $date->toDateTimeString();
+//        $date = $date->addHours(8)->toDateTimeString();
         $user = explode(':', str_replace('Id', '', $user))[1];
         list($user, $host) = explode('@', $user);
         $time = str_replace('Lock_time', '', explode(':', $time)[1]);
