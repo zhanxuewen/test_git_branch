@@ -16,9 +16,9 @@ class SchoolController extends Controller
 
     protected $titles = [
         'account' => ['昵称', '手机号', '班级名称', '备注名'],
-        'order' => ['卡类型', '费用', '订单日期', '退款日期'],
-        'offline' => ['天数', '费用', '订单日期', '退款日期'],
-        'offline_refund' => ['退回天数', '退回费用', '订单日期', '退款日期'],
+        'order' => ['卡类型', '费用', '计数', '订单日期', '退款日期'],
+        'offline' => ['天数', '费用', '计数', '订单日期', '退款日期'],
+//        'offline_refund' => ['退回天数', '退回费用', '订单日期', '退款日期'],
     ];
 
     protected $title;
@@ -50,7 +50,7 @@ class SchoolController extends Controller
         $params['end'] = $request->filled('end') ? $request->get('end', null) . ' 23:59:59' : null;
         $this->phone = $request->get('field_phone') ? "phone as _phone" : "INSERT (phone, 4, 4, '****') as _phone";
         $this->name = $request->get('field_phone') ? "nickname as _nickname" : "concat(left(nickname,(CHAR_LENGTH(nickname)-1)),'*') as _nickname";
-        DB::setPdo($this->getConnPdo('core', 'online'));
+        DB::setPdo($this->getConnPdo('core', 'online4'));
         $record = $this->query($request->get('query'), $school_id, $params);
         $name = $request->get('query') . '_' . $school_id;
         return $this->exportExcel($name, $record, 'export_school');
@@ -60,11 +60,11 @@ class SchoolController extends Controller
     {
         switch ($query) {
             case 'school_order':
-                return $this->school_order($school_id, $this->getTime($params, '`order`.created_at'));
+                return $this->school_order($school_id, $this->getTime($params, '`order`.created_at'), $this->getTime($params, '`order_refund`.success_at'));
             case 'school_offline':
-                return $this->school_offline($school_id, $this->getTime($params, '`order_offline`.created_at'));
-            case 'school_offline_refund':
-                return $this->school_offline_refund($school_id, $this->getTime($params, '`order_offline_refund`.created_at'));
+                return $this->school_offline($school_id, $this->getTime($params, '`order_offline`.created_at'), $this->getTime($params, '`order_offline_refund`.success_at'));
+//            case 'school_offline_refund':
+//                return $this->school_offline_refund($school_id, );
             case 'school_student':
                 return $this->school_students($school_id, $this->getTime($params, 'joined_time'));
             default:
@@ -79,63 +79,69 @@ class SchoolController extends Controller
         return $time;
     }
 
-    protected function school_order($school_id, $time)
+    protected function school_order($school_id, $time, $time2)
     {
-        $this->rows = DB::select("SELECT `order`.student_id, commodity_name, pay_fee, `order`.created_at, `order`.refunded_at FROM school_member INNER JOIN `order` ON `order`.student_id = school_member.account_id WHERE `order`.school_id = $school_id AND school_member.account_type_id = 5 AND finished_at is not null $time GROUP BY `order`.id");
-        $this->buildIds();
-        $this->getAccount();
+        $in = DB::select("SELECT student_id, commodity_name, pay_fee as _fee, 1 as coo, created_at, refunded_at as _refund FROM `order` WHERE school_id = $school_id AND finished_at is not null $time GROUP BY id");
+        $ref = DB::select("SELECT `order`.student_id, commodity_name, -refund_fee as _fee, -1 as coo, `order`.created_at, order_refund.success_at as _refund FROM order_refund INNER JOIN `order` ON `order`.out_trade_no = order_refund.out_trade_no WHERE `order`.school_id = $school_id AND finished_at is not null $time2 GROUP BY `order`.id");
+        $this->rows = array_merge($in, $ref);
         $this->title = array_merge($this->titles['account'], $this->titles['order']);
-        if ($this->options['expire']) {
-            $this->getExpired();
-        }
-        if ($this->options['teacher']) {
-            $this->getTeacher();
-        }
+        $this->buildIds()->getAccount()->buildAdditions();
         return $this->buildRecord(function ($row) {
-            return [$row->commodity_name, $row->pay_fee, $row->created_at, $row->refunded_at];
+            return [$row->commodity_name, $row->_fee, $row->coo, $row->created_at, $row->_refund];
         });
     }
 
-    protected function school_offline($school_id, $time)
+    protected function school_offline($school_id, $time, $time2)
     {
-        $this->rows = DB::select("SELECT order_offline.student_id, days, pay_fee, order_offline.created_at, refunded_at FROM order_offline WHERE order_offline.school_id = $school_id $time GROUP BY order_offline.id");
-        $this->buildIds();
-        $this->getAccount();
+        $in = DB::select("SELECT student_id, days as _days, pay_fee as _fee, 1 as coo, created_at, refunded_at as _refund FROM order_offline WHERE school_id = $school_id $time GROUP BY id");
+        $ref = DB::select("SELECT order_offline.student_id, refund_days as _days, -refund_fee as _fee, -1 as coo, order_offline.created_at, order_offline_refund.success_at as _refund FROM order_offline INNER JOIN order_offline_refund ON order_offline.id = order_offline_refund.offline_id WHERE order_offline.school_id = $school_id $time2 GROUP BY order_offline.id");
+        $this->rows = array_merge($in, $ref);
         $this->title = array_merge($this->titles['account'], $this->titles['offline']);
-        if ($this->options['expire']) {
-            $this->getExpired();
-        }
-        if ($this->options['teacher']) {
-            $this->getTeacher();
-        }
+        $this->buildIds()->getAccount()->buildAdditions();
         return $this->buildRecord(function ($row) {
-            return [$row->days, $row->pay_fee, $row->created_at, $row->refunded_at];
+            return [$row->_days, $row->_fee, $row->coo, $row->created_at, $row->_refund];
         });
     }
 
-    protected function school_offline_refund($school_id, $time)
-    {
-        $this->rows = DB::select("SELECT order_offline.student_id, refund_days, refund_fee, order_offline.created_at, refunded_at FROM order_offline INNER JOIN order_offline_refund ON order_offline.id = order_offline_refund.offline_id WHERE order_offline.school_id = $school_id $time GROUP BY order_offline.id");
-        $this->buildIds();
-        $this->getAccount();
-        $this->title = array_merge($this->titles['account'], $this->titles['offline_refund']);
-        if ($this->options['expire']) {
-            $this->getExpired();
-        }
-        if ($this->options['teacher']) {
-            $this->getTeacher();
-        }
-        return $this->buildRecord(function ($row) {
-            return [$row->refund_days, $row->refund_fee, $row->created_at, $row->refunded_at];
-        });
-    }
+//    protected function school_offline_refund($school_id, $time)
+//    {
+//        $this->rows = DB::select("SELECT order_offline.student_id, refund_days, refund_fee, order_offline.created_at, refunded_at FROM order_offline INNER JOIN order_offline_refund ON order_offline.id = order_offline_refund.offline_id WHERE order_offline.school_id = $school_id $time GROUP BY order_offline.id");
+//        dd($this->rows);
+//        $this->buildIds();
+//        $this->getAccount();
+//        $this->title = array_merge($this->titles['account'], $this->titles['offline_refund']);
+//        if ($this->options['expire']) {
+//            $this->getExpired();
+//        }
+//        if ($this->options['teacher']) {
+//            $this->getTeacher();
+//        }
+//        return $this->buildRecord(function ($row) {
+//            return [$row->refund_days, $row->refund_fee, $row->created_at, $row->refunded_at];
+//        });
+//    }
 
     protected function school_students($school_id, $time)
     {
         $this->rows = DB::select("SELECT account_id as student_id FROM school_member WHERE school_id = $school_id AND account_type_id = 5 AND is_active = 1 $time");
-        $this->buildIds();
-        $this->getAccount();
         $this->title = $this->titles['account'];
+        $this->buildIds()->getAccount()->buildAdditions();
+        return $this->buildRecord(function ($row) {
+            return [];
+        });
+    }
+
+    protected function buildIds()
+    {
+        foreach ($this->rows as $row) {
+            if (!in_array($row->student_id, $this->ids))
+                $this->ids[] = $row->student_id;
+        }
+        return $this;
+    }
+
+    protected function buildAdditions()
+    {
         if ($this->options['register']) {
             $this->title[] = '注册时间';
         }
@@ -145,16 +151,7 @@ class SchoolController extends Controller
         if ($this->options['teacher']) {
             $this->getTeacher();
         }
-        return $this->buildRecord(function ($row) {
-            return [];
-        });
-    }
-
-    protected function buildIds()
-    {
-        foreach ($this->rows as $row) {
-            $this->ids[] = $row->student_id;
-        }
+        return $this;
     }
 
     protected function buildRecord(Closure $closure)
@@ -162,17 +159,18 @@ class SchoolController extends Controller
         $record = [$this->title];
         $now = Carbon::now();
         foreach ($this->rows as $row) {
-            $account = $this->accounts[$row->student_id];
+            $s_id = $row->student_id;
+            $account = $this->accounts[$s_id];
             $data = array_merge([$account->_nickname, $account->_phone, $account->vanclass_name, $account->markname], $closure($row));
             if ($this->options['register'])
                 $data[] = $account->created_at;
             if ($this->options['expire']) {
-                $exp = $this->expires[$row->student_id]->expired_at;
+                $exp = $this->expires[$s_id]->expired_at;
                 $data[] = $exp;
                 $data[] = $now->lte($exp) ? '是' : '否';
             }
             if ($this->options['teacher'])
-                isset($this->teachers[$row->student_id]) ? $data[] = $this->teachers[$row->student_id]->teacher_name : null;
+                $data[] = isset($this->teachers[$s_id]) ? $this->teachers[$s_id]->teacher_name : '';
             $record[] = $data;
         }
         return $record;
@@ -184,6 +182,7 @@ class SchoolController extends Controller
         foreach (DB::select($sql) as $row) {
             $this->accounts[$row->id] = $row;
         }
+        return $this;
     }
 
     protected function getTeacher()
@@ -193,6 +192,7 @@ class SchoolController extends Controller
         foreach (DB::select($sql) as $row) {
             $this->teachers[$row->student_id] = $row;
         }
+        return $this;
     }
 
     protected function getExpired()
@@ -203,6 +203,7 @@ class SchoolController extends Controller
         foreach (DB::select($sql) as $row) {
             $this->expires[$row->student_id] = $row;
         }
+        return $this;
     }
 
 }

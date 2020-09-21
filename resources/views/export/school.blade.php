@@ -32,16 +32,16 @@
                     <select class="form-control" name="query" id="query">
                         <option value="school_order">学校下订单</option>
                         <option value="school_offline">学校代交</option>
-                        <option value="school_offline_refund">学校代交代退</option>
                         <option value="school_student">学校学生</option>
                     </select>
                 </div>
-                @foreach(['expire'=> '有效期查询', 'teacher' => '老师名', 'register' => '注册时间'] as $key => $label)
+                @foreach(['expire_0'=> '有效期查询', 'teacher_1' => '老师名', 'register_0' => '注册时间'] as $key => $label)
                     <div class="form-group">
+                        @php list($key, $def) = explode('_',$key)  @endphp
                         <label for="{{$key}}">是否附加{{$label}}</label>
                         <select class="form-control" name="{{$key}}" id="{{$key}}">
-                            <option value="0">否</option>
-                            <option value="1">是</option>
+                            <option value="0" @if($def == 0) selected @endif>否</option>
+                            <option value="1" @if($def == 1) selected @endif>是</option>
                         </select>
                     </div>
                 @endforeach
@@ -50,7 +50,7 @@
         </form>
     </div>
     <div class="col-xs-12 col-sm-6">
-        <p><u>学校下订单</u> 必填参数: [<b>学校 ID</b>]</p>
-        <p><u>学校代交</u> 必填参数: [<b>学校 ID</b>]</p>
+        <p><u>学校下订单</u> 必填参数: [<b>学校 ID</b>] (附带退款项)</p>
+        <p><u>学校代交</u> 必填参数: [<b>学校 ID</b>] (附带退款项)</p>
     </div>
 @endsection
