@@ -22,6 +22,11 @@ Route::post('system/config', ['uses' => 'SystemController@postConfig']);
 // Logs Routes
 Route::get('logs', ['uses' => 'LogController@logs']);
 
+// Branch Routes
+Route::get('branch', ['uses' => 'BranchController@getBranch']);
+Route::post('branch', ['uses' => 'BranchController@postBranch']);
+Route::get('removeBranch', ['uses' => 'BranchController@removeBranch']);
+
 // Notice
 Route::group(['prefix' => 'notice'], function () {
     Route::get('ajax/check', ['uses' => 'NoticeController@ajaxCheck']);

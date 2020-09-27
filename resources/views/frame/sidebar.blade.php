@@ -59,6 +59,7 @@
             'Power' => 'user/listPower',
         ], 'fa-users') !!}
         {!! \App\Helper\BladeHelper::single_bar('Sql 审计', 'analyze/select/no_group', 'fa-heartbeat') !!}
+        {!! \App\Helper\BladeHelper::single_bar('git分支配置', 'branch', 'fa-hand-lizard-o') !!}
         {!! \App\Helper\BladeHelper::single_bar('日志', 'logs', 'fa-hand-pointer-o') !!}
         {!! \App\Helper\BladeHelper::single_bar('配置', 'system/config', 'fa-cogs') !!}
     </ul>

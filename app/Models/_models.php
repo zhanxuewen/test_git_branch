@@ -28,4 +28,6 @@ return [
     'orderIncrement' => App\Models\Monitor\OrderIncrement::class,
     'deviceUsageAmount' => App\Models\Monitor\DeviceUsageAmount::class,
 
+    'branch' => App\Models\Monitor\Branch::class,
+
 ];
