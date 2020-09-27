@@ -17,7 +17,7 @@ class BranchController extends Controller
 
         $groups =  $this->groups;
         $projects = $this->projects;
-        $query = $this->setModel('branch')->orderBy('id', 'desc');
+        $query = $this->setModel('branch')->orderBy('is_available', 'desc')->orderBy('id', 'asc');
         if (!empty($group)) $query->where('group', $group);
         if (!empty($project)) $query->where('project', $project);
         if ($is_available =='1') {

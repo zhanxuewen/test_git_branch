@@ -28,7 +28,7 @@
                 <input type="text" name="url" id="url" class="form-control">
             </div>
             <div class="form-group">
-                <label for="project">分支名</label>
+                <label for="project">分支</label>
                 <input type="text" name="branch" id="branch" class="form-control">
             </div>
             <div class="form-group">
@@ -77,10 +77,11 @@
             <tr>
                 <th>前后端</th>
                 <th>项目</th>
-                <th>分支地址</th>
+                <th>url地址</th>
                 <th>分支</th>
-                <th>时间</th>
                 <th>是否生效</th>
+                <th>描述</th>
+                <th>创建时间</th>
                 <th>操作</th>
             </tr>
             @foreach($branch_sets as $one_set)
@@ -89,9 +90,14 @@
                     <td>{{$projects[$one_set->project]}}</td>
                     <td>{{$one_set->url}}</td>
                     <td>{{$one_set->branch}}</td>
-                    <td>{{$one_set->created_at}}</td>
                     <td>{{$one_set->is_available=='1'?'生效':'无效'}}</td>
-                    <td><a href="removeBranch?id={{$one_set->id}}&project={{$one_set->project}}&group={{$one_set->group}}" onClick="return confirm('确定删除?');">删除</a></td>
+                    <td>{{$one_set->label}}</td>
+                    <td>{{$one_set->created_at}}</td>
+                    <td>
+                        @if($one_set->is_available=='1')
+                        <a href="removeBranch?id={{$one_set->id}}&project={{$one_set->project}}&group={{$one_set->group}}" onClick="return confirm('确定删除?');">删除</a>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </table>
