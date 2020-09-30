@@ -31,6 +31,11 @@ class BaseSchedule
         return $this->queryToArray($list, 'id', 'nickname');
     }
 
+    protected function getAfterSale(){
+        $list = \DB::table('school_attribute')->selectRaw('school_id, value')->where('key','after_sales')->get();
+        return $this->queryToArray($list, 'school_id', 'value');
+    }
+
     protected function setPrices()
     {
         return [

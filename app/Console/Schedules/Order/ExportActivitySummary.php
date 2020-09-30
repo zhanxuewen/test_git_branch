@@ -12,6 +12,7 @@ class ExportActivitySummary extends BaseSchedule
     protected $card_type = ['normal' => '整卡', 'month' => '按月', 'day' => '按天'];
 
     protected $marketers;
+    protected $sales;
     protected $set_prices;
     protected $d_prices;
     protected $principals;
@@ -20,6 +21,7 @@ class ExportActivitySummary extends BaseSchedule
     protected $cont_s;
     protected $regions;
     protected $parts;
+    protected $settles;
 
     /**
      * Execute the console command.
@@ -30,7 +32,7 @@ class ExportActivitySummary extends BaseSchedule
      */
     public function handle($day = [], $send = true)
     {
-        \DB::setPdo($this->getConnPdo('core', 'online'));
+        \DB::setPdo($this->getConnPdo('core', 'online4'));
         $this->init($day['end']);
         $start = Carbon::parse($day['start']);
         $end = Carbon::parse($day['end'])->endOfDay();
@@ -50,9 +52,11 @@ class ExportActivitySummary extends BaseSchedule
 
     protected function init($end)
     {
+        $this->settles = $this->getSettleAmount(Carbon::parse($end));
         $this->principals = $this->getPrincipal();
         $this->vipCounts = $this->getVipCount($end);
         $this->marketers = $this->getManagers();
+        $this->sales = $this->getAfterSale();
         $this->set_prices = $this->setPrices();
         $this->d_prices = $this->dPrices();
         $this->date = $this->getContractDate();
@@ -75,14 +79,14 @@ class ExportActivitySummary extends BaseSchedule
 //        $stu_eff = $this->helper->getSchoolEffect($end);
         $star = $this->getSchoolStar($between);
         $score = $this->getSchoolScore($between);
-        $schools = \DB::table('school')->where('is_active', 1)->get();
+        $schools = \DB::table('school')->where('is_active', 1)->where('created_at', '<=', $end)->get();
         $report = [];
-        $report[] = ['学校ID', '合同档', '学校名称', '校长姓名', '校长手机号', '学校试用期到', '市场专员', '省', '市', '区县', '签约日期', '加盟校', '教师数', '新增教师', '活跃教师', '学生数', '新增学生', '活跃学生',
+        $report[] = ['学校ID', '合同档', '学校名称', '校长姓名', '校长手机号', '学校试用期到', '第1销售', '运营', '省', '市', '区县', '签约日期', '加盟校', '教师数', '新增教师', '活跃教师', '学生数', '新增学生', '活跃学生',
 //            '月底有效期内学生数', '月底试用期内学生数',
-            '本月星星', '本月积分', '本月提分版人数', '仅试用人数'];
+            '本月星星', '本月积分', '本月提分版人数', '仅试用人数', '前年结算额', '去年结算额', '今年到上上月底_结算额'];
         foreach ($schools as $school) {
             $s_id = $school->id;
-            $region = is_null($s_id) ? null : explode('/', $this->regions[$s_id]);
+            $region = !is_null($s_id) && isset($this->regions[$s_id]) ? explode('/', $this->regions[$s_id]) : null;
             $report[] = [
                 'id' => $s_id,
                 'title' => isset($this->cont_s[$s_id]) ? $this->cont_s[$s_id] : null,
@@ -91,6 +95,7 @@ class ExportActivitySummary extends BaseSchedule
                 'pri_phone' => isset($this->principals[$s_id][1]) ? $this->principals[$s_id][1] : null,
                 'pop' => isset($pop[$s_id]) ? $pop[$s_id] : null,
                 'marketer' => $school->marketer_id == 0 ? null : $this->marketers[$school->marketer_id],
+                'yy' => isset($this->sales[$s_id]) ? $this->marketers[$this->sales[$s_id]] : null,
                 'shn' => isset($region[0]) ? $region[0] : null,
                 'shi' => isset($region[1]) ? $region[1] : null,
                 'qu' => isset($region[2]) ? $region[2] : null,
@@ -108,6 +113,9 @@ class ExportActivitySummary extends BaseSchedule
                 'score' => isset($score[$s_id]) ? $score[$s_id] : '0',
                 'vip' => isset($this->vipCounts[$s_id][0]) ? $this->vipCounts[$s_id][0] : '0',
                 'try' => isset($this->vipCounts[$s_id][1]) ? $this->vipCounts[$s_id][1] : '0',
+                'two' => isset($this->settles['two'][$s_id]) ? $this->settles['two'][$s_id] : '0.00',
+                'one' => isset($this->settles['one'][$s_id]) ? $this->settles['one'][$s_id] : '0.00',
+                'now' => isset($this->settles['now'][$s_id]) ? $this->settles['now'][$s_id] : '0.00',
             ];
         }
         return $report;
@@ -201,7 +209,7 @@ class ExportActivitySummary extends BaseSchedule
     protected function getOrderData($order, $is_order)
     {
         list($s_id, $time, $set_price, $get_type, $type, $region) = $this->beforeData($order, $is_order);
-        $data = [
+        return [
             'date' => $time->format('Y-m-d'),
             'time' => $time->format('H:i:s'),
             'channel' => $this->plat[$type[0]],
@@ -218,7 +226,7 @@ class ExportActivitySummary extends BaseSchedule
             'group' => $order->is_group_order,
             'comm' => $order->commodity_name,
             'count' => $is_order ? 1 : -1,
-            'sum' => $is_order ? $set_price : -$set_price,
+            'sum' => $is_order ? $set_price : ($set_price == '' ? '' : -$set_price),
             'type' => $get_type,
             'nickname' => $order->nickname,
             'mark_name' => $order->_mark_name,
@@ -226,7 +234,6 @@ class ExportActivitySummary extends BaseSchedule
             'phone' => substr_replace($order->phone, '****', 3, 4),
             'refund' => $is_order ? $order->refunded_at : null,
         ];
-        return $data;
     }
 
     protected function getOfflineData($order, $is_offline)
@@ -236,7 +243,7 @@ class ExportActivitySummary extends BaseSchedule
         $region = is_null($s_id) ? null : explode('/', $this->regions[$s_id]);
         $fee = $order->pay_fee;
         $r_fee = $is_offline ? null : $order->refund_fee;
-        $data = [
+        return [
             'date' => $time->format('Y-m-d'),
             'time' => $time->format('H:i:s'),
             'channel' => '学校代交',
@@ -260,6 +267,46 @@ class ExportActivitySummary extends BaseSchedule
             'van_name' => str_replace('=', 'eq', $order->vanclass_name),
             'phone' => substr_replace($order->phone, '****', 3, 4),
         ];
+    }
+
+    /**
+     * @param Carbon $now
+     * @return array
+     */
+    protected function getSettleAmount($now)
+    {
+        $two_year = $now->year - 2;
+        $data['two'] = $this->searchSettleAmount(
+            Carbon::parse($two_year . '-01-01'), Carbon::parse($two_year . '-12-31'));
+        $one_year = $now->year - 1;
+        $data['one'] = $this->searchSettleAmount(
+            Carbon::parse($one_year . '-01-01'), Carbon::parse($one_year . '-12-31'));
+        $end = $now->startOfMonth()->subMonth()->endOfMonth();
+        $data['now'] = $this->searchSettleAmount(
+            Carbon::parse($now->year . '-01-01'), $end);
+        return $data;
+    }
+
+    /**
+     * @param Carbon $start
+     * @param Carbon $end
+     * @return array
+     */
+    protected function searchSettleAmount($start, $end)
+    {
+        $w1 = "date >= '" . $start->format('Y-m-d') . "' AND date <= '" . $end->format('Y-m-d') . "'";
+        $w2 = "`extra` >= '" . $start->format('Y-m') . "' AND `extra` <= '" . $end->format('Y-m') . "'";
+        $select_raw = "school_info.school_id, if(offline.offline_fee, offline.offline_fee, 0) + if(`online`.online_fee, `online`.online_fee, 0)  + if(`finance`.finance_fee, `finance`.finance_fee, 0) as total_fee";
+        $ids_raw = "SELECT DISTINCT school_id FROM accountant_statement";
+        $offline_raw = "SELECT school_id, sum( fee ) * -1 as offline_fee FROM `accountant_statement` WHERE $w1 AND type IN ( 'schoolOfflinePayment', 'schoolOfflineRefund', 'offlinePayment', 'offlineRefund' ) GROUP BY school_id";
+        $online_raw = "SELECT school_id, sum( fee ) * -1 as online_fee FROM `accountant_statement` WHERE `label_id` = '8' AND $w2 AND has_rollback = 0 GROUP BY school_id";
+        $account_raw = "SELECT school_id, sum( fee ) * -1 as finance_fee FROM `accountant_statement` WHERE `type` = 'receipt' AND label_id IN ( 11, 12 ) and $w1 AND has_rollback = 0 GROUP BY school_id";
+        $raw = "select $select_raw from ($ids_raw) school_info left join ($offline_raw) offline on offline.school_id = school_info.school_id left join ($online_raw) `online` on `online`.school_id = school_info.school_id left join ($account_raw) finance on `finance`.school_id = school_info.school_id ORDER BY  school_info.school_id";
+        $rows = \DB::select($raw);
+        $data = [];
+        foreach ($rows as $row) {
+            $data[$row->school_id] = $row->total_fee;
+        }
         return $data;
     }
 

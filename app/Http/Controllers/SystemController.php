@@ -39,6 +39,7 @@ class SystemController extends Controller
             'core-dev' => 'Core Dev',
             'core-test' => 'Core Test',
             'kids-dev' => 'Kids Dev',
+            'kids-test' => 'Kids Test',
             'learning-dev' => 'Learning Dev',
             'learning-test' => 'Learning Test',
             'word_short-dev' => 'WordShorthand Dev'
