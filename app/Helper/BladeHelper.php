@@ -65,6 +65,11 @@ class BladeHelper
         return self::$info;
     }
 
+    public static function checkSuper()
+    {
+        return self::getUserInfo()['role']['code'] == 'super_admin';
+    }
+
     public static function getTree($p_id, $labels)
     {
         $out = '';
@@ -243,7 +248,7 @@ class BladeHelper
 
     public static function textCss($text)
     {
-        if (strstr($text, '</>')){
+        if (strstr($text, '</>')) {
             $text = str_replace('</>', '</span>', $text);
             $text = preg_replace('/<([\w:,%\-;# ]+)>/i', '<span style="${1}">', $text);
         }

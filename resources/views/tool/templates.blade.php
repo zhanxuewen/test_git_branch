@@ -42,7 +42,7 @@
             @endforeach
         </table>
     </div>
-    @if(\App\Helper\BladeHelper::getUserInfo()['role']['code'] == 'super_admin')
+    @if(\App\Helper\BladeHelper::checkSuper())
         <div class="col-xs-12">
             <form action="{!! url('tool/third/save/template') !!}" method="post">
                 {!! csrf_field() !!}
