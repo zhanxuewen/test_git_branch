@@ -2,7 +2,7 @@
 @section('title','Config')
 
 @section('section')
-    @if(Auth::user()->role[0]->code == 'super_admin')
+    @if(\App\Helper\BladeHelper::getUserInfo()['role']['code'] == 'super_admin')
         @include('system.config.system')
         <div class="col-sm-12">
             <hr>

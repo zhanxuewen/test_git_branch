@@ -2,9 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Foundation\PdoBuilder;
 use Auth;
 use Closure;
+use Illuminate\Http\Request;
+use App\Foundation\PdoBuilder;
 use Luminee\Watchdog\Middleware\GateKeeper;
 
 class VerifyRolePower extends GateKeeper
@@ -14,8 +15,8 @@ class VerifyRolePower extends GateKeeper
     /**
      * Handle an incoming request.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
+     * @param Request $request
+     * @param Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -27,7 +28,8 @@ class VerifyRolePower extends GateKeeper
                 $redis->setex($id . '_info', 60 * 60 * 24, json_encode($this->getUserInfo(Auth::user())));
             }
             if (!$redis->get($id . '_routes')) {
-                $redis->setex($id . '_routes', 60 * 60 * 24, json_encode($this->watchdog->getRoutesByPowerIds($this->power_ids)));
+                $routes = $this->watchdog->getRoutesByPowerIds($this->power_ids);
+                $redis->setex($id . '_routes', 60 * 60 * 24, json_encode($routes));
 //                $this->watchdog->getRoutesByPowerIds($this->power_ids)
             }
             return $next($request);
@@ -46,6 +48,7 @@ class VerifyRolePower extends GateKeeper
 
     public function getUserInfo($user)
     {
-        return ['id' => $user->id, 'username' => $user->username, 'nickname' => $user->nickname, 'avatar' => $user->avatar, 'role' => $user->role[0]->label];
+        $role = $user->role[0];
+        return ['id' => $user->id, 'username' => $user->username, 'nickname' => $user->nickname, 'avatar' => $user->avatar, 'role' => ['code' => $role->code, 'name' => $role->label]];
     }
 }

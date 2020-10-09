@@ -51,7 +51,8 @@
         {!! \App\Helper\BladeHelper::treeView('工具', [
             'Download' => 'tool/download',
             'Upload' => 'tool/upload',
-            'Query' => 'tool/query'
+            'Query' => 'tool/query',
+            'Sms' => 'tool/third/templates'
         ], 'fa-legal') !!}
         {!! \App\Helper\BladeHelper::treeView('用户与权限', [
             'Account' => 'user/listAccount',

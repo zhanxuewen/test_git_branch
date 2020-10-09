@@ -11,4 +11,9 @@ Route::group(['namespace' => 'Tool', 'prefix' => 'tool'], function () {
     Route::post('query', ['uses' => 'QueryController@ajaxQuery']);
     Route::get('show/queries', ['uses' => 'QueryController@showQueries']);
 
+    Route::group(['prefix' => 'third'], function () {
+        Route::get('templates', ['uses' => 'ThirdController@getTemplates']);
+        Route::post('save/template', ['uses' => 'ThirdController@saveTemplate']);
+    });
+
 });

@@ -59,7 +59,8 @@ class BladeHelper
     public static function getUserInfo()
     {
         if (is_null(self::$info)) {
-            self::$info = self::_getRedis('analyze')->get(self::getUserId() . '_info');
+            $info = self::_getRedis('analyze')->get(self::getUserId() . '_info');
+            self::$info = json_decode($info, true);
         }
         return self::$info;
     }

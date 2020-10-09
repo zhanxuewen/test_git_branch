@@ -15,12 +15,12 @@
         <ul class="nav navbar-nav">
             @include('frame.notice')
             <li class="dropdown user user-menu">
-                @php $auth_user = json_decode(\App\Helper\BladeHelper::getUserInfo(),true); @endphp
+                @php $user = \App\Helper\BladeHelper::getUserInfo(); @endphp
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                    <img src="{!! empty($auth_user['avatar']) ? asset('asset/image/default.png') : $auth_user['avatar'] !!}"
+                    <img src="{!! empty($user['avatar']) ? asset('asset/image/default.png') : $user['avatar'] !!}"
                          class="user-image bg-gray" alt="User Image">
-                    <span class="hidden-xs">[{!! isset($auth_user['role']) ? $auth_user['role'] : '' !!}]
-                        <b>{{ isset($auth_user['nickname'])?$auth_user['nickname']:$auth_user['username'] }}</b></span>
+                    <span class="hidden-xs">[{!! $user['role']['name'] ?? '' !!}]
+                        <b>{!! $user['nickname'] ?? $user['username'] !!}</b></span>
                 </a>
             </li>
             <li class="user user-menu"><a href="{{route('logout')}}"><i class="fa fa-sign-out"></i></a></li>
