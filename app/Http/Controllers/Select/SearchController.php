@@ -58,6 +58,7 @@ class SearchController extends Controller
         $rows = DB::table('product')->join('product_series', 'product.series_id', '=', 'product_series.id')
             ->join('product_inventory', 'product_inventory.product_id', '=', 'product.id')
             ->join('product AS child', 'product.id', '=', 'child.parent_id', 'left')
+            ->where('product.is_available', 1)
             ->selectRaw(implode(',', $raw))->groupBy(['product.id'])->get();
         if ($request->get('action') == 'export') {
             $record = [$mapping];
