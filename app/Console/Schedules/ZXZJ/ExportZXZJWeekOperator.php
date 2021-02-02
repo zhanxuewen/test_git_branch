@@ -1,7 +1,6 @@
 <?php
 
-namespace App\Console\Schedules\Learning;
-
+namespace App\Console\Schedules\ZXZJ;
 
 use App\Console\Schedules\BaseSchedule;
 use Carbon\Carbon;
