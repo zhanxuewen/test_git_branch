@@ -8,18 +8,37 @@ use Carbon\Carbon;
 
 class ExportZXZJWeekOperator extends BaseSchedule
 {
+
+    private $max_id_arr = [];
+
+
     public function handle()
     {
         ini_set('memory_limit', '2048M');
         config(['database.default' => 'zxzj_online_search']);
 
 
-        $day_count = 7;
-        $date_type = 'W2021-03';
-        $start_time = '2021-01-18 00:00:00';
-        $end_time = '2021-01-24 23:59:59';
-        $start_date = '2021-01-18';
-        $end_date = '2021-01-24';
+        $date_type = 'W2021-04';
+        $start_time = '2021-01-25 00:00:00';
+        $end_time = '2021-01-31 23:59:59';
+        $max_id_date = '2021-01-20';
+
+        $left_year_start = Carbon::now()->subMonth( 6)->toDateString();
+
+        $left_year_start_id = \DB::table('statistic_student_activity')
+            ->where('created_date', $left_year_start)
+            ->min('id');
+
+        $max_id_record = \DB::table('statistic_schedule_tmp')
+            ->where('key', 'table_nearly_max_id')
+            ->where('created_date', $max_id_date)
+            ->first();
+
+        if (empty( $max_id_record )) dd( ' max id not find');
+
+        $max_ids = $max_id_record->value;
+        $this->max_id_arr = json_decode($max_ids, true );
+        $this->max_id_arr['statistic_student_activity'] = $left_year_start_id;
 
         $rep = [];
         $rep[] = [
@@ -46,6 +65,7 @@ class ExportZXZJWeekOperator extends BaseSchedule
             '月活跃学生',
             '半年活跃学生',
             '提分版学生',
+            '仅试用学生',
 
             '作业布置量',
             '做作业人数',
@@ -62,10 +82,10 @@ class ExportZXZJWeekOperator extends BaseSchedule
             '打卡活动布置量',
             '打卡活动使用人数',
 
-            '是否有推荐到本校题库',
+//            '是否有推荐到本校题库',
             '启动页设置',
             '招生二维码设置',
-            '招生班是否设置',
+//            '招生班是否设置',
 
             '图书管理员是否设置',
             '图书馆是否有上架',
@@ -90,7 +110,7 @@ class ExportZXZJWeekOperator extends BaseSchedule
             $school_popular_arr[$key] = explode( ',',$value );
         }
         echo 'school_popular----';
-        $school_vanclass = $this->getRecruitVanclass();
+//        $school_vanclass = $this->getRecruitVanclass();
         echo 'school_vanclass----';
         $school_info = $this->getSchoolInfo( $date_type );
         echo 'school_info----';
@@ -124,7 +144,7 @@ class ExportZXZJWeekOperator extends BaseSchedule
             echo '+f';
             $activity_info = $this->getActivityInfo($student_ids,$teacher_ids, $start_time, $end_time);
             echo '+g';
-            $school_testbank_info = $this->getSchoolTestbankInfo($school_id,  $start_time, $end_time);
+//            $school_testbank_info = $this->getSchoolTestbankInfo($school_id,  $start_time, $end_time);
             echo '+h';
             $school_library_status = $this->getSchoolLibraryStatus($school_id);
             echo '+i';
@@ -147,41 +167,42 @@ class ExportZXZJWeekOperator extends BaseSchedule
                 $school_info[$school_id]['contract_class'],
 
 
-                $school_info[$school_id]['teacher_total'],
-                $school_info[$school_id]['act_teacher'],
+                $school_info[$school_id]['teacher_total'].'',
+                $school_info[$school_id]['act_teacher'].'',
 
-                $school_info[$school_id]['student_total'],
-                $school_info[$school_id]['act_student'],
-                $act_students['month_count'],
-                $act_students['left_year_count'],
-                $school_info[$school_id]['vip_student'],
+                $school_info[$school_id]['student_total'].'',
+                $school_info[$school_id]['act_student'].'',
+                $act_students['month_count'].'',
+                $act_students['left_year_count'].'',
+                $school_info[$school_id]['vip_student'].'',
+                $school_info[$school_id]['try_student'].'',
 
                 $homework_info['teacher_count'].'/'. $homework_info['teacher_homework'],
-                $homework_info['total_student_count'].'/'. $homework_info['total_homework_count'],
+                $homework_info['total_student_count'].'',
 
 
                 $exam_info['teacher_count'].'/'. $exam_info['teacher_exam'],
-                $exam_info['total_student_count'].'/'. $exam_info['total_exam_count'],
+                $exam_info['total_student_count'].'',
 
 
                 $word_info['teacher_count'].'/'. $word_info['teacher_word'],
-                $word_info['total_student_count'],
+                $word_info['total_student_count'].'',
 
                 $qian_ci_info['teacher_count'].'/'. $qian_ci_info['teacher_book'],
-                $qian_ci_info['total_student_count'],
+                $qian_ci_info['total_student_count'].'',
 
                 $activity_info['teacher_count'].'/'. $activity_info['activity_count'],
-                $activity_info['total_student_count'],
+                $activity_info['total_student_count'].'',
 
 
-                $school_testbank_info,
+//                $school_testbank_info,
                 in_array(  $school_id , $school_attr_arr['home_page_src'] ) ? 1 : '0',
                 in_array(  $school_id , $school_popular_arr['QRcode'] ) ? 1 : '0',
-                in_array(  $school_id , $school_vanclass ) ? 1 : '0',
+//                in_array(  $school_id , $school_vanclass ) ? 1 : '0',
 
                 in_array(  $school_id , $school_attr_arr['library_manager'] ) ? 1 : '0',
-                $school_library_status,
-                $school_library_student,
+                $school_library_status.'',
+                $school_library_student.'',
 
                 isset($school_goods[$school_id]) ? $school_goods[$school_id] : '-',
                 isset($school_course[$school_id]) ? $school_course[$school_id] : '-',
@@ -223,13 +244,16 @@ SELECT
 	 statistic_school_record_weekly.act_teacher,
 	 statistic_school_record_weekly.student_total,
 	 statistic_school_record_weekly.act_student,
-	 statistic_school_record_weekly.vip_student
+	 statistic_school_record_weekly.vip_student,
+	 statistic_school_record_weekly.try_student
 FROM
 	school
 	LEFT  JOIN statistic_school_record_weekly on school.id  = statistic_school_record_weekly.school_id and statistic_school_record_weekly.`date_type` = '$date_type'
 	left  join user_account  principal on principal.id = statistic_school_record_weekly.principal_id
 	left  join user_account marketer on marketer.id = statistic_school_record_weekly.marketer_id
     left  join user_account operator on operator.id = statistic_school_record_weekly.afterSales_id
+    where 
+    statistic_school_record_weekly.contract_class <> 'N'
 EOF;
         $school_info = \DB::select(\DB::raw($sql));
         $school_info = json_decode(json_encode($school_info) , true);
@@ -285,6 +309,7 @@ FROM
 	`statistic_student_activity` 
 WHERE
 	`student_id` IN ( $str_ids ) 
+	and id > {$this->max_id_arr['statistic_student_activity']}
 GROUP BY student_id
 EOF;
             $student_info = \DB::select(\DB::raw($sql));
@@ -335,7 +360,7 @@ EOF;
         $total_student_count = 0;
         $total_homework_count = 0;
         // 学生
-        foreach ( array_chunk(  $student_ids , 10 ) as $student_ids_chunk){
+        foreach ( array_chunk(  $student_ids , 30 ) as $student_ids_chunk){
             $student_str = implode( ',', $student_ids_chunk );
             $sql = <<<EOF
 SELECT
@@ -346,7 +371,7 @@ WHERE
 	`student_id` IN ($student_str)
 AND `created_at` >= '$start_time' 
 AND `created_at` <= '$end_time'
-and  id > 243764885
+and  id > {$this->max_id_arr['homework_student_record']}
 EOF;
 
             $student_chunk_info = \DB::select(\DB::raw($sql))[0];
@@ -399,7 +424,7 @@ EOF;
         $total_student_count = 0;
         $total_exam_count = 0;
         // 学生
-        foreach ( array_chunk(  $student_ids , 10 ) as $student_ids_chunk){
+        foreach ( array_chunk(  $student_ids , 30 ) as $student_ids_chunk){
             $student_str = implode( ',', $student_ids_chunk );
             $sql = <<<EOF
 SELECT
@@ -411,7 +436,7 @@ WHERE
 AND `created_at` >= '$start_time' 
 AND `created_at` <= '$end_time'
 AND `deleted_at` IS NULL 
-and id > 3313767
+and id > {$this->max_id_arr['exam_student_record']}
 EOF;
 
             $student_chunk_info = \DB::select(\DB::raw($sql))[0];
@@ -461,7 +486,7 @@ EOF;
 
         $total_student_count = 0;
         // 学生
-        foreach ( array_chunk(  $student_ids , 10 ) as $student_ids_chunk){
+        foreach ( array_chunk(  $student_ids , 30 ) as $student_ids_chunk){
             $student_str = implode( ',', $student_ids_chunk );
             $sql = <<<EOF
 SELECT
@@ -473,7 +498,7 @@ WHERE
 AND `created_at` >= '$start_time' 
 AND `created_at` <= '$end_time'
 AND `deleted_at` IS NULL 
-and  id > 11534439
+and  id > {$this->max_id_arr['word_homework_student_record']}
 EOF;
 
             $student_chunk_info = \DB::select(\DB::raw($sql))[0];
@@ -518,7 +543,7 @@ EOF;
 
         $total_student_count = 0;
         // 学生
-        foreach ( array_chunk(  $student_ids , 10 ) as $student_ids_chunk){
+        foreach ( array_chunk(  $student_ids , 30 ) as $student_ids_chunk){
             $student_str = implode( ',', $student_ids_chunk );
             $sql = <<<EOF
 SELECT
@@ -578,7 +603,7 @@ EOF;
 
         $total_student_count = 0;
         // 学生
-        foreach ( array_chunk(  $student_ids , 10 ) as $student_ids_chunk){
+        foreach ( array_chunk(  $student_ids , 30 ) as $student_ids_chunk){
             $student_str = implode( ',', $student_ids_chunk );
             $sql = <<<EOF
 SELECT
@@ -589,7 +614,7 @@ WHERE
 	`student_id` IN ($student_str)
 AND `created_at` >= '$start_time' 
 AND `created_at` <= '$end_time'
-and id > 15561163
+and id > {$this->max_id_arr['activity_student_book_record']}
 EOF;
 
             $student_chunk_info = \DB::select(\DB::raw($sql))[0];
@@ -610,7 +635,7 @@ EOF;
         $student_ids, $start_time, $end_time
     ){
         $total_student_count = 0;
-        foreach ( array_chunk(  $student_ids , 10 ) as $student_ids_chunk){
+        foreach ( array_chunk(  $student_ids , 30 ) as $student_ids_chunk){
             $student_str = implode( ',', $student_ids_chunk );
             $sql = <<<EOF
 SELECT
@@ -621,7 +646,7 @@ WHERE
 	`student_id` IN ($student_str)
 AND `created_at` >= '$start_time' 
 AND `created_at` <= '$end_time'
-and id > 23802649
+and id > {$this->max_id_arr['library_student_book_record']}
 EOF;
 
             $student_chunk_info = \DB::select(\DB::raw($sql))[0];
