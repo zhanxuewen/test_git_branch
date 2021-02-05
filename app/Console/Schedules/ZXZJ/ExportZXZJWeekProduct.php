@@ -54,6 +54,8 @@ class ExportZXZJWeekProduct extends BaseSchedule
                 'count' => $student_info_item['count'],
             ];
         }
+        // 获取额外的数据
+//        $student_other_info = $this->getStudentOtherInfo($start_time, $end_time);
 
         $export_teacher = [];
         $teacher_info = $this->getTeacherInfo($start_time, $end_time);
@@ -365,6 +367,17 @@ FROM
   AND `created_at` <= '$end_time'
   and homework_id is NULL
   and id >= 39011235
+  
+  union 
+  
+SELECT
+  ' 图书馆磨耳朵' as 'key', count(DISTINCT student_id) count
+FROM
+  `b_vanthink_online`.`record_student_entity_spend_time` 
+  WHERE 
+  `created_at` > '$start_time'
+  AND `created_at` <= '$end_time'
+  and id >= {$this->max_id_arr['record_student_entity_spend_time']}
 EOF;
         $student_info  = \DB::select(\DB::raw($sql));
         return json_decode(json_encode($student_info) , true);
@@ -678,6 +691,14 @@ WHERE
 	and homework_chat.created_at <= '$end_time'
 GROUP BY homework_chat.id
 ORDER BY homework_chat.id  asc
+EOF;
+        $info  = \DB::select(\DB::raw($sql));
+        return json_decode(json_encode($info) , true);
+    }
+
+    private function getStudentOtherInfo($start_time, $end_time){
+        $sql = <<<EOF
+
 EOF;
         $info  = \DB::select(\DB::raw($sql));
         return json_decode(json_encode($info) , true);
