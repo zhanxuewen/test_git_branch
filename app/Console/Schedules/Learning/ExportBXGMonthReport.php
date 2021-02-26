@@ -1,6 +1,27 @@
 <?php
 
 
+/**
+SELECT
+LEFT(finance_school_statement.created_at ,10), finance_school_statement.school_id,school.`name`, finance_school_statement.approval_code,
+finance_school_statement.content, finance_school_statement.fee, mark.name, operator_user.`name`, school_attribute.`value`
+FROM
+`learning`.`finance_school_statement`
+
+left join school on school.id = finance_school_statement.school_id
+
+left join school_attribute on school.id = school_attribute.school_id and school_attribute.`key` = 'region'
+
+left join school_attribute  marketer on school.id = marketer.school_id and marketer.`key` = 'marketer_id'
+left join user mark on mark.id = marketer.`value`
+
+left join school_attribute  operator on school.id = operator.school_id and operator.`key` = 'operator_id'
+left join user operator_user on operator_user.id = operator.`value`
+WHERE
+finance_school_statement.`label_id` = '4'
+and finance_school_statement.created_at >= '2020-05-01 00:00:00'
+ */
+
 namespace App\Console\Schedules\Learning;
 
 
@@ -11,14 +32,18 @@ class ExportBXGMonthReport extends BaseSchedule
 {
     public function handle()
     {
+        ini_set('memory_limit', '2048M');
         config(['database.default' => 'BXG_online']);
 
-        $day_count = 30;
-        $date_type = 'M2020-04';
-        $start_time_str = '2020-04-01 00:00:00';
-        $end_time_str = '2020-04-30 23:59:59';
-        $start_date = '2020-04-01';
-        $end_date = '2020-04-30';
+        $day_count = 31;
+        $date_type = 'M2021-01';
+        $start_time_str = '2021-01-01 00:00:00';
+        $end_time_str = '2021-01-31 23:59:59';
+        $start_date = '2021-01-01';
+        $end_date = '2021-01-31';
+
+        $school_card_fee = $this->getSchoolCardFee($start_time_str,$end_time_str);
+        $school_refund_card_fee = $this->getSchoolRefundCardFee($start_time_str,$end_time_str);
 
 
         $school_cards = $this->getSchoolCards($start_time_str,$end_time_str);
@@ -76,7 +101,7 @@ class ExportBXGMonthReport extends BaseSchedule
             8=>'签约日期',
             9=>'推广代表',
             10=>'运营代表',
-            11=>'本月结算总额',
+            11=>'售卡金额（程序算的）',
             12=>'本月减免额',
             13=>'有效结算总额',
             14=>'本月学习人数',
@@ -149,6 +174,32 @@ class ExportBXGMonthReport extends BaseSchedule
             81=>'7D 英语同步期中冲刺(月)',
             82=>'',
             83=>'',
+            84 => '11A 语文基础训练卡(季)',
+            85 => '',
+            86 => '',
+            87 => '11B 古诗文背诵卡(半年)',
+            88 => '',
+            89 => '',
+            90 => '11C 古诗文背诵卡(月)',
+            91 => '',
+            92 => '',
+            93 => '11D 语文基础训练卡(月)',
+            94 => '',
+            95 => '',
+
+            96 => '4C 课文卡(月)',
+            97 => '',
+            98 => '',
+            99 => '1E 单词卡(月)',
+            100 => '',
+            101 => '',
+
+            102 => '2021会考-初中地理/生物/历史',
+            103 => '',
+            104 => '',
+            105 => '初中化学同步进阶(月)',
+            106 => '',
+            107 => '',
         ];
         $rep[] = [
             1=>'',
@@ -234,11 +285,73 @@ class ExportBXGMonthReport extends BaseSchedule
             81=>'本月开卡量',
             82=>'结算价',
             83=>'学习人数',
+            84=> '本月开卡量',
+            85=> '结算价',
+            86=> '学习人数',
+            87=> '本月开卡量',
+            88=> '结算价',
+            89=> '学习人数',
+            90=> '本月开卡量',
+            91=> '结算价',
+            92=> '学习人数',
+            93=> '本月开卡量',
+            94=> '结算价',
+            95=> '学习人数',
+
+            96 => '本月开卡量',
+            97 => '结算价',
+            98 => '学习人数',
+            99 => '本月开卡量',
+            100 => '结算价',
+            101 => '学习人数',
+
+            102 => '本月开卡量',
+            103 => '结算价',
+            104 => '学习人数',
+            105 => '本月开卡量',
+            106 => '结算价',
+            107 => '学习人数',
         ];
 
         // 获得 学生练习 课程
-        $school_card_use_info = $this->getSchoolLearnInfo($start_date, $day_count);
-//        $school_card_use_info =[];
+//        $school_card_use_info = $this->getSchoolLearnInfo($start_date, $day_count);
+        $tmp_resulttt1 = $this->getSchoolLearnInfo($start_date, $day_count);
+        /**
+        'school_card_use_info' =>$school_card_use_info,
+        'book_trail_info' => $book_trail_info,
+        'student_book_trail_info' => $student_book_trail_info
+         */
+
+
+        $school_card_use_info = $tmp_resulttt1['school_card_use_info'];
+
+        $book_trail_info = $tmp_resulttt1['book_trail_info'];
+
+        $student_book_trail_info = $tmp_resulttt1['student_book_trail_info'];
+
+
+        $trail_book = \DB::table('course_book')
+            ->selectRaw('course_book.id, CONCAT(course_book.name, "---", card_subject.name) as name')
+            ->leftJoin('card_subject', 'card_subject.id', '=', 'course_book.subject_id')
+            ->whereIn('course_book.id', array_unique($book_trail_info))
+            ->get();
+
+
+
+        $rep_2 = [];
+        $rep_2_tmp = [
+            'school_id'=>'学校ID',
+            'school_name'=>'学校名称',
+            'sheng'=>'省',
+            'shi'=>'地市',
+            'qu'=>'区县',
+            'operator'=>'运营代表',
+        ];
+
+        foreach ($trail_book as $trail_book_item){
+            $rep_2_tmp[$trail_book_item->id] = $trail_book_item->name;
+        }
+        $rep_2[] = $rep_2_tmp;
 
         // 学校基本信息
         $school_info = $this->getSchoolInfo();
@@ -278,6 +391,30 @@ class ExportBXGMonthReport extends BaseSchedule
                 }
             }
 
+           if (isset($student_book_trail_info[$school_id])){
+               $rep_2_tmp = [
+                   'school_id'=>$school_id,
+                   'school_name'=>$school_info[$school_id]['name'],
+                   'sheng'=>$region_arr[0],
+                   'shi'=>$region_arr[1],
+                   'qu'=>isset($region_arr[2]) ? $region_arr[2] : '',
+                   'operator'=>$school_info[$school_id]['oper_name'],
+               ];
+               foreach ($trail_book as $trail_book_item){
+                   $rep_2_tmp[$trail_book_item->id] = '0';
+               }
+
+               foreach ($student_book_trail_info[$school_id] as $book=>$students){
+//                   \Log::info($school_id.':'.$book.'---'.count(array_unique($students)));
+                   $rep_2_tmp[$book] = count(array_unique($students));
+               }
+
+               $rep_2[] = $rep_2_tmp;
+           }
+
+            $tmp_fee = (isset($school_card_fee[$school_id]) ?  $school_card_fee[$school_id] : 0 )
+                -
+                (isset($school_refund_card_fee[$school_id]) ?  $school_refund_card_fee[$school_id] : 0 );
 
             $rep[] = [
                 1=>$school_id,
@@ -290,7 +427,7 @@ class ExportBXGMonthReport extends BaseSchedule
                 8=>'',
                 9=>$school_info[$school_id]['marketer_name'],
                 10=>$school_info[$school_id]['oper_name'],
-                11=>'',
+                11=> $tmp_fee ? $tmp_fee.'' : '0',
                 12=>'',
                 13=>'',
                 14=>isset($school_learn_student[$school_id])  ? ($school_learn_student[$school_id]? $school_learn_student[$school_id] : '0') : '0',
@@ -414,16 +551,61 @@ class ExportBXGMonthReport extends BaseSchedule
                 78=>isset($school_cards[$school_id][85]) ? $school_cards[$school_id][85]['count'] : '0',
                 79=>isset($school_cards[$school_id][85]) ? $school_cards[$school_id][85]['fee'] :
                     ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][85]) ? $school_fee[$school_id][85] : $card_fee[85]),
-                80=>isset($school_card_use_true[58])?$school_card_use_true[58] : '0',
+                80=>isset($school_card_use_true[85])?$school_card_use_true[85] : '0',
 
                 81=>isset($school_cards[$school_id][87]) ? $school_cards[$school_id][87]['count'] : '0',
                 82=>isset($school_cards[$school_id][87]) ? $school_cards[$school_id][87]['fee'] :
                     ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][87]) ? $school_fee[$school_id][87] : $card_fee[87]),
                 83=>isset($school_card_use_true[87])?$school_card_use_true[87] : '0',
+
+                84=>isset($school_cards[$school_id][88]) ? $school_cards[$school_id][88]['count'] : '0',
+                85=>isset($school_cards[$school_id][88]) ? $school_cards[$school_id][88]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][88]) ? $school_fee[$school_id][88] : $card_fee[88]),
+                86=>isset($school_card_use_true[88])?$school_card_use_true[88] : '0',
+
+                87=>isset($school_cards[$school_id][89]) ? $school_cards[$school_id][89]['count'] : '0',
+                88=>isset($school_cards[$school_id][89]) ? $school_cards[$school_id][89]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][89]) ? $school_fee[$school_id][89] : $card_fee[89]),
+                89=>isset($school_card_use_true[89])?$school_card_use_true[89] : '0',
+
+                90=>isset($school_cards[$school_id][90]) ? $school_cards[$school_id][90]['count'] : '0',
+                91=>isset($school_cards[$school_id][90]) ? $school_cards[$school_id][90]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][90]) ? $school_fee[$school_id][90] : $card_fee[90]),
+                92=>isset($school_card_use_true[90])?$school_card_use_true[90] : '0',
+
+                93=>isset($school_cards[$school_id][91]) ? $school_cards[$school_id][91]['count'] : '0',
+                94=>isset($school_cards[$school_id][91]) ? $school_cards[$school_id][91]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][91]) ? $school_fee[$school_id][91] : $card_fee[91]),
+                95=>isset($school_card_use_true[91])?$school_card_use_true[91] : '0',
+
+
+
+                96=>isset($school_cards[$school_id][92]) ? $school_cards[$school_id][92]['count'] : '0',
+                97=>isset($school_cards[$school_id][92]) ? $school_cards[$school_id][92]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][92]) ? $school_fee[$school_id][92] : $card_fee[92]),
+                98=>isset($school_card_use_true[92])?$school_card_use_true[92] : '0',
+
+                99=>isset($school_cards[$school_id][93]) ? $school_cards[$school_id][93]['count'] : '0',
+                100=>isset($school_cards[$school_id][93]) ? $school_cards[$school_id][93]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][93]) ? $school_fee[$school_id][93] : $card_fee[93]),
+                101=>isset($school_card_use_true[93])?$school_card_use_true[93] : '0',
+
+
+                102=>isset($school_cards[$school_id][94]) ? $school_cards[$school_id][94]['count'] : '0',
+                103=>isset($school_cards[$school_id][94]) ? $school_cards[$school_id][94]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][94]) ? $school_fee[$school_id][94] : $card_fee[94]),
+                104=>isset($school_card_use_true[94])?$school_card_use_true[94] : '0',
+
+                105=>isset($school_cards[$school_id][95]) ? $school_cards[$school_id][95]['count'] : '0',
+                106=>isset($school_cards[$school_id][95]) ? $school_cards[$school_id][95]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][95]) ? $school_fee[$school_id][95] : $card_fee[95]),
+                107=>isset($school_card_use_true[95])?$school_card_use_true[95] : '0',
+
             ];
         }
 
-        $this->store('4月份数据_'.rand(0,100), $rep, '.xlsx');
+        $this->store('月数据_'.rand(0,100), $rep, '.xlsx');
+        $this->store('月体验数据_'.rand(0,100), $rep_2, '.xlsx');
 
 
         dd('done....');
@@ -433,6 +615,10 @@ class ExportBXGMonthReport extends BaseSchedule
     public function getSchoolLearnInfo($start_date, $date_total)
     {
         $school_card_use_info = [];
+
+        $student_book_trail_info = [];
+
+        $book_trail_info = [];
         // 书 与 卡 的关系
         $sql = <<<EOF
 SELECT
@@ -469,6 +655,7 @@ EOF;
             $student_records = \DB::table('statistic_student_record')
                 ->selectRaw('student_id, school_id,value as books')
                 ->where('created_date', $record_date)
+                ->where('school_id', '<>', 0)
                 ->get();
             foreach ($student_records as $student_record){
                 $school_id  = $student_record->school_id;
@@ -481,40 +668,53 @@ EOF;
                     }
 
                     // 获得 这本书 的卡信息
-                    $card_info = $student_book_card_relation[$student_id][$book_id];
-                    $card_num = $card_info['count'];
-                    $card_ids = $card_info['card_ids'];
+                    if (isset($student_book_card_relation[$student_id])
+                        && isset($student_book_card_relation[$student_id][$book_id])){
+                        $card_info = $student_book_card_relation[$student_id][$book_id];
+                        $card_num = $card_info['count'];
+                        $card_ids = $card_info['card_ids'];
 
-                    if ($card_num == 1){
-                        $card_tmp = \DB::table('card')
-                            ->selectRaw('prototype_id')
-                            ->where('id', $card_ids)
-                            ->first();
-                        $card = $card_tmp->prototype_id;
-                        if (!isset($school_card_use_info[$school_id][$card])){
-                            $school_card_use_info[$school_id][$card] = [];
-                        }
-                        $school_card_use_info[$school_id][$card][] = $student_id;
-                    }else{
-                        // 绑着多张卡
-                        $card_tmp = \DB::table('card')
-                            ->whereIn('id', explode(',', $card_ids))
-                            ->where('created_at','<=', $record_date.' 23:59:59')
-                            ->get();
-                        foreach ($card_tmp as $card_item){
-                            if (
-                                $card_item->activated_at <= $record_date &&
-                                $card_item->expired_at >= $record_date
-                            ){
-                                $card = $card_item->prototype_id;
+                        if ($card_num == 1){
+                            $card_tmp = \DB::table('card')
+                                ->selectRaw('prototype_id')
+                                ->where('id', $card_ids)
+                                ->first();
+                            $card = $card_tmp->prototype_id;
+                            if (!isset($school_card_use_info[$school_id][$card])){
+                                $school_card_use_info[$school_id][$card] = [];
+                            }
+                            $school_card_use_info[$school_id][$card][] = $student_id;
+                        }else{
+                            // 绑着多张卡
+                            $card_tmp = \DB::table('card')
+                                ->whereIn('id', explode(',', $card_ids))
+                                ->where('created_at','<=', $record_date.' 23:59:59')
+                                ->get();
+                            foreach ($card_tmp as $card_item){
+                                if (
+                                    $card_item->activated_at <= $record_date &&
+                                    $card_item->expired_at >= $record_date
+                                ){
+                                    $card = $card_item->prototype_id;
 
-                                if (!isset($school_card_use_info[$school_id][$card])){
-                                    $school_card_use_info[$school_id][$card] = [];
+                                    if (!isset($school_card_use_info[$school_id][$card])){
+                                        $school_card_use_info[$school_id][$card] = [];
+                                    }
+                                    $school_card_use_info[$school_id][$card][] = $student_id;
+                                    break;
                                 }
-                                $school_card_use_info[$school_id][$card][] = $student_id;
-                                break;
                             }
                         }
+                    }else{
+                        if (!isset($student_book_trail_info[$school_id])){
+                            $student_book_trail_info[$school_id] = [];
+                        }
+
+                        if (!isset($student_book_trail_info[$school_id][$book_id])){
+                            $student_book_trail_info[$school_id][$book_id] = [];
+                        }
+                        $student_book_trail_info[$school_id][$book_id][] = $student_id;
+                        $book_trail_info[] = $book_id;
                     }
                 }
                 echo '=';
@@ -524,7 +724,13 @@ EOF;
             echo '>'.$record_date;
 
         }
-        return $school_card_use_info;
+//        \Log::info(array_unique($book_trail_info));
+//        \Log::info($student_book_trail_info);
+        return [
+            'school_card_use_info' =>$school_card_use_info,
+            'book_trail_info' => $book_trail_info,
+            'student_book_trail_info' => $student_book_trail_info
+        ];
 
     }
 
@@ -594,7 +800,7 @@ WHERE
 	`created_at` >= '$start_str' 
 	AND `created_at` <= '$end_str' 
 	AND `is_activated` = '1' 
-	AND `deleted_at` IS NULL 
+-- 	AND `deleted_at` IS NULL 
 GROUP BY 
 school_id, prototype_id, price 
 EOF;
@@ -628,6 +834,29 @@ EOF;
         return $school_info;
     }
 
+    public function getSchoolCardFee($start_str,$end_str)
+    {
+        $sql = <<<EOF
+SELECT
+	school_id, sum(price) fee
+FROM
+	`learning`.`card` 
+WHERE
+	`created_at` >= '$start_str' 
+	AND `created_at` <= '$end_str' 
+	AND `is_activated` = '1' 
+GROUP BY 
+school_id
+EOF;
+        $card_fee = \DB::select(\DB::raw($sql));
+
+         return  array_combine(
+            array_column($card_fee, 'school_id'),
+            array_column($card_fee, 'fee')
+        );
+
+    }
+
 
     public function getSchoolRefundCard($start_str,$end_str)
     {
@@ -656,6 +885,27 @@ EOF;
 
 
         
+    }
+
+    public function getSchoolRefundCardFee($start_str,$end_str)
+    {
+        $sql = <<<EOF
+SELECT
+	school_id, sum(price) fee
+FROM
+	`learning`.`card` 
+WHERE
+	`deleted_at` >= '$start_str'
+	AND `deleted_at` <= '$end_str' 
+GROUP BY 
+school_id
+EOF;
+        $card_fee = \DB::select(\DB::raw($sql));
+
+        return  array_combine(
+            array_column($card_fee, 'school_id'),
+            array_column($card_fee, 'fee')
+        );
     }
 
 
