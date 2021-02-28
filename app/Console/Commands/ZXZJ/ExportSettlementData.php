@@ -1,0 +1,610 @@
+<?php
+
+namespace App\Console\Commands\ZXZJ;
+
+use App\Console\Common\ZXZJ\SchoolAccountant;
+use App\Console\Schedules\Learning\ExportBookLearningProcess;
+use App\Console\Schedules\Monitor\ScheduleHeartbeat;
+use App\Foundation\Excel;
+use App\Foundation\PdoBuilder;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
+
+class ExportSettlementData extends Command
+{
+    use Excel;
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'export:settlement:data';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = '导出在线助教 财务结算数据';
+
+    /**
+     * Create a new command instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
+    // 截止到某天
+    public function getTotalInfo($month)
+    {
+//        config(['database.default' => 'local']);
+
+        $time = Carbon::parse($month)->endOfMonth()->endOfDay()->toDateTimeString();
+
+        $sql = <<<EOF
+select 
+  school_info.school_id,
+  if(`offline`.offline_fee ,offline.offline_fee , 0) offline_total,
+  if(`online`.online_fee ,`online`.online_fee , 0) online_total,
+  if(`finance`.finance_fee ,`finance`.finance_fee , 0) finance_total ,
+  if(`qingke`.finance_fee ,`qingke`.finance_fee , 0) qingke_total,
+  if(offline.offline_fee ,offline.offline_fee , 0) + if(`online`.online_fee ,`online`.online_fee , 0)  
+	+ if(`finance`.finance_fee ,`finance`.finance_fee , 0) + if(`qingke`.finance_fee ,`qingke`.finance_fee , 0) total_fee
+from 
+(
+  SELECT DISTINCT
+    school_id 
+  FROM
+    accountant_statement
+) school_info 
+
+left join (
+## 线下
+  SELECT
+    school_id,
+    sum( fee ) * - 1 offline_fee 
+  FROM
+    `accountant_statement` 
+  WHERE
+    created_at <= '$time'
+    AND type IN ( 'schoolOfflinePayment', 'schoolOfflineRefund', 'offlinePayment', 'offlineRefund' ) 
+  GROUP BY
+    school_id
+) offline on offline.school_id = school_info.school_id
+
+left join (
+## 线上  
+  SELECT
+    school_id,
+    sum( fee ) * - 1 online_fee 
+  FROM
+    `accountant_statement` 
+  WHERE
+    `label_id` = '8' 
+    AND `extra` <= '$month'
+    AND has_rollback = 0 
+  GROUP BY
+    school_id
+  ) `online` on `online`.school_id = school_info.school_id
+
+  left join (
+## 财务
+  SELECT
+    school_id,
+    sum( fee ) * - 1 finance_fee 
+  FROM
+    `accountant_statement` 
+  WHERE
+    `type` = 'receipt' 
+    AND label_id IN ( 11, 12 ) 
+   and created_at <= '$time'
+    AND has_rollback = 0 
+  GROUP BY
+    school_id
+) finance on `finance`.school_id = school_info.school_id
+
+
+ left join (
+## 轻课 
+  SELECT
+    school_id,
+    sum( fee )  finance_fee 
+  FROM
+    `accountant_statement` 
+  WHERE
+        `label_id` = 32
+    AND `extra` <= '$month'
+    AND has_rollback = 0 
+  GROUP BY
+    school_id
+) qingke on qingke.school_id = school_info.school_id
+
+ORDER BY  school_info.school_id
+EOF;
+
+        $record = \DB::select(\DB::raw($sql));
+
+
+        return array_combine(
+            array_column($record, 'school_id'),
+            array_column($record, 'total_fee')
+        );
+    }
+
+
+    public function handleSchoolInfo()
+    {
+        config(['database.default' => 'zxzj_online_search']);
+
+        $month_12_info = $this->getTotalInfo('2020-12');
+        $month_11_info = $this->getTotalInfo('2020-11');
+
+//        $month_10_info = $this->getTotalInfo('2020-10');
+
+
+//        $month_9_info = $this->getTotalInfo('2020-09');
+
+//        $month_8_info = $this->getTotalInfo('2020-08');
+
+//        $month_7_info = $this->getTotalInfo('2020-07');
+
+//        $month_6_info = $this->getTotalInfo('2020-06');
+
+//        $month_5_info = $this->getTotalInfo('2020-05');
+
+//        $month_4_info = $this->getTotalInfo('2020-04');
+
+        // 获得 3月底的 数据
+//        $month_3_info = $this->getTotalInfo('2020-03');
+//        // 获得 2月底的 数据
+//        $month_2_info = $this->getTotalInfo('2020-02');
+//        // 获得 1月底的 数据
+//        $month_1_info = $this->getTotalInfo('2020-01');
+
+
+//        config(['database.default' => 'online']);
+
+        //todo 修改 日期
+        $start = '2020-11-30';
+        $end = '2020-12-31';
+
+        $school_record = [];
+        $school_record[] = [
+            'school_id' => '学校id',
+            'school_name' => '学校名称',
+            'nickname' => '运营专员',
+//            'first_date'=> '月初时间/接手时间',
+            'trans_money' => '初始金额(元)',
+//            'last_date'=>'月末时间',
+            'last_trans_money' => '月末金额(元)',
+            'increase' => '增长额(元)',
+        ];
+
+
+        // 查找学校
+        $sql = <<<EOF
+SELECT 
+	school_id, min(date_type) as min_date, max(date_type) as max_date
+FROM
+	`b_vanthink_online`.`statistic_school_record` 
+WHERE
+	`date_type` <= '$end' 
+	AND `afterSales_id` <> '0' 
+	AND `date_type` >= '$start'
+	GROUP BY school_id
+EOF;
+
+        $school_info = \DB::select(\DB::raw($sql));
+        $school_info = json_decode(json_encode($school_info),true);
+
+
+        foreach ($school_info as $school_item){
+            $school_id = $school_item['school_id'];
+//            $min_date = $school_item['min_date'];
+            $max_date = $school_item['max_date'];
+            // 初始化
+            $school_init = \DB::table('statistic_school_record')
+                ->selectRaw('school.id, school.name, user_account.nickname,statistic_school_record.extra')
+                ->leftjoin('user_account','user_account.id', '=', 'statistic_school_record.afterSales_id')
+                ->leftjoin('school','school.id', '=', 'statistic_school_record.school_id')
+                ->where('statistic_school_record.school_id',$school_id)
+                ->where('date_type',$max_date)
+                ->first();
+
+//            $school_last = \DB::table('statistic_school_record')
+//                ->selectRaw('school.id, school.name, user_account.nickname,statistic_school_record.extra')
+//                ->leftjoin('user_account','user_account.id', '=', 'statistic_school_record.afterSales_id')
+//                ->leftjoin('school','school.id', '=', 'statistic_school_record.school_id')
+//                ->where('statistic_school_record.school_id',$school_id)
+//                ->where('date_type',$end)
+//                ->first();
+
+//           $first_fee = json_decode($school_init->extra, true)['trans_money'];
+//           if ($min_date == $start){
+//
+//           }
+            // todo 开始时间
+            $first_fee = isset($month_11_info[$school_id]) ? $month_11_info[$school_id] : 0;
+
+           // todo  结束信息
+            $last_fee = isset($month_12_info[$school_id]) ? $month_12_info[$school_id] : 0;
+
+            $school_record[] = [
+                'school_id' => $school_id,
+                'school_name' => $school_init->name,
+                'nickname' => $school_init->nickname,
+//                'first_date'=>$min_date,
+                'trans_money' => $first_fee ? $first_fee : '0',
+//                'last_date'=>$end,
+                'last_trans_money' => $last_fee ? $last_fee : '0',
+                'increase' => ($last_fee-$first_fee) ? ($last_fee-$first_fee) : '0',
+            ];
+            echo '+';
+        }
+
+        $this->store('12月份数据_'.rand(0,100), $school_record, '.xlsx');
+
+        dd('done');
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        ini_set ('memory_limit', '1024M');
+        $this->handleSchoolInfo_v2();
+        dd(
+            'done'
+        );
+    }
+
+//        $this->handleSchoolInfo();
+//
+//        dd('done');
+//
+//        $sql = <<<EOF
+//SELECT
+//	activity.id,activity.`name`,  user_account.nickname  ,activity.days,activity.start_at, activity.end_at
+//FROM
+//	`b_vanthink_online`.`activity`
+//	left join user_account on user_accoun t.id = activity.account_id
+//WHERE
+//	activity.`school_id` = '1348'
+//	AND activity.`deleted_at` IS NULL
+//EOF;
+//
+//
+//
+//        $activity_info = \DB::select(\DB::raw($sql));
+
+//        $activity_info = json_decode(json_encode($activity_info),true);
+//
+//
+//        $rep = [];
+//        $rep[] = [
+//            "id" => '活动id',
+//            "name" => "活动名称",
+//            "nickname" => "老师",
+//            "days" => '活动天数',
+//            "start_at" => "开始时间",
+//            "end_at" => "结束时间",
+//            "num" => '记录时间',
+//            'total' =>'总人数',
+//            'join_count' =>'参与人数',
+//            'join_rate' => '参与率'
+//        ];
+//
+//        foreach ($activity_info as $activity_item){
+//
+//            // 一个 活动
+//            $activity_id = $activity_item['id'];
+//
+//            $days_count  = $activity_item['days'];
+//
+//            $start_at  = $activity_item['start_at'];
+//
+//            $end_at = $activity_item['end_at'];
+//
+//            // 每一天的 数据
+//            for($i = 0;$i<$days_count; $i++){
+//                //计算时间
+//                $start_time = Carbon::parse($start_at)->addDays($i)->startOfDay()->toDateTimeString();
+//                $end_time = Carbon::parse($start_at)->addDays($i)->endOfDay()->toDateTimeString();
+//
+//                if (Carbon::parse($start_at)->addDays($i)->gt(Carbon::parse($end_at))){
+//                    dd('数据错误'. $activity_id);
+//                }
+//
+//                if (Carbon::parse($start_at)->addDays($i)->gt(Carbon::now())){
+//                    continue;
+//                }
+//                // 总人数
+//                $total = \DB::table('activity_student_overview')
+//                    ->where('activity_id',$activity_id)
+//                    ->where('created_at','<=',$end_time)
+//                    ->count();
+//
+//                // 获得参与人数
+//                \DB::enableQueryLog();
+//
+//                $join_count = \DB::table('activity_student_book_record')
+//                    ->selectRaw('count(DISTINCT student_id)  join_num')
+//                    ->where('activity_id',$activity_id)
+//                    ->where('created_at','>=',$start_time)
+//                    ->where('created_at','<=',$end_time)
+//                    ->first();
+//                $join_count = $join_count->join_num;
+//
+//
+//                $tmp = $i+1;
+//                $rep[] = [
+//                    "id" => $activity_id,
+//                    "name" => $activity_item['name'],
+//                    "nickname" => $activity_item['nickname'],
+//                    "days" => $days_count,
+//                    "start_at" => $start_at,
+//                    "end_at" => $end_at,
+//                    "num" => "第".$tmp."天",
+//                    'total' =>$total ? $total : '0',
+//                    'join_count' =>$join_count ? $join_count : '0',
+//                    'join_rate' => empty($total) ?  '0' : round(($join_count / $total) * 100 ,1)
+//                ];
+//
+//            }
+//
+//            echo '+';
+//
+//
+//        }
+//
+//        $this->store('1348_建昌剑桥_打卡活动'.rand(0,100), $rep, '.xlsx');
+//        dd('done');
+//    }
+
+    // 获得 每个月的财务收入  一段时间
+    public function getTotalInfo_v3($month)
+    {
+        $start_time = Carbon::parse($month)->startOfMonth()->toDateString();
+        $end_time = Carbon::parse($month)->endOfMonth()->toDateString();
+
+        $sql = <<<EOF
+select 
+  school_info.school_id,
+  if(`offline`.offline_fee ,offline.offline_fee , 0)        offline_total,
+  if(`online`.online_fee ,`online`.online_fee , 0)          online_total,
+  if(`finance`.finance_fee ,`finance`.finance_fee , 0)      finance_total ,
+  if(`qingke`.finance_fee ,`qingke`.finance_fee , 0)        qingke_total,
+  if(offline.offline_fee ,offline.offline_fee , 0) 
+    + if(`online`.online_fee ,`online`.online_fee , 0)  
+	+ if(`finance`.finance_fee ,`finance`.finance_fee , 0) 
+	+ if(`qingke`.finance_fee ,`qingke`.finance_fee , 0)        total_fee
+from 
+(
+  SELECT DISTINCT
+    school_id 
+  FROM
+    accountant_statement
+) school_info 
+
+left join (
+## 线下
+  SELECT
+    school_id,
+    sum( fee ) * - 1 offline_fee 
+  FROM
+    `accountant_statement` 
+  WHERE
+    date <= '$end_time'
+    and date >= '$start_time'
+    AND type IN ( 'schoolOfflinePayment', 'schoolOfflineRefund', 'offlinePayment', 'offlineRefund' ) 
+  GROUP BY
+    school_id
+) offline on offline.school_id = school_info.school_id
+
+left join (
+
+## 线上  
+  SELECT
+    school_id,
+    sum( fee ) * - 1 online_fee 
+  FROM
+    `accountant_statement` 
+  WHERE
+    `label_id` = '8' 
+    AND `extra` = '$month'
+    AND has_rollback = 0 
+  GROUP BY
+    school_id
+  ) `online` on `online`.school_id = school_info.school_id
+
+  left join (
+## 财务
+  SELECT
+    school_id,
+    sum( fee ) * - 1 finance_fee 
+  FROM
+    `accountant_statement` 
+  WHERE
+    `type` = 'receipt' 
+    AND label_id IN ( 11, 12 ) 
+ and   date <= '$end_time'
+and date >= '$start_time'
+    AND has_rollback = 0 
+  GROUP BY
+    school_id
+) finance on `finance`.school_id = school_info.school_id
+
+
+ left join (
+## 轻课 
+  SELECT
+    school_id,
+    sum( fee )  finance_fee 
+  FROM
+    `accountant_statement` 
+  WHERE
+        `label_id` = 32
+    AND `extra` = '$month'
+    AND has_rollback = 0 
+  GROUP BY
+    school_id
+) qingke on qingke.school_id = school_info.school_id
+
+ORDER BY  school_info.school_id
+EOF;
+
+
+        $record = \DB::select(\DB::raw($sql));
+        return array_combine(
+            array_column($record, 'school_id'),
+            array_column($record, 'total_fee')
+        );
+    }
+
+    public function getSchoolMarketer($date_key)
+    {
+        $sql = <<<EOF
+SELECT
+	statistic_school_record.school_id,user_account.nickname  marketer, after_man.nickname after_man
+FROM
+	`b_vanthink_online`.`statistic_school_record` 
+	left join user_account on user_account.id = statistic_school_record.marketer_id
+	left join user_account after_man on after_man.id = statistic_school_record.afterSales_id
+WHERE
+	`date_type` = '$date_key' 
+EOF;
+
+        $school_manage = \DB::select(\DB::raw($sql));
+        $school_manage = json_decode(json_encode($school_manage),true);
+
+        $marketer = array_combine(
+            array_column($school_manage, 'school_id'),
+            array_column($school_manage, 'marketer')
+        );
+
+        $after_man = array_combine(
+            array_column($school_manage, 'school_id'),
+            array_column($school_manage, 'after_man')
+        );
+
+        return [
+            'marketer' => $marketer,
+            'after_man' => $after_man
+        ];
+
+    }
+
+    public function handleSchoolInfo_v2()
+    {
+        config(['database.default' => 'online']);
+        $start_month = '2020-01';
+        $school_accountant = [];
+        for($i=0; $i<12; $i++){
+            $month = Carbon::parse($start_month)->addMonths($i)->toDateString();
+            $month_key = substr($month,0,7);
+            $this->info($month_key);
+            $school_accountant[$month_key] = $this->getTotalInfo_v3($month_key);
+        }
+
+        $school_record = [];
+        $school_record[] = [
+            'school_id' => '学校id',
+            'school_name' => '学校名称',
+            'create_date' => '创建时间',
+            'sign_date' => '签约日期',
+            'class' => '学校档位（12月末）',
+            'sheng' => '省',
+            'shi' => '市',
+            'qu' => '区',
+            'marketer' => '市场(12月末)',
+            'after_man' => '售后(12月末)',
+
+
+            '2020-12_key3'=>'2020-12',
+            '2020-11_key3'=>'2020-11',
+            '2020-10_key3'=>'2020-10',
+            '2020-09_key3'=>'2020-09',
+
+            '2020-08_key3'=>'2020-08',
+            '2020-07_key3'=>'2020-07',
+            '2020-06_key3'=>'2020-06',
+            '2020-05_key3'=>'2020-05',
+
+            '2020-04_key3'=>'2020-04',
+            '2020-03_key3'=>'2020-03',
+            '2020-02_key3'=>'2020-02',
+            '2020-01_key3'=>'2020-01',
+        ];
+        // 查找学校
+        $sql = <<<EOF
+SELECT
+	statistic_school_record.school_id,
+	school.name, 
+	school.created_at, 
+	statistic_school_record.sign_contract_date, 
+	user_account.nickname  marketer, 
+	after_man.nickname after_man, 
+	school_attribute.`value`  region , 
+	class.value class
+FROM
+	`b_vanthink_online`.`statistic_school_record` 
+	left join school on school.id = statistic_school_record.school_id
+	left join user_account on user_account.id = statistic_school_record.marketer_id
+	left join user_account after_man on after_man.id = statistic_school_record.afterSales_id
+	left join school_attribute on school_attribute.school_id = statistic_school_record.school_id and school_attribute.key = 'region'
+	left join school_attribute class on class.school_id = statistic_school_record.school_id and class.key = 'contract_class'
+WHERE
+	`date_type` = '2020-12-31' 
+EOF;
+
+        $school_info = \DB::select(\DB::raw($sql));
+        $school_info = json_decode(json_encode($school_info),true);
+
+
+        foreach ($school_info as $school_item){
+            $school_id =  $school_item['school_id'];
+            $region = $school_item['region'];
+            $region_arr = explode('/', $region);
+
+            $school_record[] = [
+                'school_id' => $school_id,
+                'school_name' => $school_item['name'],
+                'create_date' => substr($school_item['created_at'], 0,10 ),
+                'sign_date' => $school_item['sign_contract_date'],
+
+                'class' => $school_item['class'],
+                'sheng' => isset($region_arr[0]) ? $region_arr[0] : '',
+                'shi' => isset($region_arr[1]) ? $region_arr[1] : '',
+                'qu' => isset($region_arr[2]) ? $region_arr[2] : '',
+                'marketer' => $school_item['marketer'],
+                'after_man' => $school_item['after_man'],
+
+                '2020-12_key3'=>isset($school_accountant['2020-12']) && isset($school_accountant['2020-12'][$school_id]) ? ($school_accountant['2020-12'][$school_id] ? $school_accountant['2020-12'][$school_id] : '0') : '0',
+                '2020-11_key3'=>isset($school_accountant['2020-11']) && isset($school_accountant['2020-11'][$school_id]) ? ($school_accountant['2020-11'][$school_id] ? $school_accountant['2020-11'][$school_id] : '0') : '0',
+                '2020-10_key3'=>isset($school_accountant['2020-10']) && isset($school_accountant['2020-10'][$school_id]) ? ($school_accountant['2020-10'][$school_id] ? $school_accountant['2020-10'][$school_id] : '0') : '0',
+                '2020-09_key3'=>isset($school_accountant['2020-09']) && isset($school_accountant['2020-09'][$school_id]) ? ($school_accountant['2020-09'][$school_id] ? $school_accountant['2020-09'][$school_id] : '0') : '0',
+
+                '2020-08_key3'=>isset($school_accountant['2020-08']) && isset($school_accountant['2020-08'][$school_id]) ? ($school_accountant['2020-08'][$school_id] ? $school_accountant['2020-08'][$school_id] : '0') : '0',
+                '2020-07_key3'=>isset($school_accountant['2020-07']) && isset($school_accountant['2020-07'][$school_id]) ? ($school_accountant['2020-07'][$school_id] ? $school_accountant['2020-07'][$school_id] : '0') : '0',
+                '2020-06_key3'=>isset($school_accountant['2020-06']) && isset($school_accountant['2020-06'][$school_id]) ? ($school_accountant['2020-06'][$school_id] ? $school_accountant['2020-06'][$school_id] : '0') : '0',
+                '2020-05_key3'=>isset($school_accountant['2020-05']) && isset($school_accountant['2020-05'][$school_id]) ? ($school_accountant['2020-05'][$school_id] ? $school_accountant['2020-05'][$school_id] : '0') : '0',
+
+                '2020-04_key3'=> isset($school_accountant['2020-04']) && isset($school_accountant['2020-04'][$school_id]) ? ($school_accountant['2020-04'][$school_id] ? $school_accountant['2020-04'][$school_id] : '0') : '0',
+                '2020-03_key3'=> isset($school_accountant['2020-03']) && isset($school_accountant['2020-03'][$school_id]) ? ($school_accountant['2020-03'][$school_id] ? $school_accountant['2020-03'][$school_id] : '0') : '0',
+                '2020-02_key3'=> isset($school_accountant['2020-02']) && isset($school_accountant['2020-02'][$school_id]) ? ($school_accountant['2020-02'][$school_id] ? $school_accountant['2020-02'][$school_id] : '0') : '0',
+                '2020-01_key3'=> isset($school_accountant['2020-01']) && isset($school_accountant['2020-01'][$school_id]) ? ($school_accountant['2020-01'][$school_id] ? $school_accountant['2020-01'][$school_id] : '0') : '0',
+              ];
+        }
+
+        $this->store('在线助教结算数据_'.rand(0,100), $school_record, '.xlsx');
+
+        dd('done');
+    }
+
+}
