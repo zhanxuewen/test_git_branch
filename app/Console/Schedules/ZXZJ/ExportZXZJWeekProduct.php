@@ -18,6 +18,7 @@ class ExportZXZJWeekProduct extends BaseSchedule
 
 
 
+        $last_id = 20972;  // todo
 
 ######################时间
         $week = Carbon::now()->subWeek()->weekOfYear;
@@ -27,12 +28,56 @@ class ExportZXZJWeekProduct extends BaseSchedule
         $start_time = Carbon::now()->subWeek()->startOfWeek()->toDateTimeString();
         $end_time = Carbon::now()->subWeek()->endOfWeek()->toDateTimeString();
 
+        $school_count_last = \DB::table('school')->where('created_at', '<', $start_time)->count();
+        $school_count_curr = \DB::table('school')->where('created_at', '<=', $end_time)->count();
+
+
         $start_date = Carbon::now()->subWeek()->startOfWeek()->toDateString();
         $end_date = Carbon::now()->subWeek()->endOfWeek()->toDateString();
 
         $max_id_date = Carbon::now()->subDays(10)->toDateString();
 ##########################################################################
 
+        $chat_info = [];
+
+        $start_date_2 = Carbon::now()->startOfWeek()->toDateString();
+        $res = \DB::table('statistic_schedule_tmp')
+            ->where('key', 'homework_chat_for_one')
+            ->where('created_date', $start_date_2)
+            ->get();
+        \Log::info('homework_chat_for_one');
+        foreach ( $res as $item){
+
+            $arr = json_decode( $item->value , true);
+
+            foreach ( $arr as $ii){
+                if ( $ii['id'] >=  $last_id){
+                    \Log::info($ii['id'].'  '.$ii['student_see'].'  '.$ii['see_total']);
+                    $chat_info[ $ii['id'] ] = [
+                        $ii['student_see'],$ii['see_total']
+                    ];
+                }
+            }
+        }
+
+        $res = \DB::table('statistic_schedule_tmp')
+            ->where('key', 'homework_chat_for_vanclass')
+            ->where('created_date', $start_date_2)
+            ->get();
+        \Log::info('homework_chat_for_vanclass');
+        foreach ( $res as $item){
+
+            $arr = json_decode( $item->value , true);
+
+            foreach ( $arr as $ii){
+                if ( $ii['id'] >=  $last_id) {
+                    \Log::info($ii['id'] . '  ' . $ii['student_see'] . '  ' . $ii['see_total']);
+                    $chat_info[$ii['id']] = [
+                        $ii['student_see'], $ii['see_total']
+                    ];
+                }
+            }
+        }
 ###################### max id
         $max_id_record = \DB::table('statistic_schedule_tmp')
             ->where('key', 'table_nearly_max_id')
@@ -65,6 +110,23 @@ class ExportZXZJWeekProduct extends BaseSchedule
                 'count_teacher' => $teacher_info_item['count_teacher'],
                 'key2' => $teacher_info_item['key2'],
                 'count' => $teacher_info_item['count'],
+            ];
+        }
+
+        $teacher_info_v2 = $this->getTeacherInfo_v2($start_time, $end_time);
+
+        $export_teacher[] = [];
+        $export_teacher[] = [];
+        $export_teacher[] = [];
+        $export_teacher[] = [];
+        $export_teacher[] = [
+            '类型' , '数量', '人数'
+        ];
+        foreach ($teacher_info_v2 as $teacher_info_v2_item ){
+            $export_teacher[] = [
+                $teacher_info_v2_item['exercise_type'],
+                $teacher_info_v2_item['count'],
+                $teacher_info_v2_item['count_teacher']
             ];
         }
 
@@ -107,16 +169,16 @@ class ExportZXZJWeekProduct extends BaseSchedule
             -> where('marketer_type', 'system_all' )
             -> first();
 
-        $start_school_info_ids = \DB::table('statistic_school_record')
-            ->selectRaw('school_id')
-            ->where('date_type', $start_date)
-            ->get()->pluck('school_id')->toArray();
-
-
-        $end_school_info_ids = \DB::table('statistic_school_record')
-            ->selectRaw('school_id')
-            ->where('date_type', $end_date)
-            ->get()->pluck('school_id')->toArray();
+//        $start_school_info_ids = \DB::table('statistic_school_record')
+//            ->selectRaw('school_id')
+//            ->where('date_type', $start_date)
+//            ->get()->pluck('school_id')->toArray();
+//
+//
+//        $end_school_info_ids = \DB::table('statistic_school_record')
+//            ->selectRaw('school_id')
+//            ->where('date_type', $end_date)
+//            ->get()->pluck('school_id')->toArray();
 
         $export_platform_data = [];
 
@@ -131,10 +193,9 @@ class ExportZXZJWeekProduct extends BaseSchedule
             '提分版学生',
             '仅试用学生',
 
-            '学校总数',
-            '新增学校',
-            '期间新创学校',
-            '期间删除学校',
+            '本周学校总数',
+            '上周学校总数',
+
         ];
 
         $export_platform_data[] = [
@@ -148,48 +209,46 @@ class ExportZXZJWeekProduct extends BaseSchedule
             $platform_data->vip_student,
             $platform_data->try_student,
 
-            count($end_school_info_ids).'',
-            (count($end_school_info_ids) - count($start_school_info_ids) ) .'',
-            count(array_diff( $end_school_info_ids, $start_school_info_ids)).'',
-            count(array_diff( $start_school_info_ids, $end_school_info_ids)).''
+            $school_count_curr,
+            $school_count_last
         ];
 
 
 
-        $export_student_NB_date = [];
-        $student_NB_info = $this->getStudentNBInfo();
+//        $export_student_NB_date = [];
+//        $student_NB_info = $this->getStudentNBInfo();
+//
+//        foreach ( $student_NB_info as $student_NB_item ){
+//            $keys = array_keys($student_NB_item);
+//            $value = array_values($student_NB_item);
+//            $export_student_NB_date[] = $keys;
+//            $export_student_NB_date[] = $value;
+//        }
 
-        foreach ( $student_NB_info as $student_NB_item ){
-            $keys = array_keys($student_NB_item);
-            $value = array_values($student_NB_item);
-            $export_student_NB_date[] = $keys;
-            $export_student_NB_date[] = $value;
-        }
 
-
-        $export_school_NB_data = [];
-        $school_NB_info = $this->getSchoolNBInfo();
-        $export_school_NB_data[] = [
-            '用户id',
-            '姓名',
-            '类型',
-            '学校id',
-            '学校',
-            '次数',
-            '最后下载'
-        ];
-
-        foreach ($school_NB_info as $school_NB_info_item ){
-            $export_school_NB_data[] = [
-                $school_NB_info_item['id'],
-                $school_NB_info_item['nickname'],
-                $school_NB_info_item['type_name'],
-                $school_NB_info_item['school_id'],
-                $school_NB_info_item['name'],
-                $school_NB_info_item['count'],
-                $school_NB_info_item['max_time']
-            ];
-        }
+//        $export_school_NB_data = [];
+//        $school_NB_info = $this->getSchoolNBInfo();
+//        $export_school_NB_data[] = [
+//            '用户id',
+//            '姓名',
+//            '类型',
+//            '学校id',
+//            '学校',
+//            '次数',
+//            '最后下载'
+//        ];
+//
+//        foreach ($school_NB_info as $school_NB_info_item ){
+//            $export_school_NB_data[] = [
+//                $school_NB_info_item['id'],
+//                $school_NB_info_item['nickname'],
+//                $school_NB_info_item['type_name'],
+//                $school_NB_info_item['school_id'],
+//                $school_NB_info_item['name'],
+//                $school_NB_info_item['count'],
+//                $school_NB_info_item['max_time']
+//            ];
+//        }
 
 
 
@@ -197,16 +256,19 @@ class ExportZXZJWeekProduct extends BaseSchedule
         $export_homework_chat_for_one_data = [];
 
         $export_homework_chat_for_one_data[] = [
-            'id','创建时间','作业id','老师id','学生已看人数','已看人数'
+            'id','创建时间','作业id','学生已看人数','已看人数'
         ];
         foreach ( $homework_chat_for_one as $homework_chat_for_one_item){
             $export_homework_chat_for_one_data[] = [
                 $homework_chat_for_one_item['id'],
                 $homework_chat_for_one_item['created_at'],
                 $homework_chat_for_one_item['homework_id'],
-                $homework_chat_for_one_item['teacher_id'],
-                $homework_chat_for_one_item['student_see'].'',
-                $homework_chat_for_one_item['see_total'].''
+//                $homework_chat_for_one_item['teacher_id'],
+//                $homework_chat_for_one_item['student_see'].'',
+//                $homework_chat_for_one_item['see_total'].'',
+                isset( $chat_info[$homework_chat_for_one_item['id']] ) ? $chat_info[$homework_chat_for_one_item['id']][0].'' : '/',
+                isset( $chat_info[$homework_chat_for_one_item['id']] ) ? $chat_info[$homework_chat_for_one_item['id']][1].'' : '/',
+
             ];
         }
 
@@ -227,8 +289,11 @@ class ExportZXZJWeekProduct extends BaseSchedule
                 $homework_chat_for_vanclass_item['student_count'].'',
                 $homework_chat_for_vanclass_item['teacher_id'],
                 $homework_chat_for_vanclass_item['teacher'],
-                $homework_chat_for_vanclass_item['student_see'].'',
-                $homework_chat_for_vanclass_item['total_see'].'',
+//                $homework_chat_for_vanclass_item['student_see'].'',
+//                $homework_chat_for_vanclass_item['total_see'].'',
+
+                isset( $chat_info[$homework_chat_for_vanclass_item['id']] ) ? $chat_info[$homework_chat_for_vanclass_item['id']][0].'' : '/',
+                isset( $chat_info[$homework_chat_for_vanclass_item['id']] ) ? $chat_info[$homework_chat_for_vanclass_item['id']][1].'' : '/',
             ];
         }
 
@@ -248,10 +313,12 @@ class ExportZXZJWeekProduct extends BaseSchedule
             '付费学生'=>$export_VIP_info,
             '分享记录'=>$export_share_info,
 
-            '学生年报_累计'=>$export_student_NB_date,
-            '学校年报_累计'=>$export_school_NB_data,
+//            '学生年报_累计'=>$export_student_NB_date,
+//            '学校年报_累计'=>$export_school_NB_data,
             '作业点评_个人'=>$export_homework_chat_for_one_data,
             '作业点评_班级'=>$export_homework_chat_for_vanclass_data,
+            '作业点评_个人上周'=>[],
+            '作业点评_班级上周'=>[],
         ]);
         dd('done....');
 
@@ -395,6 +462,7 @@ WHERE
 	`created_at` > '$start_time' 
 	AND `created_at` <= '$end_time' 
 	AND `deleted_at` IS NULL
+	AND `status`  = 1
 
 	UNION
 		
@@ -407,6 +475,7 @@ WHERE
 	`created_at` > '$start_time' 
 	AND `created_at` <= '$end_time' 
 	AND `deleted_at` IS NULL
+	AND `status`  = 1
 		
 	UNION	
 		
@@ -461,6 +530,33 @@ EOF;
         return json_decode(json_encode($info) , true);
     }
 
+
+    private function getTeacherInfo_v2($start_time, $end_time){
+        $sql = <<<EOF
+SELECT
+	exercise_type, CASE  exercise_type
+	WHEN 'activity' THEN
+	'打卡活动' 
+	WHEN 'exam' THEN
+	'试卷' 
+	WHEN 'homework_merge' THEN
+	'作业' 
+	WHEN 'qianci' THEN
+	'千词闯关' 
+	WHEN 'word' THEN
+	'单词本'
+END as `type`, COUNT(*) count, COUNT(DISTINCT teacher_id) count_teacher
+FROM
+	`b_vanthink_online`.`teacher_exercise_overview` 
+WHERE
+	`created_at` >= '$start_time' 
+	AND `created_at` <= '$end_time' 
+	GROUP BY exercise_type
+EOF;
+        $info  = \DB::select(\DB::raw($sql));
+        return json_decode(json_encode($info) , true);
+    }
+
     private function getShareInfo($start_time, $end_time){
         $sql = <<<EOF
 SELECT
@@ -499,6 +595,15 @@ WHEN 'homework_student_record' THEN
     '作业中口语H5分享'
 WHEN 'library_student_book_record' THEN
     '图书馆磨耳朵+口语分享'
+    WHEN 'parent_gift' THEN
+    '家长端赠送礼品后分享'
+    WHEN 'spread_share' THEN
+    '试卷H5分享'
+    
+    WHEN 'qianci_banner' THEN
+    '千词闯关banner分享'
+    WHEN 'qianci_finish_pass' THEN
+    '千词通关后分享'
 		
 WHEN 'recruit_student' THEN
     '千词超人'
