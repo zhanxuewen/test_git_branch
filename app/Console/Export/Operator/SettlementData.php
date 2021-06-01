@@ -123,6 +123,30 @@ EOF;
                 $school_accountant[$school_accountant_0_item->month][0]
                     = $school_accountant_0_item->fee;
             }
+
+            // 获取 上月的 轻课结算
+            // todo
+            $sql_2 = <<<EOF
+SELECT
+	school_id , (extra->'$.course_bonus_fee' + 0.00) as course_bonus
+FROM
+	`b_vanthink_online`.`statistic_school_record_monthly` 
+WHERE
+	`date_type` = 'M2021-05' 
+	AND extra->'$.course_bonus_fee' <> 0
+EOF;
+
+            $last_month_course_bonus = \DB::select(\DB::raw($sql_2));
+
+            foreach ( $last_month_course_bonus as $last_month_course_bonus_item ){
+
+                $school_accountant['2021-05'][$last_month_course_bonus_item->school_id] = $last_month_course_bonus_item->course_bonus;
+
+
+            }
+
+
+
         }
 
 
