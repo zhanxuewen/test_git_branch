@@ -36,11 +36,11 @@ class ExportBXGMonthReport extends BaseSchedule
         config(['database.default' => 'BXG_online']);
 
         $day_count = 31;
-        $date_type = 'M2021-01';
-        $start_time_str = '2021-01-01 00:00:00';
-        $end_time_str = '2021-01-31 23:59:59';
-        $start_date = '2021-01-01';
-        $end_date = '2021-01-31';
+        $date_type = 'M2021-05';
+        $start_time_str = '2021-05-01 00:00:00';
+        $end_time_str = '2021-05-31 23:59:59';
+        $start_date = '2021-05-01';
+        $end_date = '2021-05-31';
 
         $school_card_fee = $this->getSchoolCardFee($start_time_str,$end_time_str);
         $school_refund_card_fee = $this->getSchoolRefundCardFee($start_time_str,$end_time_str);
@@ -200,6 +200,15 @@ class ExportBXGMonthReport extends BaseSchedule
             105 => '初中化学同步进阶(月)',
             106 => '',
             107 => '',
+
+            108 => '会考-初中地理/生物/历史-体验卡',
+            109 => '',
+            110 => '',
+
+            111 => '初中化学同步(学期)',
+            112 => '',
+            113 => '',
+
         ];
         $rep[] = [
             1=>'',
@@ -311,6 +320,13 @@ class ExportBXGMonthReport extends BaseSchedule
             105 => '本月开卡量',
             106 => '结算价',
             107 => '学习人数',
+
+            108 => '本月开卡量',
+            109 => '结算价',
+            110 => '学习人数',
+            111 => '本月开卡量',
+            112 => '结算价',
+            113 => '学习人数',
         ];
 
         // 获得 学生练习 课程
@@ -601,6 +617,18 @@ class ExportBXGMonthReport extends BaseSchedule
                     ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][95]) ? $school_fee[$school_id][95] : $card_fee[95]),
                 107=>isset($school_card_use_true[95])?$school_card_use_true[95] : '0',
 
+
+                108=>isset($school_cards[$school_id][96]) ? $school_cards[$school_id][96]['count'] : '0',
+                109=>isset($school_cards[$school_id][96]) ? $school_cards[$school_id][96]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][96]) ? $school_fee[$school_id][96] : $card_fee[96]),
+                110=>isset($school_card_use_true[96])?$school_card_use_true[96] : '0',
+
+
+                111=>isset($school_cards[$school_id][97]) ? $school_cards[$school_id][97]['count'] : '0',
+                112=>isset($school_cards[$school_id][97]) ? $school_cards[$school_id][97]['fee'] :
+                    ( isset($school_fee[$school_id])&& isset($school_fee[$school_id][97]) ? $school_fee[$school_id][97] : $card_fee[97]),
+                113=>isset($school_card_use_true[97])?$school_card_use_true[97] : '0',
+
             ];
         }
 
@@ -679,6 +707,7 @@ EOF;
                                 ->selectRaw('prototype_id')
                                 ->where('id', $card_ids)
                                 ->first();
+                            if (empty($card_tmp)) continue;
                             $card = $card_tmp->prototype_id;
                             if (!isset($school_card_use_info[$school_id][$card])){
                                 $school_card_use_info[$school_id][$card] = [];
